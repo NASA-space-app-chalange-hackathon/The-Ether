@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useAppState, useT } from "@/lib/state/useAppState";
+import { DemoPlayer } from "./DemoPlayer";
 
 export function TopBar() {
   const t = useT();
@@ -18,7 +19,10 @@ export function TopBar() {
           <span className="text-lg font-semibold tracking-wide">{t("app.name")}</span>
         </Link>
         <span className="hidden text-sm text-muted sm:inline">{t("app.tagline")}</span>
-        <div role="group" aria-label={t("mode.label")} className="ml-auto flex rounded-full border border-line p-0.5 text-sm">
+        <div className="ml-auto">
+          <DemoPlayer />
+        </div>
+        <div role="group" aria-label={t("mode.label")} className="flex rounded-full border border-line p-0.5 text-sm">
           {(["space", "steppe"] as const).map((m) => (
             <button
               key={m}
@@ -30,7 +34,7 @@ export function TopBar() {
               className="flex min-h-10 items-center gap-1.5 rounded-full px-3 transition-colors aria-pressed:bg-accent aria-pressed:font-semibold aria-pressed:text-bg"
             >
               <span aria-hidden>{m === "space" ? "🚀" : "🐎"}</span>
-              {t(`mode.${m}`)}
+              <span className="sr-only sm:not-sr-only">{t(`mode.${m}`)}</span>
             </button>
           ))}
         </div>

@@ -4,6 +4,7 @@ import { AppProviders } from "@/components/ui/AppProviders";
 import { DisclaimerBar } from "@/components/ui/DisclaimerBar";
 import { MissionClock } from "@/components/ui/MissionClock";
 import { ModeShell } from "@/components/ui/ModeShell";
+import { SkipLink } from "@/components/ui/SkipLink";
 import { NavBar } from "@/components/ui/NavBar";
 import { TopBar } from "@/components/ui/TopBar";
 import { t } from "@/lib/i18n";
@@ -27,11 +28,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-full flex-col">
         <AppProviders>
           <ModeShell>
+            <SkipLink />
             <DisclaimerBar />
             <TopBar />
             <NavBar />
             <MissionClock />
-            <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">{children}</main>
+            <main id="content" tabIndex={-1} className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 outline-none">{children}</main>
           </ModeShell>
         </AppProviders>
       </body>

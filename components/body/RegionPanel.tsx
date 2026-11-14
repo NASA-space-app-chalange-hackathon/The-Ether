@@ -138,7 +138,7 @@ export function RegionPanel({ region, assessment, onClose }: { region: RegionId;
               <p className="text-sm text-muted">{a.whatChanged}</p>
               <ol className="space-y-1 text-sm">
                 {a.doNow.map((step) => (
-                  <li key={step.text} className="flex gap-2">
+                  <li key={step.text} className="flex flex-col items-start gap-1 sm:flex-row sm:gap-2">
                     <TierBadge tier={step.tier} />
                     <span>{step.text}</span>
                   </li>
