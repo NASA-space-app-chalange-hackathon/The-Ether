@@ -264,5 +264,18 @@
   "learn.steppeTitle": "Life far from a doctor",
   "learn.sameInSpace": "The same problems in space — NASA's 5 hazards",
   "panel.earth": "How life on the steppe affects it",
-  "source.demo": "Demo parameter — not clinically validated"
+  "source.demo": "Demo parameter — not clinically validated",
+  "demo.start": "Demo",
+  "demo.startLabel": "Play the 30-second demo story",
+  "demo.stop": "Stop demo",
+  "demo.s1": "Day 1 — The Ether learns each astronaut's own normal.",
+  "demo.s2": "Day 40 — ☀️ Solar storm: radiation spikes and shelter guidance appears.",
+  "demo.s3": "Day 70 — ORION-B reports feeling fine, but sleep and reaction time say otherwise: possible hidden fatigue → Crew Medical Officer.",
+  "demo.s4": "Day 95 — ORION-C's heart trend turns red → Earth. The Message to Ground shows the real signal delay.",
+  "demo.s5": "No wearable needed — a 30-second camera pulse check and a 1-minute reaction test.",
+  "demo.s6": "Same engine on Earth: a Mongolian herder far from the soum hospital.",
+  "demo.end": "The Ether — health that travels with you.",
+  "a11y.skip": "Skip to content",
+  "notFound.title": "Page not found",
+  "notFound.back": "Back to Mission Home"
 }
