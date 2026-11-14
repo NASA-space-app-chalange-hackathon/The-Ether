@@ -1,0 +1,14 @@
+{
+  "app.name": "The Ether",
+  "app.tagline": "Self-assessment health monitoring for astronauts",
+  "disclaimer": "Prototype for NASA Space Apps 2026. Not a medical device. Simulated crew data.",
+  "nav.home": "Mission Home",
+  "nav.body": "Body Map",
+  "nav.check": "Daily Check",
+  "nav.alerts": "Action Center",
+  "nav.trends": "Trends",
+  "nav.quests": "Quests",
+  "nav.crew": "Crew",
+  "nav.learn": "Learn",
+  "page.comingSoon": "Coming soon."
+}

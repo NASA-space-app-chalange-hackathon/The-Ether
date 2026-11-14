@@ -1,0 +1,14 @@
+{
+  "app.name": "The Ether",
+  "app.tagline": "Эрүүл мэндээ өөрөө үнэлэх хяналтын хэрэгсэл",
+  "disclaimer": "NASA Space Apps 2026-д зориулсан загвар. Эмнэлгийн хэрэгсэл биш. Загварчилсан өгөгдөл.",
+  "nav.home": "Нүүр",
+  "nav.body": "Биеийн зураг",
+  "nav.check": "Өдрийн шалгалт",
+  "nav.alerts": "Үйлдлийн төв",
+  "nav.trends": "Хандлага",
+  "nav.quests": "Даалгавар",
+  "nav.crew": "Баг",
+  "nav.learn": "Мэдлэг",
+  "page.comingSoon": "Удахгүй."
+}
