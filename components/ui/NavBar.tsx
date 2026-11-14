@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { t } from "@/lib/i18n";
+import { useT } from "@/lib/state/useAppState";
 import { ROUTES } from "./routes";
 
 export function NavBar() {
+  const t = useT();
   const pathname = usePathname();
 
   return (

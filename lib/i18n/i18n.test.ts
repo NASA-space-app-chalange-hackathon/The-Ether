@@ -16,3 +16,9 @@ describe("i18n", () => {
     expect(t("nav.home", "mn")).toBe(mn["nav.home"]);
   });
 });
+
+describe("t() params", () => {
+  it("fills {placeholders}", () => {
+    expect(t("clock.dayOf", "en", { day: 70, max: 180 })).toBe("Day 70 / 180");
+  });
+});
