@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "e2e": "playwright test",
-    "generate": "node scripts/generate-mission.mts"
+    "generate": "node scripts/generate-mission.mts",
+    "gates": "npm run typecheck && npm run lint && npm run test && npm run build && npm run e2e"
   },
   "dependencies": {
     "dexie": "4.4.7",
