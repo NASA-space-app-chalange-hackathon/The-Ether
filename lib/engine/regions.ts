@@ -1,3 +1,4 @@
+import type { RuleId } from "./escalation";
 import type { MemberAssessment } from "./evaluate";
 import { worstStatus } from "./persistence";
 import type { IndicatorId, Status } from "./types";
@@ -18,6 +19,19 @@ export const REGION_INDICATORS: Record<RegionId, readonly IndicatorId[]> = {
 };
 
 export const REGION_IDS = Object.keys(REGION_INDICATORS) as RegionId[];
+
+/** Alert rules whose actions belong to each region's panel. */
+export const REGION_RULES: Record<RegionId, readonly RuleId[]> = {
+  brain: ["behavioral-drift", "sleep", "vigilance", "mood", "teamwork"],
+  eyes: [],
+  heart: ["cardiovascular"],
+  lungs: ["hypoxia"],
+  bones: ["bone-loss"],
+  muscles: ["fitness", "nutrition"],
+  immune: ["fever"],
+  gut: ["glucose", "nutrition"],
+  radiation: ["radiation-event", "radiation-cumulative"],
+};
 
 /** Engine status for one body region, including composite and tracker signals. */
 export function regionStatus(a: MemberAssessment, region: RegionId): Status {
