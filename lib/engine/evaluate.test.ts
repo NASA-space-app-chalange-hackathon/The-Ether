@@ -46,6 +46,13 @@ describe("evaluateIndicator", () => {
     expect(evaluateIndicator("A", "glucose", [], 40).status).toBe("unknown");
   });
 
+  it("a user-entered reading replaces seeded data for that day", () => {
+    const seed = readingsFor("A", "spo2", 3, () => 97);
+    const manual = { ...seed[2], value: 88, source: "manual" as const };
+    expect(toDailySeries([...seed, manual], "spo2", 2).map((p) => p.value)).toEqual([97, 97, 88]);
+    expect(toDailySeries([manual, ...seed], "spo2", 2).map((p) => p.value)).toEqual([97, 97, 88]);
+  });
+
   it("averages multiple readings on the same day", () => {
     const rs = [...readingsFor("A", "heartRate", 1, () => 60), ...readingsFor("A", "heartRate", 1, () => 70)];
     expect(toDailySeries(rs, "heartRate", 0)).toEqual([{ day: 0, value: 65 }]);
