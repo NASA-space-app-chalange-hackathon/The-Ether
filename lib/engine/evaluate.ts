@@ -53,15 +53,21 @@ export interface EvaluateOptions {
   priorDose?: number;
 }
 
-/** Collapse readings to one value per day (mean), up to and including `uptoDay`. */
+/**
+ * Collapse readings to one value per day (mean), up to and including `uptoDay`.
+ * A reading the person entered (any source but "seed") replaces seeded data for that day.
+ */
 export function toDailySeries(readings: readonly Reading[], indicator: IndicatorId, uptoDay: number): DailyValue[] {
-  const sums = new Map<number, { sum: number; n: number }>();
+  const sums = new Map<number, { sum: number; n: number; user: boolean }>();
   for (const r of readings) {
     if (r.indicator !== indicator || r.day > uptoDay || !Number.isFinite(r.value)) continue;
-    const acc = sums.get(r.day) ?? { sum: 0, n: 0 };
-    acc.sum += r.value;
-    acc.n += 1;
-    sums.set(r.day, acc);
+    const user = r.source !== "seed";
+    const acc = sums.get(r.day);
+    if (!acc || (user && !acc.user)) sums.set(r.day, { sum: r.value, n: 1, user });
+    else if (user === acc.user) {
+      acc.sum += r.value;
+      acc.n += 1;
+    }
   }
   return [...sums.entries()].map(([day, { sum, n }]) => ({ day, value: sum / n })).sort((a, b) => a.day - b.day);
 }
