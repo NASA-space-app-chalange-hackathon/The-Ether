@@ -25,7 +25,7 @@ export function TierBadge({ tier }: { tier: Tier }) {
   const { mode } = useAppState();
   const tone = tier === "EARTH" ? "border-accent/60 text-accent" : tier === "CMO" ? "border-amber/50 text-amber" : "border-line text-fg";
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-semibold ${tone}`}>
+    <span className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md border px-2 py-0.5 text-xs font-semibold ${tone}`}>
       <span aria-hidden>{TIER_ICON[tier]}</span>
       {t(`tier.${mode}.${tier}` as MessageKey)}
     </span>
