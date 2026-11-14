@@ -8,6 +8,19 @@ export interface MetaEntry {
   value: string;
 }
 
+/** A message queued to the ground (flight surgeon / soum hospital). Stored locally only. */
+export interface GroundMessage {
+  id?: number;
+  memberId: string;
+  alertId: string;
+  missionDay: number;
+  body: string;
+  /** Wall-clock ms when sent. */
+  sentAt: number;
+  /** Wall-clock ms when it reaches Earth (sentAt + one-way delay). */
+  arrivesAt: number;
+}
+
 export type EtherDB = Dexie & {
   members: EntityTable<DatasetMember, "id">;
   readings: EntityTable<Reading, "id">;
@@ -15,6 +28,7 @@ export type EtherDB = Dexie & {
   baselines: Table<Baseline, [string, IndicatorId]>;
   alerts: EntityTable<Alert, "id">;
   meta: EntityTable<MetaEntry, "key">;
+  messages: EntityTable<GroundMessage, "id">;
 };
 
 let instance: EtherDB | null = null;
@@ -37,6 +51,7 @@ export function getDB(): EtherDB {
     alerts: "id, memberId, day, tier, severity",
     meta: "key",
   });
+  db.version(2).stores({ messages: "++id, memberId, alertId, sentAt" });
   instance = db;
   return db;
 }

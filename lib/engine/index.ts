@@ -14,3 +14,4 @@ export * from "./evaluate";
 export * from "./regions";
 export * from "./signal";
 export * from "./quests";
+export * from "./message";
