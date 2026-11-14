@@ -4,9 +4,11 @@ import { Avatar } from "@/components/ui/Avatar";
 import { useAssessment, useMission } from "@/lib/state/DataProvider";
 import { useAppState, useT } from "@/lib/state/useAppState";
 import type { DatasetMember } from "@/lib/data/dataset";
+import { useLabels } from "@/lib/state/useLabels";
 
 function MemberButton({ member, selected, onSelect }: { member: DatasetMember; selected: boolean; onSelect: () => void }) {
   const a = useAssessment(member.id);
+  const labels = useLabels();
   return (
     <button
       type="button"
@@ -18,8 +20,8 @@ function MemberButton({ member, selected, onSelect }: { member: DatasetMember; s
     >
       <Avatar shape={member.avatar} status={a?.overall} size={28} />
       <span className="leading-tight">
-        <span className="block font-mono text-sm font-semibold">{member.name}</span>
-        <span className="block text-xs text-muted">{member.role}</span>
+        <span className="block font-mono text-sm font-semibold">{labels.memberName(member)}</span>
+        <span className="block text-xs text-muted">{labels.memberRole(member)}</span>
       </span>
     </button>
   );

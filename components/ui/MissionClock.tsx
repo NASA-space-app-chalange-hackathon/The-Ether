@@ -5,12 +5,14 @@ import { formatDelay, signalDelay } from "@/lib/engine/signal";
 import { useMission } from "@/lib/state/DataProvider";
 import { getSnapshot } from "@/lib/state/store";
 import { useAppState, useT } from "@/lib/state/useAppState";
+import { useLabels } from "@/lib/state/useLabels";
 
 const PLAY_INTERVAL_MS = 140;
 
 /** The hero control: scrub the whole UI through the mission, day 0 → end. */
 export function MissionClock() {
   const t = useT();
+  const labels = useLabels();
   const { day, setDay, mode, environment } = useAppState();
   const { status, events, maxDay } = useMission();
   const [playing, setPlaying] = useState(false);
@@ -74,8 +76,8 @@ export function MissionClock() {
                 <button
                   type="button"
                   onClick={() => setDay(e.day)}
-                  title={`${t("clock.dayOf", { day: e.day, max: maxDay })} — ${e.label}`}
-                  aria-label={t("clock.jump", { day: e.day, label: e.label })}
+                  title={`${t("clock.dayOf", { day: e.day, max: maxDay })} — ${labels.event(e)}`}
+                  aria-label={t("clock.jump", { day: e.day, label: labels.event(e) })}
                   className={`grid h-5 w-6 place-items-center rounded text-sm leading-none transition-transform hover:scale-125 focus-visible:outline-2 focus-visible:outline-accent ${
                     current >= e.day ? "opacity-100" : "opacity-50"
                   }`}

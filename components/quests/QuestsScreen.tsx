@@ -9,6 +9,7 @@ import type { MessageKey } from "@/lib/i18n";
 import { useAssessment, useData, useMission } from "@/lib/state/DataProvider";
 import { usePersistentSet } from "@/lib/state/persistentSets";
 import { useAppState, useT } from "@/lib/state/useAppState";
+import { useLabels } from "@/lib/state/useLabels";
 
 const REWARD_PCT = 0.8;
 
@@ -36,6 +37,7 @@ function Burst({ xp }: { xp: number }) {
 
 export function QuestsScreen() {
   const t = useT();
+  const labels = useLabels();
   const { memberId, day, mode } = useAppState();
   const { members, maxDay } = useMission();
   const { readings } = useData();
@@ -144,7 +146,7 @@ export function QuestsScreen() {
                   return (
                     <li key={m.id} className="flex items-center gap-2 text-sm">
                       <Avatar shape={m.avatar} size={20} />
-                      <span className="w-20 font-mono text-xs">{m.name}</span>
+                      <span className="w-20 font-mono text-xs">{labels.memberName(m)}</span>
                       <span className="h-2 flex-1 overflow-hidden rounded-full bg-line">
                         <span className="block h-full bg-accent" style={{ width: `${(n / max) * 100}%` }} />
                       </span>

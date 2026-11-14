@@ -7,6 +7,7 @@ import { INDICATORS, INDICATOR_IDS } from "@/lib/engine/indicators";
 import type { IndicatorId } from "@/lib/engine/types";
 import { useAssessment, useMission } from "@/lib/state/DataProvider";
 import { useAppState, useT } from "@/lib/state/useAppState";
+import { useLabels } from "@/lib/state/useLabels";
 import { TrendChart } from "./TrendChart";
 
 const DEFAULT_SELECTION: IndicatorId[] = ["heartRate", "systolicBP", "sleepHours", "pvtMeanRT"];
@@ -15,6 +16,7 @@ type Range = (typeof RANGES)[number];
 
 export function TrendsScreen() {
   const t = useT();
+  const labels = useLabels();
   const { day } = useAppState();
   const { events, maxDay } = useMission();
   const a = useAssessment();
@@ -54,7 +56,7 @@ export function TrendsScreen() {
           <label key={id} className={`flex min-h-10 cursor-pointer items-center gap-2 rounded-full border px-3 text-sm ${selection.includes(id) ? "border-accent bg-accent/10" : "border-line text-muted"}`}>
             <input type="checkbox" className="sr-only" checked={selection.includes(id)} onChange={() => toggle(id)} />
             <span aria-hidden>{selection.includes(id) ? "●" : "○"}</span>
-            {INDICATORS[id].label}
+            {labels.indicator(id)}
           </label>
         ))}
       </fieldset>
@@ -69,7 +71,7 @@ export function TrendsScreen() {
             return (
               <section key={id} className="space-y-2 rounded-xl border border-line bg-panel p-4">
                 <header className="flex flex-wrap items-center gap-2">
-                  <h2 className="font-semibold">{meta.label}</h2>
+                  <h2 className="font-semibold">{labels.indicator(id)}</h2>
                   <span className="text-xs text-muted">{meta.unit}</span>
                   <span className="ml-auto"><StatusBadge status={st.status} /></span>
                 </header>

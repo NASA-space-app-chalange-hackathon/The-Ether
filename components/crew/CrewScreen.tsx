@@ -11,12 +11,14 @@ import type { Tier } from "@/lib/engine/types";
 import type { MessageKey } from "@/lib/i18n";
 import { useAssessment, useData, useMission } from "@/lib/state/DataProvider";
 import { useAppState, useT } from "@/lib/state/useAppState";
+import { useLabels } from "@/lib/state/useLabels";
 
 type Viewer = "crew" | "cmo";
 
 function MemberCard({ member, viewer }: { member: DatasetMember; viewer: Viewer }) {
   const t = useT();
   const a = useAssessment(member.id);
+  const labels = useLabels();
   if (!a) return null;
   const regions = allRegionStatuses(a);
   const details = viewer === "cmo" || member.sharesDetails;
@@ -26,8 +28,8 @@ function MemberCard({ member, viewer }: { member: DatasetMember; viewer: Viewer 
       <header className="flex items-center gap-3">
         <Avatar shape={member.avatar} status={a.overall} size={40} />
         <div className="flex-1">
-          <p className="font-mono font-semibold">{member.name}</p>
-          <p className="text-xs text-muted">{member.role}</p>
+          <p className="font-mono font-semibold">{labels.memberName(member)}</p>
+          <p className="text-xs text-muted">{labels.memberRole(member)}</p>
         </div>
         <StatusBadge status={a.overall} size="lg" />
       </header>

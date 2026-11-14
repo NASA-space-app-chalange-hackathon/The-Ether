@@ -6,6 +6,7 @@ import { INDICATORS } from "@/lib/engine/indicators";
 import type { Alert } from "@/lib/engine/types";
 import { useChecklist } from "@/lib/state/checklist";
 import { useT } from "@/lib/state/useAppState";
+import { useLabels } from "@/lib/state/useLabels";
 import { MessageToGround } from "./MessageToGround";
 import { TierLadder } from "./TierLadder";
 
@@ -23,6 +24,7 @@ function Block({ n, title, children }: { n: number; title: string; children: Rea
 
 function Evidence({ alert }: { alert: Alert }) {
   const t = useT();
+  const labels = useLabels();
   if (alert.evidence.length === 0) return null;
   return (
     <table className="w-full text-left text-sm" aria-label={t("alerts.evidence")}>
@@ -40,7 +42,7 @@ function Evidence({ alert }: { alert: Alert }) {
           const change = m.changeAs === "absolute" ? (e.value - e.baseline).toFixed(1) : `${e.percentChange > 0 ? "+" : ""}${e.percentChange.toFixed(0)}%`;
           return (
             <tr key={e.indicator} className="border-t border-line">
-              <td className="py-1 font-sans">{m.label}</td>
+              <td className="py-1 font-sans">{labels.indicator(e.indicator)}</td>
               <td className="py-1 text-right">{e.value.toFixed(m.decimals)} {m.unit}</td>
               <td className="py-1 text-right text-muted">{e.baseline.toFixed(m.decimals)}</td>
               <td className="py-1 text-right">{change}</td>

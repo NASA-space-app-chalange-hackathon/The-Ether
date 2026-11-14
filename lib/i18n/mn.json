@@ -233,5 +233,21 @@
   "crew.alerts": "Түвшингээр сэрэмжлүүлэг",
   "crew.cohesion": "Багийн эв нэгдэл (7 хоногийн дундаж)",
   "crew.cohesionText": "Дундаж {avg}/5, ердийн {base}/5",
-  "crew.noAlerts": "Сэрэмжлүүлэг алга"
+  "crew.noAlerts": "Сэрэмжлүүлэг алга",
+  "ind.heartRate": "Тайван үеийн зүрхний цохилт",
+  "ind.hrv": "Зүрхний цохилтын хэлбэлзэл (RMSSD)",
+  "ind.systolicBP": "Систолын даралт",
+  "ind.diastolicBP": "Диастолын даралт",
+  "ind.glucose": "Цусны сахар",
+  "ind.temperature": "Биеийн температур",
+  "ind.spo2": "Цусны хүчилтөрөгч (SpO₂)",
+  "ind.bodyMass": "Биеийн жин",
+  "ind.sleepHours": "Нойрны хугацаа",
+  "ind.sleepQuality": "Нойрны чанар",
+  "ind.mood": "Сэтгэл санаа (өөрийн үнэлгээ)",
+  "ind.crewPulse": "Гэр бүлийн уур амьсгал",
+  "ind.pvtMeanRT": "Хариу үйлдлийн хурд (PVT)",
+  "ind.pvtLapses": "Анхаарлын тасалдал (PVT)",
+  "ind.exerciseMinutes": "Дасгал",
+  "ind.radiationDose": "Цацрагийн тун (өдрийн)"
 }

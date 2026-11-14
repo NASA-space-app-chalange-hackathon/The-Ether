@@ -13,6 +13,7 @@ import type { IndicatorId, Source } from "@/lib/engine/types";
 import type { MessageKey } from "@/lib/i18n";
 import { useMission } from "@/lib/state/DataProvider";
 import { useT } from "@/lib/state/useAppState";
+import { useLabels } from "@/lib/state/useLabels";
 
 function SourceLinks({ sources }: { sources: readonly Source[] }) {
   return (
@@ -43,6 +44,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export function RegionPanel({ region, assessment, onClose }: { region: RegionId; assessment: MemberAssessment; onClose: () => void }) {
   const t = useT();
+  const labels = useLabels();
   const { events } = useMission();
   const content = REGION_CONTENT[region];
   const status = regionStatus(assessment, region);
@@ -102,7 +104,7 @@ export function RegionPanel({ region, assessment, onClose }: { region: RegionId;
                     className="flex min-h-11 w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-panel-2 aria-pressed:bg-panel-2"
                   >
                     <span aria-hidden className={`w-4 text-center ${s.text}`}>{s.icon}</span>
-                    <span className="flex-1">{meta.label}</span>
+                    <span className="flex-1">{labels.indicator(id)}</span>
                     <span className="font-mono tabular-nums">
                       {st.latest!.value.toFixed(meta.decimals)} {meta.unit}
                     </span>
@@ -122,7 +124,7 @@ export function RegionPanel({ region, assessment, onClose }: { region: RegionId;
       )}
 
       {chartIndicator && (
-        <Section title={`${t("panel.trend")} · ${INDICATORS[chartIndicator].label}`}>
+        <Section title={`${t("panel.trend")} · ${labels.indicator(chartIndicator)}`}>
           <TrendChart
             indicator={chartIndicator}
             series={assessment.indicators[chartIndicator].series}

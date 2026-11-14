@@ -6,6 +6,7 @@ import type { DatasetMember, MissionDataset } from "@/lib/data/dataset";
 import { getDB } from "@/lib/db/schema";
 import { ensureSeeded } from "@/lib/db/seed";
 import { evaluateMember, type MemberAssessment } from "@/lib/engine/evaluate";
+import { localizeAlert } from "@/lib/i18n/alerts";
 import type { Reading } from "@/lib/engine/types";
 import { useAppState } from "./useAppState";
 
@@ -81,8 +82,13 @@ export function useAssessment(memberId?: string, dayOverride?: number): MemberAs
   const day = Math.min(dayOverride ?? app.day, maxDay);
   const member = dataset?.members.find((m) => m.id === id);
   const mine = useMemo(() => readings.filter((r) => r.memberId === id), [readings, id]);
-  return useMemo(
+  const assessment = useMemo(
     () => (member ? evaluateMember(id, mine, day, { priorDose: member.priorDose }) : null),
     [member, id, mine, day],
+  );
+  const { locale } = app;
+  return useMemo(
+    () => (assessment && locale !== "en" ? { ...assessment, alerts: assessment.alerts.map((a) => localizeAlert(a, locale)) } : assessment),
+    [assessment, locale],
   );
 }
