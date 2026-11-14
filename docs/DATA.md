@@ -91,3 +91,14 @@ Defined in `lib/engine/thresholds.ts`:
 | Temperature | ≥ 38.0 °C | ≥ 39.0 °C | CDC (38.0); 39.0 is a demo parameter |
 | Resting HR | > 100 or < 40 bpm | — | Demo parameter |
 | Sleep | < 4 h | — | Demo parameter |
+
+## Other model assumptions (all demo parameters)
+
+| Model | Assumption |
+| --- | --- |
+| Signal delay | Circular, coplanar orbits (Earth 1 AU / 365.25 d, Mars 1.524 AU / 687 d). In transit, the spacecraft spirals from Earth (day 0) to Mars (day 180), sweeping 120° of heliocentric angle. One-way delay = distance / c. Moon 384,400 km; ISS shown as "< 1 s". Sanity-checked against NASA's "up to 20 minutes one-way" on Mars. Labelled "approx." in the UI. |
+| Missed exercise | Alert when 14-day adherence (minutes / 120, capped at 1; a missing log counts as 0) falls below 60%. |
+| Quests | Routine quests verified from data: check-in (any reading that day), exercise ≥ 90 min, sleep ≥ 7 h, crew pulse ≥ 4. XP values and 1,000 XP per level are game-design parameters. Crew goal = share of routine quests done by the whole crew in the last 7 days; reward line at 80%. |
+| Camera heart rate | Forehead ROI, 30 fps resample, 0.7–3.5 Hz band-pass, FFT peak. Quality = in-band power share at the peak (± 0.1 Hz) and its harmonic; below 0.3 the app asks for a manual pulse. Unit-tested on synthetic signals only; real-face accuracy must be checked by a person (target ± 10 bpm vs. a manual count). |
+| PVT-lite | 60 s, random 2–10 s gaps; responses < 100 ms = false start; no response by 3 s = lapse; ≥ 3 valid trials needed to save. A 15 s demo run (1–3.5 s gaps) is offered and labelled. |
+| Steppe care card | The herder household, its 38 km distance to the soum hospital and the ~1 h 30 min travel time are fictional and labelled as illustrative. |
