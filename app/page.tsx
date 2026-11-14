@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/components/ui/PlaceholderPage";
+import { HomeScreen } from "@/components/home/HomeScreen";
 
 export default function HomePage() {
-  return <PlaceholderPage titleKey="nav.home" />;
+  return <HomeScreen />;
 }
