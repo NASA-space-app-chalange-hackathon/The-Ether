@@ -12,3 +12,4 @@ export * from "./zscore";
 export * from "./escalation";
 export * from "./evaluate";
 export * from "./regions";
+export * from "./signal";

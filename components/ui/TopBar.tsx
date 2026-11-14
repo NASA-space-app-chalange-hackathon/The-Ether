@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
-import { t } from "@/lib/i18n";
+import { useT } from "@/lib/state/useAppState";
 
 export function TopBar() {
+  const t = useT();
   return (
     <header className="border-b border-line bg-panel">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4">
