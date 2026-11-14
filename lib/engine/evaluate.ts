@@ -189,7 +189,12 @@ function evidenceFor(state: IndicatorState, uptoDay: number, windowed = false): 
 }
 
 function describe(e: AlertEvidence): string {
-  const label = INDICATORS[e.indicator].label;
+  const meta = INDICATORS[e.indicator];
+  const label = meta.label;
+  if (meta.changeAs === "absolute") {
+    const fmt = (v: number) => v.toFixed(v < 10 && Math.abs(v - Math.round(v)) > 0.05 ? 1 : 0);
+    return `${label} ${fmt(e.value)} vs. your normal ${fmt(e.baseline)}`;
+  }
   const pct = Math.round(e.percentChange);
   const sign = pct > 0 ? "+" : pct < 0 ? "−" : "±";
   return `${label} ${sign}${Math.abs(pct)}% vs. your normal`;
