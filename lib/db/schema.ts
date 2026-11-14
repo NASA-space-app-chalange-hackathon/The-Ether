@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable, type Table } from "dexie";
-import type { Alert, Baseline, CrewMember, IndicatorId, Reading } from "@/lib/engine/types";
+import type { DatasetMember } from "@/lib/data/dataset";
+import type { Alert, Baseline, IndicatorId, Reading } from "@/lib/engine/types";
 
 /** Key/value store for app-level state (seed version, mode, settings). */
 export interface MetaEntry {
@@ -8,7 +9,7 @@ export interface MetaEntry {
 }
 
 export type EtherDB = Dexie & {
-  members: EntityTable<CrewMember, "id">;
+  members: EntityTable<DatasetMember, "id">;
   readings: EntityTable<Reading, "id">;
   /** Compound primary key: [memberId, indicator]. */
   baselines: Table<Baseline, [string, IndicatorId]>;
@@ -31,7 +32,7 @@ export function getDB(): EtherDB {
   const db = new Dexie("the-ether") as EtherDB;
   db.version(1).stores({
     members: "id",
-    readings: "++id, memberId, indicator, day, [memberId+indicator], [memberId+day]",
+    readings: "++id, memberId, indicator, day, source, [memberId+indicator], [memberId+day]",
     baselines: "[memberId+indicator], memberId",
     alerts: "id, memberId, day, tier, severity",
     meta: "key",

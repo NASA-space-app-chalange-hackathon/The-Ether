@@ -51,6 +51,12 @@ export const SOURCES = {
     url: "https://www.asc-csa.gc.ca/eng/iss/science/why-do-we-conduct-science-experiments-in-space.asp",
     note: "Effects observed in astronauts are similar to accelerated aging and a sedentary lifestyle.",
   },
+  swriRad: {
+    id: "swriRad",
+    title: "SwRI — Radiation exposure associated with a trip to Mars (MSL RAD; Zeitlin et al., Science 2013;340:1080)",
+    url: "https://www.swri.org/press-release/swri-led-team-calculates-radiation-exposure-associated-trip-mars",
+    note: "Average galactic cosmic ray dose equivalent rate of about 1.8 mSv per day in cruise.",
+  },
   nasaRadiationLimit: {
     id: "nasaRadiationLimit",
     title: "NASA OCHMO Technical Brief — Radiation Protection (NASA-STD-3001)",

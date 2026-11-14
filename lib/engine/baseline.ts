@@ -1,5 +1,5 @@
 import { INDICATORS } from "./indicators";
-import { MAD_TO_SD, MEAN_ABS_DEV_TO_SD, mad, median } from "./stats";
+import { MAD_TO_SD, TRIMMED_ABS_DEV_TO_SD, mad, median } from "./stats";
 import type { Baseline, IndicatorId } from "./types";
 
 /** One value per mission day. */
@@ -14,6 +14,8 @@ export const BASELINE_DAYS = 14;
 export const MIN_BASELINE_POINTS = 5;
 /** Slow EWMA so a drift can't quietly become the "new normal". */
 export const EWMA_ALPHA = 0.05;
+/** Only readings within ±1.5 SD of the baseline update it (symmetric trim, no bias). */
+export const UPDATE_GATE_Z = 1.5;
 
 /**
  * Robust baseline from the first BASELINE_DAYS: median + MAD×1.4826.
@@ -42,9 +44,10 @@ export function buildBaseline(
 }
 
 /**
- * EWMA update of centre and spread. While `freeze` is true (the indicator is in
- * an alert state) the baseline is returned unchanged except for the flag, so an
- * abnormal run can never pull the baseline toward itself.
+ * EWMA update of centre and spread, gated: only readings within ±UPDATE_GATE_Z
+ * spreads update the baseline, so a slow drift can't pull it along. While
+ * `freeze` is true (the indicator is in an alert state) nothing changes except
+ * the flag. The spread uses the trimmed-deviation scale factor to stay unbiased.
  */
 export function updateBaseline(
   baseline: Baseline,
@@ -53,8 +56,10 @@ export function updateBaseline(
   alpha: number = EWMA_ALPHA,
 ): Baseline {
   if (freeze) return { ...baseline, frozen: true };
-  const center = baseline.center + alpha * (point.value - baseline.center);
-  const absDevAsSd = Math.abs(point.value - baseline.center) * MEAN_ABS_DEV_TO_SD;
+  const deviation = point.value - baseline.center;
+  if (Math.abs(deviation) > UPDATE_GATE_Z * baseline.spread) return { ...baseline, frozen: false };
+  const center = baseline.center + alpha * deviation;
+  const absDevAsSd = Math.abs(deviation) * TRIMMED_ABS_DEV_TO_SD;
   const spread = Math.max(
     baseline.spread + alpha * (absDevAsSd - baseline.spread),
     INDICATORS[baseline.indicator].minSpread,
