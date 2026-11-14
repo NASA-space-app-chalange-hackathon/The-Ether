@@ -124,5 +124,14 @@
   "ground.arrivesIn": "Arrives at Earth in",
   "ground.arrived": "Delivered — awaiting reply",
   "ground.local": "Stored on this device only (prototype — nothing is transmitted).",
-  "ground.label": "Summary for the flight surgeon"
+  "ground.label": "Summary for the flight surgeon",
+  "trends.intro": "Each line is compared with this person's own normal — the shaded band is their baseline ± 2 SD.",
+  "trends.indicators": "Indicators",
+  "trends.range": "Range",
+  "trends.days": "{n} days",
+  "trends.all": "Whole mission",
+  "trends.empty": "Pick at least one indicator.",
+  "trends.noData": "No readings in this range.",
+  "trends.latest": "Latest {value} · normal {normal}",
+  "trends.legend": "Line = daily value · band = personal normal (±2 SD) · dashed = mission event · blue = today"
 }
