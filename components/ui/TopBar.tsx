@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useT } from "@/lib/state/useAppState";
+import { useAppState, useT } from "@/lib/state/useAppState";
 
 export function TopBar() {
   const t = useT();
+  const { mode, setMode } = useAppState();
+  const next = mode === "space" ? "steppe" : "space";
   return (
     <header className="border-b border-line bg-panel">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4">
@@ -16,6 +18,22 @@ export function TopBar() {
           <span className="text-lg font-semibold tracking-wide">{t("app.name")}</span>
         </Link>
         <span className="hidden text-sm text-muted sm:inline">{t("app.tagline")}</span>
+        <div role="group" aria-label={t("mode.label")} className="ml-auto flex rounded-full border border-line p-0.5 text-sm">
+          {(["space", "steppe"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              aria-pressed={mode === m}
+              onClick={() => setMode(m)}
+              title={m === next ? t("mode.switchTo", { mode: t(`mode.${m}`) }) : undefined}
+              data-testid={`mode-${m}`}
+              className="flex min-h-10 items-center gap-1.5 rounded-full px-3 transition-colors aria-pressed:bg-accent aria-pressed:font-semibold aria-pressed:text-bg"
+            >
+              <span aria-hidden>{m === "space" ? "🚀" : "🐎"}</span>
+              {t(`mode.${m}`)}
+            </button>
+          ))}
+        </div>
       </div>
     </header>
   );

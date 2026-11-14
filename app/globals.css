@@ -28,3 +28,14 @@ body {
   color: var(--color-fg);
   font-family: var(--font-sans);
 }
+
+/* Steppe mode: golden-hour steppe palette (same status colors). */
+[data-mode="steppe"] {
+  --color-bg: #140f09;
+  --color-panel: #1f170e;
+  --color-panel-2: #2a1f13;
+  --color-line: #3d2e1c;
+  --color-fg: #f4ead8;
+  --color-muted: #b9a585;
+  --color-accent: #f5b942;
+}

@@ -8,7 +8,7 @@ import { STATUS_STYLE } from "@/components/ui/status";
 import { allRegionStatuses, REGION_IDS, type RegionId } from "@/lib/engine/regions";
 import type { MessageKey } from "@/lib/i18n";
 import { useAssessment } from "@/lib/state/DataProvider";
-import { useT } from "@/lib/state/useAppState";
+import { useAppState, useT } from "@/lib/state/useAppState";
 import { BodyFigure, type BodySide } from "./BodyFigure";
 import { RegionPanel } from "./RegionPanel";
 
@@ -20,6 +20,7 @@ function isRegion(v: string | null): v is RegionId {
 
 export function BodyScreen() {
   const t = useT();
+  const { mode } = useAppState();
   const params = useSearchParams();
   const initial = params.get("region");
   const [selected, setSelected] = useState<RegionId | null>(isRegion(initial) ? initial : null);
@@ -58,13 +59,13 @@ export function BodyScreen() {
                   </button>
                 ))}
               </div>
-              <label className="ml-auto flex min-h-10 cursor-pointer items-center gap-2 text-sm">
+              {mode === "space" && <label className="ml-auto flex min-h-10 cursor-pointer items-center gap-2 text-sm">
                 <input type="checkbox" checked={radiation} onChange={(e) => setRadiation(e.target.checked)} className="h-5 w-5 accent-accent" />
                 ☢ {t("body.radiationOverlay")}
-              </label>
+              </label>}
             </div>
             <div className="mx-auto h-[480px] max-w-xs">
-              <BodyFigure side={side} statuses={statuses} selected={selected} onSelect={select} radiationOverlay={radiation} />
+              <BodyFigure side={side} statuses={statuses} selected={selected} onSelect={select} radiationOverlay={radiation && mode === "space"} />
             </div>
             <ul aria-label={t("body.systems")} className="grid grid-cols-2 gap-1 sm:grid-cols-3">
               {REGION_IDS.map((id) => {

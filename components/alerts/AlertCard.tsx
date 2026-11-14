@@ -1,6 +1,7 @@
 "use client";
 
 import { StatusBadge, TierBadge } from "@/components/ui/Badges";
+import { SourceList } from "@/components/ui/SourceList";
 import { STATUS_STYLE } from "@/components/ui/status";
 import { INDICATORS } from "@/lib/engine/indicators";
 import type { Alert } from "@/lib/engine/types";
@@ -95,17 +96,7 @@ export function AlertCard({ alert, memberName }: { alert: Alert; memberName: str
         <Block n={4} title={t("alerts.who")}>
           <TierLadder tier={alert.tier} />
           <h5 className="pt-2 text-xs uppercase tracking-widest text-muted">{t("alerts.sources")}</h5>
-          <ul className="space-y-1 text-sm">
-            {alert.sources.map((s) => (
-              <li key={s.id}>
-                {s.url ? (
-                  <a href={s.url} target="_blank" rel="noreferrer" className="text-accent hover:underline">{s.title} ↗</a>
-                ) : (
-                  <span className="italic text-muted">{s.title}</span>
-                )}
-              </li>
-            ))}
-          </ul>
+          <SourceList sources={alert.sources} />
         </Block>
       </div>
 

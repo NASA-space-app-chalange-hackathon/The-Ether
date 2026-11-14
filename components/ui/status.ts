@@ -9,3 +9,5 @@ export const STATUS_STYLE: Record<Status, { icon: string; text: string; bg: stri
 };
 
 export const TIER_ICON: Record<Tier, string> = { SELF: "👤", CMO: "⚕", EARTH: "🌍" };
+/** Steppe ladder: self → family doctor → soum hospital / 103. */
+export const TIER_ICON_STEPPE: Record<Tier, string> = { SELF: "👤", CMO: "🩺", EARTH: "🏥" };

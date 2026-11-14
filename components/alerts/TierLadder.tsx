@@ -3,7 +3,7 @@
 import type { Tier } from "@/lib/engine/types";
 import type { MessageKey } from "@/lib/i18n";
 import { useAppState, useT } from "@/lib/state/useAppState";
-import { TIER_ICON } from "@/components/ui/status";
+import { TIER_ICON, TIER_ICON_STEPPE } from "@/components/ui/status";
 
 const TIERS: Tier[] = ["SELF", "CMO", "EARTH"];
 
@@ -23,7 +23,7 @@ export function TierLadder({ tier }: { tier: Tier }) {
               rung === tier ? "border-accent bg-accent/15 text-accent" : i < level ? "border-line text-fg" : "border-line/50 text-muted/60"
             }`}
           >
-            <span aria-hidden>{TIER_ICON[rung]}</span>
+            <span aria-hidden>{(mode === "steppe" ? TIER_ICON_STEPPE : TIER_ICON)[rung]}</span>
             {t(`tier.${mode}.${rung}` as MessageKey)}
           </span>
         </li>

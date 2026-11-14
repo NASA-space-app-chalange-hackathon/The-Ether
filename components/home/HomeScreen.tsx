@@ -8,12 +8,14 @@ import { dailyQuests } from "@/lib/engine/quests";
 import { allRegionStatuses } from "@/lib/engine/regions";
 import { formatDelay, signalDelay } from "@/lib/engine/signal";
 import type { MessageKey } from "@/lib/i18n";
+import { formatDate } from "@/lib/i18n/date";
 import { useAssessment, useMission } from "@/lib/state/DataProvider";
 import { useAppState, useT } from "@/lib/state/useAppState";
 import { useLabels } from "@/lib/state/useLabels";
 import { CrewSwitcher } from "./CrewSwitcher";
 import { EnvironmentSelector } from "./EnvironmentSelector";
 import { RadiationMeter } from "./RadiationMeter";
+import { SteppeCareCard } from "./SteppeCareCard";
 
 function Card({ title, children, className = "" }: { title: string; children: React.ReactNode; className?: string }) {
   return (
@@ -42,9 +44,7 @@ export function HomeScreen() {
   if (!a || !dataset || !member) return <div className="space-y-4">{heading}</div>;
 
   const current = Math.min(day, maxDay);
-  const date = new Intl.DateTimeFormat(locale === "mn" ? "mn-MN" : "en-US", { dateStyle: "medium", timeZone: "UTC" }).format(
-    new Date(dayToTimestamp(dataset.startDate, current)),
-  );
+  const date = formatDate(dayToTimestamp(dataset.startDate, current), locale);
   const delay = signalDelay(environment, current);
   const quests = dailyQuests(a, mode);
   const learning = current < 14;
@@ -81,9 +81,13 @@ export function HomeScreen() {
               <EnvironmentSelector />
             </div>
           )}
-          {mode === "space" && (
+          {mode === "space" ? (
             <div className="mt-4">
               <RadiationMeter radiation={a.radiation} />
+            </div>
+          ) : (
+            <div className="mt-2">
+              <SteppeCareCard />
             </div>
           )}
         </Card>

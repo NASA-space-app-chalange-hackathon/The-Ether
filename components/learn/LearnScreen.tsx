@@ -2,28 +2,13 @@
 
 import { HAZARDS_MN, HOW_IT_WORKS, INDICATOR_CARDS, type Bilingual } from "@/content/learn";
 import { HAZARDS } from "@/content/risks";
-import type { Source } from "@/lib/engine/types";
+import { SourceList } from "@/components/ui/SourceList";
+import { STEPPE_RISKS } from "@/content/steppe";
 import { useAppState, useT } from "@/lib/state/useAppState";
-
-function Sources({ sources }: { sources: readonly Source[] }) {
-  return (
-    <ul className="space-y-0.5 text-xs">
-      {sources.map((s) => (
-        <li key={s.id}>
-          {s.url ? (
-            <a href={s.url} target="_blank" rel="noreferrer" className="text-accent hover:underline">{s.title} ↗</a>
-          ) : (
-            <span className="italic text-muted">{s.title}</span>
-          )}
-        </li>
-      ))}
-    </ul>
-  );
-}
 
 export function LearnScreen() {
   const t = useT();
-  const { locale } = useAppState();
+  const { locale, mode } = useAppState();
   const tx = (b: Bilingual) => b[locale];
   const hazardName = (id: (typeof HAZARDS)[number]["id"]) => (locale === "mn" ? HAZARDS_MN[id].name : HAZARDS.find((h) => h.id === id)!.name);
 
@@ -39,15 +24,32 @@ export function LearnScreen() {
         <p className="text-sm leading-relaxed">{tx(HOW_IT_WORKS)}</p>
       </section>
 
+      {mode === "steppe" && (
+        <section className="space-y-3">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">{t("learn.steppeTitle")}</h2>
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" data-testid="steppe-risks">
+            {STEPPE_RISKS.map((r) => (
+              <li key={r.id} className="space-y-2 rounded-xl border border-line bg-panel p-4">
+                <p className="text-2xl" aria-hidden>{r.icon}</p>
+                <h3 className="font-semibold">{tx(r.title)}</h3>
+                <p className="text-sm text-muted">{tx(r.summary)}</p>
+                <p className="text-xs text-accent">↔ {t("steppe.mirrors", { hazard: tx(r.mirrors) })}</p>
+                <SourceList sources={r.sources} className="space-y-0.5 text-xs" />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <section className="space-y-3">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">{t("learn.hazards")}</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">{t(mode === "steppe" ? "learn.sameInSpace" : "learn.hazards")}</h2>
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5" data-testid="hazard-cards">
           {HAZARDS.map((h) => (
             <li key={h.id} className="space-y-2 rounded-xl border border-line bg-panel p-4">
               <p className="text-2xl" aria-hidden>{h.icon}</p>
               <h3 className="font-semibold">{hazardName(h.id)}</h3>
               <p className="text-sm text-muted">{locale === "mn" ? HAZARDS_MN[h.id].summary : h.summary}</p>
-              <Sources sources={[h.source]} />
+              <SourceList sources={[h.source]} className="space-y-0.5 text-xs" />
             </li>
           ))}
         </ul>
@@ -84,7 +86,7 @@ export function LearnScreen() {
                   </dd>
                 </div>
               </dl>
-              <Sources sources={c.sources} />
+              <SourceList sources={c.sources} className="space-y-0.5 text-xs" />
             </li>
           ))}
         </ul>

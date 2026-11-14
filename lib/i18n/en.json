@@ -249,5 +249,20 @@
   "ind.pvtMeanRT": "Reaction time (PVT mean)",
   "ind.pvtLapses": "Attention lapses (PVT)",
   "ind.exerciseMinutes": "Exercise",
-  "ind.radiationDose": "Radiation dose (daily)"
+  "ind.radiationDose": "Radiation dose (daily)",
+  "mode.label": "Mode",
+  "mode.space": "Space",
+  "mode.steppe": "Steppe",
+  "mode.switchTo": "Switch to {mode} mode",
+  "steppe.care": "Nearest care",
+  "steppe.hospital": "Soum hospital: {km} km · {travel}",
+  "steppe.emergency": "Emergency: call 103",
+  "steppe.signal": "Phone signal is intermittent — messages wait on this device until you're connected.",
+  "steppe.demo": "Fictional household — distances are illustrative.",
+  "steppe.risks": "Risks this season",
+  "steppe.mirrors": "Same problem in space: {hazard}",
+  "learn.steppeTitle": "Life far from a doctor",
+  "learn.sameInSpace": "The same problems in space — NASA's 5 hazards",
+  "panel.earth": "How life on the steppe affects it",
+  "source.demo": "Demo parameter — not clinically validated"
 }
