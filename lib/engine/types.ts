@@ -15,6 +15,7 @@ export type Environment = "transit" | "iss" | "lunar" | "mars" | "rover" | "step
 /** Identifier for every measurable health indicator. */
 export type IndicatorId =
   | "heartRate"
+  | "hrv"
   | "systolicBP"
   | "diastolicBP"
   | "glucose"
@@ -29,6 +30,18 @@ export type IndicatorId =
   | "pvtLapses"
   | "exerciseMinutes"
   | "radiationDose";
+
+/** A citation. `demo: true` marks values we could not source. */
+export interface Source {
+  id: string;
+  title: string;
+  url?: string;
+  note?: string;
+  demo?: boolean;
+}
+
+/** Severity of a non-normal state. */
+export type Severity = "watch" | "critical";
 
 /** How a reading was captured. */
 export type ReadingSource = "camera" | "manual" | "pvt" | "seed" | "sensor";
@@ -91,23 +104,34 @@ export interface AlertEvidence {
   sinceDay: number;
 }
 
+/** One concrete step, owned by a tier of the escalation ladder. */
+export interface ActionStep {
+  tier: Tier;
+  text: string;
+}
+
 export interface Alert {
+  /** Deterministic: `${memberId}:${ruleId}`. */
   id: string;
   memberId: string;
-  /** Rule that fired, e.g. "behavioral-drift" or "systolicBP-threshold". */
+  /** Rule that fired, e.g. "behavioral-drift" or "cardiovascular". */
   ruleId: string;
-  severity: Exclude<Status, "ok" | "unknown">;
+  title: string;
+  severity: Severity;
+  /** Highest tier that must act. */
   tier: Tier;
+  /** Mission day the assessment was made on. */
   day: number;
+  /** First day of the current abnormal run. */
+  sinceDay: number;
   /** What changed — plain language. */
   whatChanged: string;
   /** Why it matters — hazard + HRP risk. */
   whyItMatters: string;
-  /** Concrete steps to take now. */
-  doNow: string[];
+  /** Concrete steps, from SELF up to the assigned tier. */
+  doNow: ActionStep[];
   /** Citation(s) backing the rule. */
-  sources: string[];
+  sources: Source[];
   /** Inputs that triggered the alert, so the UI can explain it. */
   evidence: AlertEvidence[];
-  acknowledged: boolean;
 }
