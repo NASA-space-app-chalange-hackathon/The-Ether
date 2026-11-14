@@ -32,7 +32,8 @@ export function detectBehavioralDrift(w: WindowBadness, moodSignedZ: number | nu
   const sleepWorse = sleep !== null && sleep > DRIFT_OBJECTIVE_Z;
   const vigilanceWorse = vigilance !== null && vigilance > DRIFT_OBJECTIVE_Z;
   const crewPulseWorse = crew !== null && crew > CREW_PULSE_Z;
-  const moodStable = moodSignedZ !== null && Math.abs(moodSignedZ) < MOOD_STABLE_Z;
+  // "Stable" = self-reported mood has not dropped (a higher mood still means under-reporting).
+  const moodStable = moodSignedZ !== null && moodSignedZ > -MOOD_STABLE_Z;
 
   let severity: Severity | null = null;
   if (sleepWorse && vigilanceWorse && moodStable) {

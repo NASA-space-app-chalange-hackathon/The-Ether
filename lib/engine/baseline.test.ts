@@ -34,10 +34,16 @@ describe("updateBaseline", () => {
   const base = buildBaseline("A", "heartRate", series(Array(14).fill(60)))!;
 
   it("moves the centre by α toward the new value", () => {
-    const next = updateBaseline(base, { day: 14, value: 70 }, false);
-    expect(next.center).toBeCloseTo(60 + EWMA_ALPHA * 10);
+    const next = updateBaseline(base, { day: 14, value: 62 }, false);
+    expect(next.center).toBeCloseTo(60 + EWMA_ALPHA * 2);
     expect(next.updatedDay).toBe(14);
     expect(next.frozen).toBe(false);
+  });
+
+  it("ignores readings beyond ±1.5 SD so a slow drift can't move the baseline", () => {
+    const next = updateBaseline(base, { day: 14, value: 60 + 2 * base.spread }, false);
+    expect(next.center).toBe(base.center);
+    expect(next.n).toBe(base.n);
   });
 
   it("freezes while in alert: centre and spread unchanged", () => {

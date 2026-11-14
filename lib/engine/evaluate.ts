@@ -1,6 +1,6 @@
 import { BASELINE_DAYS, buildBaseline, updateBaseline, type DailyValue } from "./baseline";
 import { detectBehavioralDrift, windowMean, type DriftResult, type WindowBadness } from "./composite";
-import { boneTracker, radiationTracker, type BoneTracker, type RadiationTracker } from "./cumulative";
+import { boneTracker, lowAdherenceSince, radiationTracker, type BoneTracker, type RadiationTracker } from "./cumulative";
 import { INDICATOR_RULE, RULES, resolveTier, stepsUpTo, tierRank, type RuleId } from "./escalation";
 import { INDICATORS, INDICATOR_IDS } from "./indicators";
 import { PERSIST_WINDOW, persistenceStatus, statusRank, worstStatus } from "./persistence";
@@ -259,7 +259,14 @@ export function evaluateMember(
   }
 
   const radiation = radiationTracker(toDailySeries(mine, "radiationDose", uptoDay), uptoDay, options.priorDose ?? 0);
-  const bone = boneTracker(toDailySeries(mine, "exerciseMinutes", uptoDay), uptoDay);
+  const exercise = toDailySeries(mine, "exerciseMinutes", uptoDay);
+  const bone = boneTracker(exercise, uptoDay);
+  const lowExerciseSince = lowAdherenceSince(exercise, uptoDay);
+  // Exercise status follows 14-day adherence, not day-to-day z-scores.
+  const ex = indicators.exerciseMinutes;
+  if (ex.status !== "unknown") {
+    indicators.exerciseMinutes = { ...ex, status: lowExerciseSince === null ? "ok" : "watch", sinceDay: lowExerciseSince };
+  }
 
   const alerts: Alert[] = [];
   const merged = new Set<RuleId>(drift.severity ? ["sleep", "vigilance"] : []);
@@ -314,6 +321,10 @@ export function evaluateMember(
     const severity: Severity = radiation.fractionOfLimit >= 0.8 ? "critical" : "watch";
     const what = `Career dose ${radiation.totalDose.toFixed(0)} mSv = ${(radiation.fractionOfLimit * 100).toFixed(0)}% of the 600 mSv limit.`;
     alerts.push(makeAlert(memberId, "radiation-cumulative", severity, uptoDay, uptoDay, [], what));
+  }
+  if (lowExerciseSince !== null && bone.adherence !== null) {
+    const what = `Exercise target met ${Math.round(bone.adherence * 100)}% over the last 14 days ${daysPhrase(lowExerciseSince, uptoDay)}.`;
+    alerts.push(makeAlert(memberId, "fitness", "watch", lowExerciseSince, uptoDay, [], what));
   }
   if ((bone.status === "watch" || bone.status === "critical") && bone.sinceDay !== null) {
     const pct = bone.adherence === null ? "—" : `${Math.round(bone.adherence * 100)}%`;

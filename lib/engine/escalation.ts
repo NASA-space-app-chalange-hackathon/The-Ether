@@ -58,7 +58,8 @@ export const INDICATOR_RULE: Record<IndicatorId, RuleId | null> = {
   mood: "mood",
   crewPulse: "teamwork",
   bodyMass: "nutrition",
-  exerciseMinutes: "fitness",
+  // Exercise alerts come from 14-day adherence (see evaluateMember), not daily z-scores.
+  exerciseMinutes: null,
   radiationDose: null,
 };
 
@@ -224,9 +225,10 @@ export const RULES: Record<RuleId, EscalationRule> = {
   },
   fitness: {
     id: "fitness",
-    title: "Exercise below your normal",
+    title: "Missing exercise sessions",
     ladder: [
       { severity: "watch", minDays: 0, tier: "SELF" },
+      { severity: "watch", minDays: 7, tier: "CMO" },
       { severity: "critical", minDays: 0, tier: "CMO" },
     ],
     whyItMatters:

@@ -92,8 +92,20 @@ export function adherence(series: readonly DailyValue[], day: number, window = A
   return total / span;
 }
 
-export const BONE_WATCH = 40;
+export const BONE_WATCH = 35;
 export const BONE_CRITICAL = 70;
+
+/** Adherence below this counts as "missing exercise". Demo parameter. */
+export const LOW_ADHERENCE = 0.6;
+
+/** First day of the current run of low adherence ending at `day`, or null if adherence is fine. */
+export function lowAdherenceSince(series: readonly DailyValue[], day: number): number | null {
+  const low = (d: number) => (adherence(series, d) ?? 1) < LOW_ADHERENCE;
+  if (!series.some((p) => p.day <= day) || !low(day)) return null;
+  let d = day;
+  while (d > 0 && low(d - 1)) d -= 1;
+  return d;
+}
 
 export function boneTracker(series: readonly DailyValue[], day: number): BoneTracker {
   if (!series.some((p) => p.day <= day)) return { score: 0, adherence: null, status: "unknown", sinceDay: null };
