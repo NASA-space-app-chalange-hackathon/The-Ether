@@ -6,32 +6,16 @@ import { TrendChart } from "@/components/charts/TrendChart";
 import { StatusBadge, TierBadge } from "@/components/ui/Badges";
 import { STATUS_STYLE } from "@/components/ui/status";
 import { REGION_CONTENT } from "@/content/risks";
+import { REGION_STEPPE } from "@/content/steppe";
+import { SourceList } from "@/components/ui/SourceList";
 import type { MemberAssessment } from "@/lib/engine/evaluate";
 import { INDICATORS } from "@/lib/engine/indicators";
 import { REGION_INDICATORS, REGION_RULES, regionStatus, type RegionId } from "@/lib/engine/regions";
-import type { IndicatorId, Source } from "@/lib/engine/types";
+import type { IndicatorId } from "@/lib/engine/types";
 import type { MessageKey } from "@/lib/i18n";
 import { useMission } from "@/lib/state/DataProvider";
-import { useT } from "@/lib/state/useAppState";
+import { useAppState, useT } from "@/lib/state/useAppState";
 import { useLabels } from "@/lib/state/useLabels";
-
-function SourceLinks({ sources }: { sources: readonly Source[] }) {
-  return (
-    <ul className="space-y-1 text-sm">
-      {sources.map((s) => (
-        <li key={s.id}>
-          {s.url ? (
-            <a href={s.url} target="_blank" rel="noreferrer" className="text-accent underline-offset-2 hover:underline">
-              {s.title} ↗
-            </a>
-          ) : (
-            <span className="text-muted italic">{s.title}</span>
-          )}
-        </li>
-      ))}
-    </ul>
-  );
-}
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -46,7 +30,9 @@ export function RegionPanel({ region, assessment, onClose }: { region: RegionId;
   const t = useT();
   const labels = useLabels();
   const { events } = useMission();
+  const { mode, locale } = useAppState();
   const content = REGION_CONTENT[region];
+  const steppe = mode === "steppe" ? REGION_STEPPE[region] : null;
   const status = regionStatus(assessment, region);
   const withData = REGION_INDICATORS[region].filter((id) => assessment.indicators[id].latest !== null);
   const [chosen, setChosen] = useState<IndicatorId | null>(null);
@@ -68,10 +54,10 @@ export function RegionPanel({ region, assessment, onClose }: { region: RegionId;
       </header>
 
       <Section title={t("panel.function")}>
-        <p className="text-sm leading-relaxed">{content.function}</p>
+        <p className="text-sm leading-relaxed">{steppe ? steppe.function[locale] : content.function}</p>
       </Section>
-      <Section title={t("panel.spaceflight")}>
-        <p className="text-sm leading-relaxed">{content.spaceflightEffect}</p>
+      <Section title={t(steppe ? "panel.earth" : "panel.spaceflight")}>
+        <p className="text-sm leading-relaxed">{steppe ? steppe.effect[locale] : content.spaceflightEffect}</p>
       </Section>
 
       {region === "radiation" && <RadiationMeter radiation={assessment.radiation} />}
@@ -164,7 +150,7 @@ export function RegionPanel({ region, assessment, onClose }: { region: RegionId;
       </Section>
 
       <Section title={`${t("panel.risks")} · ${t("panel.sources")}`}>
-        <SourceLinks sources={content.risks} />
+        <SourceList sources={content.risks} />
       </Section>
     </aside>
   );

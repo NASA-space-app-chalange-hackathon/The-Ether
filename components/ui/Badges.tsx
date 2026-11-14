@@ -3,7 +3,7 @@
 import type { Status, Tier } from "@/lib/engine/types";
 import type { MessageKey } from "@/lib/i18n";
 import { useAppState, useT } from "@/lib/state/useAppState";
-import { STATUS_STYLE, TIER_ICON } from "./status";
+import { STATUS_STYLE, TIER_ICON, TIER_ICON_STEPPE } from "./status";
 
 export function StatusBadge({ status, size = "sm" }: { status: Status; size?: "sm" | "lg" }) {
   const t = useT();
@@ -26,7 +26,7 @@ export function TierBadge({ tier }: { tier: Tier }) {
   const tone = tier === "EARTH" ? "border-accent/60 text-accent" : tier === "CMO" ? "border-amber/50 text-amber" : "border-line text-fg";
   return (
     <span className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md border px-2 py-0.5 text-xs font-semibold ${tone}`}>
-      <span aria-hidden>{TIER_ICON[tier]}</span>
+      <span aria-hidden>{(mode === "steppe" ? TIER_ICON_STEPPE : TIER_ICON)[tier]}</span>
       {t(`tier.${mode}.${tier}` as MessageKey)}
     </span>
   );

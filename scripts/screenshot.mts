@@ -1,6 +1,7 @@
 /**
  * Capture a screenshot of the running app (used for the README and design checks).
  *   node scripts/screenshot.mts <url> <out.png> [day] [member-callsign] [width] [height]
+ *   MODE=steppe node scripts/screenshot.mts ...   (switch to Steppe mode first)
  */
 import { chromium } from "@playwright/test";
 
@@ -9,8 +10,9 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: Number(w), height: Number(h) } });
 await page.goto(url);
 await page.getByTestId("clock-day").waitFor();
+if (process.env.MODE === "steppe") await page.getByTestId("mode-steppe").click();
 if (member) await page.getByRole("group", { name: "Crew member" }).getByRole("button", { name: new RegExp(member) }).click();
-if (day) await page.getByLabel("Mission day").fill(day);
+if (day) await page.getByRole("slider").fill(day);
 await page.waitForTimeout(1200);
 await page.screenshot({ path: out, fullPage: true });
 await browser.close();
