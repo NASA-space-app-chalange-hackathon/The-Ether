@@ -39,3 +39,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local-only working files (not for the repo)
+.claude/settings.local.json
+CLAUDE.md
+PROGRESS.md
+docs/MASTER_PROMPT.md
+THE_ETHER_BUILD_PROMPT.md*
+
+# playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
