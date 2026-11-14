@@ -233,5 +233,21 @@
   "crew.alerts": "Alerts by tier",
   "crew.cohesion": "Crew cohesion (7-day crew pulse)",
   "crew.cohesionText": "Average crew pulse {avg}/5 vs. usual {base}/5",
-  "crew.noAlerts": "No active alerts"
+  "crew.noAlerts": "No active alerts",
+  "ind.heartRate": "Resting heart rate",
+  "ind.hrv": "Heart rate variability (RMSSD)",
+  "ind.systolicBP": "Systolic blood pressure",
+  "ind.diastolicBP": "Diastolic blood pressure",
+  "ind.glucose": "Blood glucose",
+  "ind.temperature": "Body temperature",
+  "ind.spo2": "Blood oxygen (SpO₂)",
+  "ind.bodyMass": "Body mass",
+  "ind.sleepHours": "Sleep duration",
+  "ind.sleepQuality": "Sleep quality",
+  "ind.mood": "Self-reported mood",
+  "ind.crewPulse": "Crew pulse (teamwork)",
+  "ind.pvtMeanRT": "Reaction time (PVT mean)",
+  "ind.pvtLapses": "Attention lapses (PVT)",
+  "ind.exerciseMinutes": "Exercise",
+  "ind.radiationDose": "Radiation dose (daily)"
 }

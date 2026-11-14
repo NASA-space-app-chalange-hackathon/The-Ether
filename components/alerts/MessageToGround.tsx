@@ -7,6 +7,7 @@ import { arrivalTime, composeGroundMessage } from "@/lib/engine/message";
 import { formatDelay, signalDelay } from "@/lib/engine/signal";
 import type { Alert } from "@/lib/engine/types";
 import { useAppState, useT } from "@/lib/state/useAppState";
+import { useLabels } from "@/lib/state/useLabels";
 
 /** Wall clock that ticks every second while any deadline is still in the future. */
 function useNow(deadlines: readonly number[]): number {
@@ -47,9 +48,10 @@ function SentMessage({ msg, now }: { msg: GroundMessage; now: number }) {
 
 export function MessageToGround({ alert, memberName, completed }: { alert: Alert; memberName: string; completed: readonly string[] }) {
   const t = useT();
-  const { environment, mode } = useAppState();
+  const { environment, mode, locale } = useAppState();
+  const labels = useLabels();
   const [draft, setDraft] = useState<string | null>(null);
-  const composed = composeGroundMessage({ alert, memberName, completed });
+  const composed = composeGroundMessage({ alert, memberName, completed, locale, label: labels.indicator });
   const delay = signalDelay(environment, alert.day).oneWaySeconds;
   const sent = useLiveQuery(() => getDB().messages.where("alertId").equals(alert.id).sortBy("sentAt"), [alert.id]) ?? [];
   const now = useNow(sent.map((m) => m.arrivesAt));

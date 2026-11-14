@@ -10,6 +10,7 @@ import { formatDelay, signalDelay } from "@/lib/engine/signal";
 import type { MessageKey } from "@/lib/i18n";
 import { useAssessment, useMission } from "@/lib/state/DataProvider";
 import { useAppState, useT } from "@/lib/state/useAppState";
+import { useLabels } from "@/lib/state/useLabels";
 import { CrewSwitcher } from "./CrewSwitcher";
 import { EnvironmentSelector } from "./EnvironmentSelector";
 import { RadiationMeter } from "./RadiationMeter";
@@ -25,6 +26,7 @@ function Card({ title, children, className = "" }: { title: string; children: Re
 
 export function HomeScreen() {
   const t = useT();
+  const labels = useLabels();
   const { mode, day, environment, locale } = useAppState();
   const { dataset, members, maxDay } = useMission();
   const a = useAssessment();
@@ -51,8 +53,8 @@ export function HomeScreen() {
     <div className="space-y-4">
       {heading}
       <div className="grid gap-4 lg:grid-cols-[1.25fr_1fr]">
-        <Card title={`${member.name} · ${member.role}`}>
-          <StatusRing regions={allRegionStatuses(a)} overall={a.overall} label={member.name} />
+        <Card title={`${labels.memberName(member)} · ${labels.memberRole(member)}`}>
+          <StatusRing regions={allRegionStatuses(a)} overall={a.overall} label={labels.memberName(member)} />
           {learning && <p className="mt-3 text-sm text-accent">◔ {t("status.learning")}</p>}
         </Card>
 

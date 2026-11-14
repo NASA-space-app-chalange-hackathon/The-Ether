@@ -13,6 +13,7 @@ import type { IndicatorId, Source } from "@/lib/engine/types";
 import type { MessageKey } from "@/lib/i18n";
 import { useAssessment, useMission } from "@/lib/state/DataProvider";
 import { useAppState, useT } from "@/lib/state/useAppState";
+import { useLabels } from "@/lib/state/useLabels";
 import { CameraHeartRate } from "./CameraHeartRate";
 import { PvtTest } from "./PvtTest";
 
@@ -102,6 +103,7 @@ function Scale({ label, value, onChange, faces }: { label: string; value: number
 
 export function CheckScreen() {
   const t = useT();
+  const labels = useLabels();
   const { memberId, day, mode } = useAppState();
   const { dataset, members, maxDay } = useMission();
   const assessment = useAssessment();
@@ -168,7 +170,7 @@ export function CheckScreen() {
           <ul className="divide-y divide-line rounded-lg border border-line font-mono text-sm">
             {readings.map((r) => (
               <li key={r.indicator} className="flex justify-between px-3 py-1.5">
-                <span className="font-sans">{INDICATORS[r.indicator].label}</span>
+                <span className="font-sans">{labels.indicator(r.indicator)}</span>
                 <span className="tabular-nums">{r.value} {INDICATORS[r.indicator].unit}</span>
               </li>
             ))}
@@ -205,7 +207,7 @@ export function CheckScreen() {
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold">{t("nav.check")}</h1>
           <p className="text-sm text-muted">{t("check.intro")}</p>
-          {member && <p className="font-mono text-xs text-accent">{t("check.savingFor", { member: member.name, day: current })}</p>}
+          {member && <p className="font-mono text-xs text-accent">{t("check.savingFor", { member: labels.memberName(member), day: current })}</p>}
         </div>
         <CrewSwitcher />
       </div>

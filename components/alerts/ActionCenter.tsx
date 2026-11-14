@@ -5,15 +5,17 @@ import { CrewSwitcher } from "@/components/home/CrewSwitcher";
 import type { DatasetMember } from "@/lib/data/dataset";
 import { useAssessment, useMission } from "@/lib/state/DataProvider";
 import { useAppState, useT } from "@/lib/state/useAppState";
+import { useLabels } from "@/lib/state/useLabels";
 import { AlertCard } from "./AlertCard";
 
 function MemberAlerts({ member }: { member: DatasetMember }) {
   const a = useAssessment(member.id);
+  const labels = useLabels();
   if (!a) return null;
   return (
     <>
       {a.alerts.map((alert) => (
-        <AlertCard key={alert.id} alert={alert} memberName={member.name} />
+        <AlertCard key={alert.id} alert={alert} memberName={labels.memberName(member)} />
       ))}
     </>
   );

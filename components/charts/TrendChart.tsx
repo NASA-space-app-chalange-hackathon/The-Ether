@@ -6,6 +6,7 @@ import type { SeriesPoint } from "@/lib/engine/evaluate";
 import { INDICATORS } from "@/lib/engine/indicators";
 import type { IndicatorId } from "@/lib/engine/types";
 import { useT } from "@/lib/state/useAppState";
+import { useLabels } from "@/lib/state/useLabels";
 
 export interface TrendChartProps {
   indicator: IndicatorId;
@@ -27,6 +28,7 @@ interface Row {
 /** Indicator over time with the personal baseline band (mean ± 2 SD), event markers, and a "today" line. */
 export function TrendChart({ indicator, series, from, to, today, events = [], height = 220, compact = false }: TrendChartProps) {
   const t = useT();
+  const labels = useLabels();
   const meta = INDICATORS[indicator];
   const rows: Row[] = series
     .filter((p) => p.day >= from && p.day <= to)
@@ -80,7 +82,7 @@ export function TrendChart({ indicator, series, from, to, today, events = [], he
           <ReferenceLine x={today} stroke="#38bdf8" strokeWidth={1.5} label={compact ? undefined : { value: t("chart.today"), position: "insideTopRight", fill: "#38bdf8", fontSize: 11 }} />
           <Line
             dataKey="value"
-            name={meta.label}
+            name={labels.indicator(indicator)}
             stroke="#e6ecf8"
             strokeWidth={1.75}
             dot={rows.length < 40 ? { r: 2.5, fill: "#e6ecf8" } : false}
