@@ -154,7 +154,6 @@
   "check.invalid": "Enter a value between {min} and {max}.",
   "check.optional": "optional",
   "check.hr.manual": "Resting heart rate (count your pulse for 30 s × 2)",
-  "check.hr.cameraSoon": "Camera heart-rate check arrives in the next step of the build — enter it manually for now.",
   "check.hr.why": "Your resting heart rate rises with fatigue, illness, dehydration, and as the heart adapts to weightlessness. Compared with your own normal, a small steady rise is an early warning.",
   "check.pvt.why": "A one-minute reaction-time test catches fatigue you may not feel yourself. Slower reactions and 'lapses' (≥ 500 ms) are among the most sensitive signs of sleep loss.",
   "check.vitals.why": "Blood pressure, glucose, temperature and oxygen are quick checks with a cuff, meter, thermometer and finger clip. Each one maps to a NASA spaceflight risk.",
@@ -188,5 +187,18 @@
   "scale.2": "Low",
   "scale.3": "Okay",
   "scale.4": "Good",
-  "scale.5": "Great"
+  "scale.5": "Great",
+  "camera.intro": "30-second camera pulse check: sit still in good light, face the camera, and keep your forehead inside the red box.",
+  "camera.start": "Start camera check",
+  "camera.starting": "Starting camera…",
+  "camera.hold": "Hold still and breathe normally…",
+  "camera.remaining": "{s} s left",
+  "camera.quality": "Signal quality {q}%",
+  "camera.use": "Use this value",
+  "camera.retry": "Measure again",
+  "camera.lowQuality": "Signal too weak to trust (light, movement or makeup). Please count your pulse and enter it below.",
+  "camera.denied": "Camera permission was denied. No problem — count your pulse for 30 s, double it, and enter it below.",
+  "camera.unavailable": "No camera available on this device. Count your pulse for 30 s, double it, and enter it below.",
+  "camera.privacy": "Processed on this device only. No images are stored or sent — just the average color of the box.",
+  "camera.recorded": "Camera reading: {bpm} bpm (quality {q}%)"
 }

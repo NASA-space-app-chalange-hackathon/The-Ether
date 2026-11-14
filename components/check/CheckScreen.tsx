@@ -13,6 +13,7 @@ import type { IndicatorId, Source } from "@/lib/engine/types";
 import type { MessageKey } from "@/lib/i18n";
 import { useAssessment, useMission } from "@/lib/state/DataProvider";
 import { useAppState, useT } from "@/lib/state/useAppState";
+import { CameraHeartRate } from "./CameraHeartRate";
 import { PvtTest } from "./PvtTest";
 
 type StepId = "hr" | "pvt" | "vitals" | "sleep" | "mood" | "review";
@@ -125,7 +126,10 @@ export function CheckScreen() {
   const body: Record<StepId, ReactNode> = {
     hr: (
       <div className="space-y-3">
-        <p className="rounded-lg border border-dashed border-line p-3 text-sm text-muted">📷 {t("check.hr.cameraSoon")}</p>
+        <CameraHeartRate onResult={(bpm, quality) => set({ heartRate: bpm, heartRateSource: "camera", heartRateQuality: quality })} />
+        {draft.heartRateSource === "camera" && draft.heartRate !== undefined && (
+          <p className="text-sm text-ok" data-testid="camera-recorded">✓ {t("camera.recorded", { bpm: draft.heartRate, q: Math.round((draft.heartRateQuality ?? 0) * 100) })}</p>
+        )}
         <NumberField id="heartRate" label={t("check.hr.manual")} unit="bpm" value={draft.heartRate} onChange={(v) => set({ heartRate: v, heartRateSource: "manual" })} />
       </div>
     ),
