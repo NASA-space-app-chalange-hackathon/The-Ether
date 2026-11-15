@@ -277,5 +277,8 @@
   "demo.end": "The Ether — health that travels with you.",
   "a11y.skip": "Skip to content",
   "notFound.title": "Page not found",
-  "notFound.back": "Back to Mission Home"
+  "notFound.back": "Back to Mission Home",
+  "intro.watch": "▶ Watch the 30-second demo",
+  "intro.body": "Or explore on your own: drag the Mission Clock to time-travel through a 180-day Mars mission.",
+  "intro.dismiss": "Dismiss"
 }

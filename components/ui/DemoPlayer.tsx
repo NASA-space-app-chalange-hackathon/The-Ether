@@ -2,13 +2,14 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import type { MessageKey } from "@/lib/i18n";
 import { DEMO_STEPS, scrubPath } from "@/lib/state/demo";
 import { getSnapshot, updateState } from "@/lib/state/store";
 import { useT } from "@/lib/state/useAppState";
 
 const FRAME_MS = 40;
+export const DEMO_START_EVENT = "the-ether:demo-start";
 const sleep = (ms: number) => new Promise((r) => window.setTimeout(r, ms));
 
 /** Plays the scripted demo story with captions — built for recording the 30-second video. */
@@ -42,6 +43,16 @@ export function DemoPlayer() {
     }
     stop();
   };
+
+  // Other components (the first-visit banner) can start the demo.
+  const onStart = useEffectEvent(() => {
+    if (!running.current) void play();
+  });
+  useEffect(() => {
+    const handler = () => onStart();
+    window.addEventListener(DEMO_START_EVENT, handler);
+    return () => window.removeEventListener(DEMO_START_EVENT, handler);
+  }, []);
 
   const active = caption !== null;
   return (

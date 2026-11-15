@@ -17,6 +17,7 @@ export interface AppStateApi {
   setMemberId: (id: string) => void;
   setDay: (day: number) => void;
   setEnvironment: (env: AppState["environment"]) => void;
+  dismissIntro: () => void;
 }
 
 export function useAppState(): AppStateApi {
@@ -33,6 +34,7 @@ export function useAppState(): AppStateApi {
     setMemberId: (id) => updateState((s) => ({ ...s, memberId: { ...s.memberId, [s.mode]: id } })),
     setDay: (d) => updateState((s) => ({ ...s, day: { ...s.day, [s.mode]: Math.max(0, Math.round(d)) } })),
     setEnvironment: (env) => updateState((s) => ({ ...s, environment: env })),
+    dismissIntro: () => updateState((s) => ({ ...s, introDismissed: true })),
   };
 }
 

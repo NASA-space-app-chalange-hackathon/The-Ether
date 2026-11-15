@@ -10,6 +10,8 @@ export interface AppState {
   day: Record<Mode, number>;
   /** Space-mode environment (Steppe mode always uses "steppe"). */
   environment: Exclude<Environment, "steppe">;
+  /** First-visit "watch the demo" banner was dismissed or used. */
+  introDismissed: boolean;
 }
 
 /** Zero-click demo state: ORION-B on day 70 (hidden fatigue visible). */
@@ -18,6 +20,7 @@ export const DEFAULT_STATE: AppState = {
   memberId: { space: "orion-b", steppe: "herder-1" },
   day: { space: 70, steppe: 24 },
   environment: "transit",
+  introDismissed: false,
 };
 
 const STORAGE_KEY = "the-ether:state:v1";
@@ -39,6 +42,7 @@ export function parseStored(raw: string | null): AppState {
     return {
       mode,
       environment,
+      introDismissed: s.introDismissed === true,
       memberId: {
         space: str(s.memberId?.space, DEFAULT_STATE.memberId.space),
         steppe: str(s.memberId?.steppe, DEFAULT_STATE.memberId.steppe),

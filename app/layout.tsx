@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { AppProviders } from "@/components/ui/AppProviders";
 import { DisclaimerBar } from "@/components/ui/DisclaimerBar";
+import { IntroBanner } from "@/components/ui/IntroBanner";
 import { MissionClock } from "@/components/ui/MissionClock";
 import { ModeShell } from "@/components/ui/ModeShell";
 import { SkipLink } from "@/components/ui/SkipLink";
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <TopBar />
             <NavBar />
             <MissionClock />
+            <IntroBanner />
             <main id="content" tabIndex={-1} className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 outline-none">{children}</main>
           </ModeShell>
         </AppProviders>
