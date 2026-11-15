@@ -39,14 +39,22 @@ On a Mars mission the dangerous health problems are rarely sudden. They are slow
 - **Trends**: multi-indicator charts with personal baseline bands, mission-event annotations, and 7 / 30 day / whole-mission ranges.
 - **Quests**: XP, levels, streaks, and a shared crew goal.
 - **Crew**: the CMO overview with a **privacy-first** toggle (crewmates see only colors unless a person shares).
-- **Learn**: NASA's 5 hazards and 10 indicator cards, each answering *can it be measured in space, why it matters, when to escalate*, with sources.
-- **Works offline** (PWA, hand-written service worker), **zero setup** (no accounts, keys or backend; data stays on the device), and **Demo Mode** to play the story with captions.
+- **Learn**: NASA's 5 hazards (pick one to see its indicators, body systems, alerts and HRP risk pages), the CSA radiation explainer, a list of the real DONKI solar storms on this mission, why space research helps Earth, and 10 indicator cards (*can it be measured in space, why it matters, when to escalate*). A **Data & sources** tab lists every official resource and NASA API and what it powers.
+- **Real NASA data**: DONKI solar storms, JPL Horizons light time and NASA POWER weather, marked with a "Real NASA data" badge; crew health data stays simulated.
+- **Works offline** (PWA, hand-written service worker), no accounts (health data stays on the device), and **Demo Mode** to play the story with captions.
 
 | | |
 | --- | --- |
 | ![Body Map](docs/screenshots/body-day95.png) | ![Action Center](docs/screenshots/alerts-day95.png) |
 | ![Trends](docs/screenshots/trends-day95.png) | ![Steppe mode](docs/screenshots/steppe-home.png) |
 | ![Quests](docs/screenshots/quests-day130.png) | ![Crew](docs/screenshots/crew-day70.png) |
+
+### Real NASA data
+
+| | |
+| --- | --- |
+| ![Day 40: real NASA DONKI solar storm (8 Jun 2024) on Home, with Signal to Earth from JPL Horizons](docs/screenshots/home-day40-real-data.png) | ![Solar particle event alert built from the real DONKI event: shelter, CMO checks dose](docs/screenshots/alerts-day40-solar.png) |
+| ![Steppe mode: real NASA POWER weather card in Mongolian](docs/screenshots/steppe-home.png) | ![Learn → Data & sources: every official resource and NASA API, live or snapshot](docs/screenshots/learn-data-sources.png) |
 
 ## The demo story (synthetic data)
 

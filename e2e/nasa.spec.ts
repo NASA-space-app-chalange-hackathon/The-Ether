@@ -128,9 +128,10 @@ test("Learn: group by hazard, CSA radiation + Earth notes, Data & sources tab", 
   await expect(page.getByTestId("source-donki")).toContainText("/api/nasa/space-weather");
   await expect(page.getByTestId("simulated-note")).toContainText("Simulated");
 
-  // Hazard tags elsewhere deep-link here.
-  await page.goto("/learn#hazard-isolation");
-  await waitForData(page);
+  // A hazard tag on an alert deep-links here with that hazard open.
+  await at(page, "/alerts", "ORION-B", "70");
+  await page.locator('[data-rule="behavioral-drift"]').getByTestId("hazard-tags").getByRole("link", { name: "Isolation and Confinement" }).click();
+  await expect(page).toHaveURL(/\/learn#hazard-isolation$/);
   await expect(page.getByTestId("hazard-detail")).toContainText("Isolation and Confinement");
   expect(problems).toEqual([]);
 });

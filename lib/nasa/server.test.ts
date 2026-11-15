@@ -17,10 +17,12 @@ describe("NASA server fetchers", () => {
   });
   afterEach(() => vi.unstubAllGlobals());
 
-  it("serve live data when NASA answers, cached for a day, and send the key only to api.nasa.gov", async () => {
+  it("serve live data when NASA answers, cached for a day, and send the key only to api.nasa.gov, in a header", async () => {
     const urls: string[] = [];
-    vi.stubGlobal("fetch", vi.fn(async (url: string) => {
+    const keyed: string[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (url: string, init?: RequestInit) => {
       urls.push(url);
+      if ((init?.headers as Record<string, string> | undefined)?.["X-Api-Key"]) keyed.push(url);
       if (url.includes("DONKI")) return json([]);
       if (url.includes("horizons")) return json(horizonsSnapshot.response);
       return json(powerSnapshot.response);
@@ -29,8 +31,9 @@ describe("NASA server fetchers", () => {
     expect([sw.status, lt.status, w.status]).toEqual(["live", "live", "live"]);
     expect(lt.data.rows).toHaveLength(180);
     expect(cacheLife.mock.calls.flat()).toEqual(["days", "days", "days"]);
-    expect(urls.filter((u) => u.includes("api_key"))).toHaveLength(3);
-    expect(urls.filter((u) => u.includes("api_key")).every((u) => u.startsWith("https://api.nasa.gov/"))).toBe(true);
+    expect(urls.some((u) => /api_key/i.test(u))).toBe(false);
+    expect(keyed).toHaveLength(3);
+    expect(keyed.every((u) => u.startsWith("https://api.nasa.gov/"))).toBe(true);
     expect(JSON.stringify([sw.requests, lt.requests, w.requests])).not.toContain("api_key");
   });
 

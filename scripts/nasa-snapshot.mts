@@ -13,9 +13,10 @@ import { DONKI_PRIMARY, donkiRanges, donkiUrl, horizonsUrl, powerUrl } from "../
 const OUT = new URL("../lib/nasa/snapshots/", import.meta.url);
 const key = process.env.NASA_API_KEY || "DEMO_KEY";
 
-async function getJson(url: string): Promise<unknown> {
-  const res = await fetch(url, { signal: AbortSignal.timeout(60_000) });
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${url.replace(key, "***")}\n${await res.text()}`);
+async function getJson(url: string, apiKey?: string): Promise<unknown> {
+  // The key goes in a header (api.nasa.gov accepts X-Api-Key), never in the URL.
+  const res = await fetch(url, { signal: AbortSignal.timeout(60_000), headers: apiKey ? { "X-Api-Key": apiKey } : {} });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${url}\n${await res.text()}`);
   return res.json();
 }
 
@@ -28,7 +29,7 @@ function write(name: string, requests: string[], response: unknown): void {
 const donki: unknown[] = [];
 const donkiRequests: string[] = [];
 for (const [start, end] of donkiRanges()) {
-  const part = await getJson(donkiUrl(DONKI_PRIMARY, start, end, key));
+  const part = await getJson(donkiUrl(DONKI_PRIMARY, start, end), key);
   if (!Array.isArray(part)) throw new Error(`DONKI ${start}…${end}: expected an array`);
   donki.push(...part);
   donkiRequests.push(donkiUrl(DONKI_PRIMARY, start, end));

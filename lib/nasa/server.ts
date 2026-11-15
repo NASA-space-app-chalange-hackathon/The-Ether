@@ -24,8 +24,11 @@ function apiKey(): string {
   return process.env.NASA_API_KEY || "DEMO_KEY";
 }
 
-async function getJson(url: string): Promise<unknown> {
-  const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS), headers: { Accept: "application/json" } });
+/** The key travels in a header (api.nasa.gov accepts X-Api-Key), so it never appears in URLs, logs or caches keyed by URL. */
+async function getJson(url: string, apiKey?: string): Promise<unknown> {
+  const headers: Record<string, string> = { Accept: "application/json" };
+  if (apiKey) headers["X-Api-Key"] = apiKey;
+  const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS), headers });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -41,7 +44,7 @@ function fallback<T>(name: string, snapshot: Feed<T>, errors: unknown[]): Feed<T
 
 async function donkiFrom(base: string, key?: string): Promise<{ records: unknown[]; requests: string[] }> {
   const ranges = donkiRanges();
-  const parts = await Promise.all(ranges.map(([s, e]) => getJson(donkiUrl(base, s, e, key))));
+  const parts = await Promise.all(ranges.map(([s, e]) => getJson(donkiUrl(base, s, e), key)));
   if (!parts.every(Array.isArray)) throw new Error("DONKI: expected arrays");
   return { records: parts.flat(), requests: ranges.map(([s, e]) => donkiUrl(base, s, e)) };
 }
