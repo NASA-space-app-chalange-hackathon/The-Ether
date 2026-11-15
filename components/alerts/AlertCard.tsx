@@ -142,7 +142,7 @@ export function AlertCard({ alert, memberName }: { alert: Alert; memberName: str
           {alert.realData?.map((r) => (
             <RealDataBadge key={r.source} source={r.source === "DONKI" ? "NASA DONKI" : "JPL Horizons"} href={r.url} />
           ))}
-          <p className="font-mono text-xs text-muted">{t("alerts.since", { day: alert.sinceDay, days })}</p>
+          <p className="font-mono text-xs text-muted">{t(days === 1 ? "alerts.sinceOne" : "alerts.since", { day: alert.sinceDay, days })}</p>
           <Evidence alert={alert} />
         </Block>
         <Block n={2} title={t("alerts.why")}>

@@ -340,5 +340,6 @@
   "data.official": "Уралдааны албан ёсны эх сурвалж",
   "data.fetched": "{date}-нд татсан",
   "data.simulatedTitle": "Юу загварчилсан бэ",
-  "data.other": "Бусад иш татсан эх сурвалж"
+  "data.other": "Бусад иш татсан эх сурвалж",
+  "alerts.sinceOne": "{day}-р өдрөөс · 1 хоног"
 }

@@ -340,5 +340,6 @@
   "data.official": "Official challenge resources",
   "data.fetched": "fetched {date}",
   "data.simulatedTitle": "What is simulated",
-  "data.other": "Other cited references"
+  "data.other": "Other cited references",
+  "alerts.sinceOne": "Since day {day} · 1 day"
 }

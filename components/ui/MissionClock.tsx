@@ -137,10 +137,10 @@ export function MissionClock() {
         </div>
 
         {mode === "space" && (
-          <p className="flex items-center gap-2 text-sm" data-testid="signal-delay">
-            <RadioTower size={14} strokeWidth={2} className="text-muted" />
-            <span className="text-muted">{t("signal.label")}</span>
-            <span className="font-mono text-fg">{formatDelay(delay.oneWaySeconds)}</span>
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm" data-testid="signal-delay">
+            <RadioTower size={14} strokeWidth={2} className="shrink-0 text-muted" />
+            <span className="whitespace-nowrap text-muted">{t("signal.label")}</span>
+            <span className="whitespace-nowrap font-mono text-fg">{formatDelay(delay.oneWaySeconds)}</span>
             <span className="text-xs text-muted">({t(`signal.src.${delay.source}` as MessageKey)})</span>
           </p>
         )}
