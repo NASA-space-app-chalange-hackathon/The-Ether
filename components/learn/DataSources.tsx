@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowUpRight, FlaskConical, Server } from "lucide-react";
-import { DATA_SOURCES, SIMULATED_NOTE, type DataSourceEntry } from "@/content/learn";
+import { CHALLENGE_RESOURCES, DATA_SOURCES, SIMULATED_NOTE, type DataSourceEntry } from "@/content/learn";
 import { HazardTags } from "@/components/ui/HazardTags";
 import { RealDataBadge } from "@/components/ui/RealDataBadge";
 import { SourceList } from "@/components/ui/SourceList";
@@ -11,7 +11,16 @@ import { useNasa } from "@/lib/state/NasaProvider";
 import { useAppState, useT } from "@/lib/state/useAppState";
 
 /** Cited references that are neither official challenge resources nor HRP risk pages. */
-const OFFICIAL_IDS = new Set(DATA_SOURCES.map((d) => d.id));
+const OFFICIAL_IDS = new Set([...DATA_SOURCES.map((d) => d.id), ...CHALLENGE_RESOURCES.map((r) => r.source.id)]);
+
+/** The official challenge resources, in the same card shape as the APIs. */
+const OFFICIAL: DataSourceEntry[] = CHALLENGE_RESOURCES.map(({ source, use }) => ({
+  id: source.id,
+  kind: "official",
+  name: source.title,
+  url: source.url!,
+  powers: use,
+}));
 const OTHER_REFERENCES = Object.values(SOURCES).filter((s) => !OFFICIAL_IDS.has(s.id) && !s.id.startsWith("risk"));
 
 function Entry({ entry }: { entry: DataSourceEntry }) {
@@ -61,10 +70,10 @@ export function DataSources() {
         </ul>
       </section>
 
-      <section className="space-y-3">
-        <h2 className="eyebrow">{t("data.official")}</h2>
-        <ul className="grid gap-3 lg:grid-cols-2">
-          {DATA_SOURCES.filter((d) => d.kind === "official").map((d) => (
+      <section className="space-y-3" aria-labelledby="resources-title">
+        <h2 id="resources-title" className="eyebrow">{t("learn.resources")}</h2>
+        <ul className="grid gap-3 lg:grid-cols-2" data-testid="challenge-resources">
+          {OFFICIAL.map((d) => (
             <Entry key={d.id} entry={d} />
           ))}
         </ul>

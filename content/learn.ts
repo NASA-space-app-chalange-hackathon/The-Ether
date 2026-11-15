@@ -202,58 +202,8 @@ export interface DataSourceEntry {
   hazard?: HazardId;
 }
 
-/** Every official challenge resource and NASA API The Ether uses, and what each one powers. */
+/** The NASA APIs The Ether calls (official challenge resources are in CHALLENGE_RESOURCES below). */
 export const DATA_SOURCES: readonly DataSourceEntry[] = [
-  {
-    id: "hrpHazards",
-    kind: "official",
-    name: "NASA HRP — 5 Hazards of Human Spaceflight",
-    url: SOURCES.hrpHazards.url!,
-    powers: {
-      en: "The five hazard names. Every alert, indicator and body system is tagged with its hazard(s), and Learn groups content by hazard.",
-      mn: "Таван аюулын нэр. Сэрэмжлүүлэг, үзүүлэлт, биеийн систем бүрийг аюултай нь холбож, Мэдлэг хэсэг аюулаар бүлэглэнэ.",
-    },
-  },
-  {
-    id: "hrpRisks",
-    kind: "official",
-    name: "NASA HRP — Risks of Human Spaceflight",
-    url: SOURCES.hrpRisks.url!,
-    powers: {
-      en: "13 of the 17 listed risks. Each alert and body system links to its own NASA risk page.",
-      mn: "Жагсаасан 17 эрсдэлийн 13. Сэрэмжлүүлэг, биеийн систем бүр NASA-гийн өөрийн эрсдэлийн хуудас руу холбогдоно.",
-    },
-  },
-  {
-    id: "hrpResearch",
-    kind: "official",
-    name: "NASA HRP — Ongoing HRP Research",
-    url: SOURCES.hrpResearch.url!,
-    powers: {
-      en: "Background for the Learn cards: HRP studies how to protect astronauts' health and performance, across behavioral performance, health countermeasures and space radiation.",
-      mn: "Мэдлэг картын суурь: HRP сансрын нисгэгчдийн эрүүл мэнд, гүйцэтгэлийг хамгаалах аргыг зан төлөв, эрүүл мэндийн хамгаалалт, сансрын цацрагийн чиглэлээр судалдаг.",
-    },
-  },
-  {
-    id: "csaRadiation",
-    kind: "official",
-    name: "Canadian Space Agency — Monitoring radiation for astronaut health",
-    url: SOURCES.csaRadiation.url!,
-    powers: {
-      en: "The radiation explainer (neutron radiation, Canadian ISS instruments, CANS) and a source on every solar particle event alert.",
-      mn: "Цацрагийн тайлбар (нейтроны цацраг, Канадын ОУСС дахь багаж, CANS), нарны бөөмийн шуурганы сэрэмжлүүлэг бүрийн эх сурвалж.",
-    },
-  },
-  {
-    id: "csaScience",
-    kind: "official",
-    name: "Canadian Space Agency — Why do we conduct science experiments in space?",
-    url: SOURCES.csaScience.url!,
-    powers: {
-      en: "The \"why space research helps Earth\" note, which is the reason Steppe mode exists.",
-      mn: "\"Сансрын судалгаа дэлхийд хэрхэн тусалдаг\" тэмдэглэл — Тал нутгийн горимын үндэслэл.",
-    },
-  },
   {
     id: "donki",
     kind: "api",
@@ -300,3 +250,45 @@ export const SIMULATED_NOTE: Bilingual = {
   en: "Simulated: every crew and herder health reading (heart rate, blood pressure, sleep, mood, reaction time, exercise, dosimeter). They come from a seeded generator so the demo story is repeatable. The dosimeter spikes are timed to the real DONKI events, but their size is simulated.",
   mn: "Загварчилсан: багийн гишүүд ба малчны эрүүл мэндийн бүх хэмжилт (зүрхний цохилт, даралт, нойр, сэтгэл санаа, хариу үйлдэл, дасгал, дозиметр). Үзүүлэнг давтагдахуйц болгохын тулд тогтмол үүсгэгчээр гаргасан. Дозиметрийн өсөлт DONKI-гийн бодит үйл явдалтай давхцах боловч хэмжээ нь загварчилсан.",
 };
+
+/**
+ * The challenge's official Resources tab, and how The Ether uses each one (shown in Learn → Data & sources).
+ * Merged from the team's "NASA challenge resources" section and the Data & sources list.
+ */
+export const CHALLENGE_RESOURCES: readonly { source: Source; use: Bilingual }[] = [
+  {
+    source: SOURCES.hrpHazards,
+    use: {
+      en: "Our hazard model: the five hazards (radiation, isolation and confinement, distance, gravity, hostile/closed environments) are named exactly as NASA lists them. Every alert, indicator and body system is tagged with its hazard(s), and Learn groups content by hazard.",
+      mn: "Аюулын загвар: таван аюулыг NASA-гийн нэрээр нь авсан. Сэрэмжлүүлэг, үзүүлэлт, биеийн систем бүрийг аюултай нь холбож, Мэдлэг хэсэг аюулаар бүлэглэнэ.",
+    },
+  },
+  {
+    source: SOURCES.hrpRisks,
+    use: {
+      en: "Every body region, alert and Learn card links to the matching HRP risk page — 13 of the 17 listed risks, from immune response to inadequate teamwork.",
+      mn: "Биеийн хэсэг, сэрэмжлүүлэг, Мэдлэг карт бүр харгалзах HRP эрсдэлийн хуудастай холбогдсон — жагсаасан 17 эрсдэлийн 13.",
+    },
+  },
+  {
+    source: SOURCES.hrpResearch,
+    use: {
+      en: "Shows what NASA studies today to protect astronauts' health and performance (behavioral performance, health countermeasures, space radiation); it guided our focus on sleep, vigilance testing, exercise and crew behavioral health.",
+      mn: "NASA-гийн одоогийн судалгааг харуулна (зан төлөв, эрүүл мэндийн хамгаалалт, сансрын цацраг); нойр, анхаарлын тест, дасгал, багийн сэтгэл зүйд анхаарахад чиглүүлсэн.",
+    },
+  },
+  {
+    source: SOURCES.csaRadiation,
+    use: {
+      en: "The radiation explainer on Learn (neutron radiation, Canadian ISS instruments, CANS) and the background for the radiation meter and solar-storm alert, where it is cited.",
+      mn: "Мэдлэг хэсгийн цацрагийн тайлбар (нейтроны цацраг, Канадын ОУСС дахь багаж, CANS), цацрагийн хэмжүүр ба нарны шуурганы сэрэмжлүүлгийн суурь, эх сурвалж.",
+    },
+  },
+  {
+    source: SOURCES.csaScience,
+    use: {
+      en: "Spaceflight changes resemble accelerated aging and a sedentary life on Earth — the \"why space research helps Earth\" note, and the reason the same engine can serve people far from care in Steppe mode.",
+      mn: "Сансрын өөрчлөлт дэлхий дээрх хөгшрөлт, хөдөлгөөний дутагдалтай төстэй — \"сансрын судалгаа дэлхийд тустай\" тэмдэглэл, мөн ижил систем алслагдсан малчдад туслах үндэслэл.",
+    },
+  },
+];

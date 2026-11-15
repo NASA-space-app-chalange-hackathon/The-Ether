@@ -3,11 +3,11 @@
 import { ChevronRight } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
-import { REGION_IDS, type RegionId } from "@/lib/engine/regions";
+import { regionIdsFor, type RegionId } from "@/lib/engine/regions";
 import type { Status } from "@/lib/engine/types";
 import type { MessageKey } from "@/lib/i18n";
 import { motionTokens } from "@/lib/motion-tokens";
-import { useT } from "@/lib/state/useAppState";
+import { useAppState, useT } from "@/lib/state/useAppState";
 import { StatusIcon } from "./Badges";
 import { STATUS_STYLE } from "./status";
 import { THEME } from "./theme";
@@ -30,6 +30,8 @@ function arcPath(startDeg: number, endDeg: number): string {
 /** One ring segment per body system, colored by engine status; overall status in the middle. */
 export function StatusRing({ regions, overall, label }: { regions: Record<RegionId, Status>; overall: Status; label: string }) {
   const t = useT();
+  const { mode } = useAppState();
+  const REGION_IDS = regionIdsFor(mode);
   const seg = 360 / REGION_IDS.length;
   const o = STATUS_STYLE[overall];
   return (

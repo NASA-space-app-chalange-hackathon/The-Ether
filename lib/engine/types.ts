@@ -32,6 +32,7 @@ export type IndicatorId =
   | "pvtMeanRT"
   | "pvtLapses"
   | "exerciseMinutes"
+  | "coldExposure"
   | "radiationDose";
 
 /** A citation. `demo: true` marks values we could not source. */
@@ -110,7 +111,7 @@ export interface AlertEvidence {
   /** Mission day of the reading behind `value` (single readings only). */
   valueDay?: number;
   /** When the status comes from the persistence rule: how many recent days were out of range, and on which side. */
-  trend?: { abnormalDays: number; window: number; direction: "above" | "below" };
+  trend?: { abnormalDays: number; window: number; direction: "above" | "below"; basis: "days" | "average" };
 }
 
 /** A real NASA space-weather event replayed on the mission timeline (from DONKI). */

@@ -24,8 +24,9 @@ function statusReason(st: IndicatorState, t: TFunction): string | null {
   if (st.status !== "watch" && st.status !== "critical") return null;
   if (st.threshold) return t("trends.reasonThreshold");
   if (st.indicator === "exerciseMinutes") return t("trends.reasonAdherence");
-  const { abnormalDays, direction, window } = st.recent;
-  if (abnormalDays === 0 || direction === null) return null;
+  const { abnormalDays, direction, window, basis } = st.recent;
+  if (basis === null || direction === null) return null;
+  if (basis === "average") return t(direction === "above" ? "trends.reasonAvgAbove" : "trends.reasonAvgBelow", { n: window });
   return t(direction === "above" ? "trends.reasonAbove" : "trends.reasonBelow", { k: abnormalDays, n: window });
 }
 

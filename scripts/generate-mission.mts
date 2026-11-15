@@ -168,7 +168,7 @@ function generateMember(member: (typeof CREW)[number], days: number, seed: numbe
   const p = member.profile;
   const s: Required<Series> = {
     heartRate: [], hrv: [], systolicBP: [], diastolicBP: [], glucose: [], temperature: [], spo2: [], bodyMass: [],
-    sleepHours: [], sleepQuality: [], mood: [], crewPulse: [], pvtMeanRT: [], pvtLapses: [], exerciseMinutes: [], radiationDose: [],
+    sleepHours: [], sleepQuality: [], mood: [], crewPulse: [], pvtMeanRT: [], pvtLapses: [], exerciseMinutes: [], radiationDose: [], coldExposure: [],
   };
   const isB = member.id === "orion-b";
   const isC = member.id === "orion-c";
@@ -237,7 +237,7 @@ const STEPPE_EVENTS: readonly MissionEvent[] = [
 function generateHerder(days: number, seed: number): Series {
   const r = new Rand(seed);
   const p = HERDER.profile;
-  const s: Series = { heartRate: [], systolicBP: [], diastolicBP: [], glucose: [], temperature: [], spo2: [], sleepHours: [], sleepQuality: [], mood: [] };
+  const s: Series = { heartRate: [], systolicBP: [], diastolicBP: [], glucose: [], temperature: [], spo2: [], sleepHours: [], sleepQuality: [], mood: [], coldExposure: [] };
   for (let d = 0; d < days; d++) {
     const cold = ramp(d, COLD_SNAP_DAY, COLD_SNAP_DAY + 8);
     s.heartRate!.push(round(r.normal(p.heartRate + 6 * cold, 2.5)));
@@ -250,6 +250,10 @@ function generateHerder(days: number, seed: number): Series {
     s.sleepHours!.push(round(sleep, 1));
     s.sleepQuality!.push(clamp(Math.round(3 + (sleep - 6.5) * 1.1 + r.normal(0, 0.4)), 1, 5));
     s.mood!.push(likert(r, p.mood));
+    // Hours outdoors in deep cold: the snap arrives suddenly (3-day ramp) and herd work roughly doubles
+    // (demo assumption); blood pressure follows more slowly (8-day ramp above).
+    const snap = ramp(d, COLD_SNAP_DAY - 1, COLD_SNAP_DAY + 2);
+    s.coldExposure!.push(round(clamp(r.normal(2.5 + 3 * snap, 0.4), 0, 14), 1));
   }
   return s;
 }

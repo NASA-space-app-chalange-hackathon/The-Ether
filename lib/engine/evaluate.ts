@@ -4,7 +4,7 @@ import { SPE_ACTIVE_DAYS, boneTracker, lowAdherenceSince, radiationTracker, type
 import { INDICATOR_RULE, LONG_DELAY_SECONDS, RULES, resolveTier, stepsUpTo, tierRank, type RuleId } from "./escalation";
 import { formatChange, formatValue } from "./format";
 import { INDICATORS, INDICATOR_IDS } from "./indicators";
-import { PERSIST_WINDOW, WATCH_Z, persistenceStatus, statusRank, worstStatus } from "./persistence";
+import { ORDINAL_WATCH_MEAN, PERSIST_MIN_DAYS, PERSIST_WINDOW, WATCH_Z, persistenceStatus, statusRank, worstStatus } from "./persistence";
 import { checkThreshold, type AbsoluteThreshold } from "./thresholds";
 import type { Alert, AlertEvidence, Baseline, IndicatorId, Reading, Severity, SpaceWeatherEvent, Status } from "./types";
 import { badness, percentChange, robustZ } from "./zscore";
@@ -45,9 +45,14 @@ export interface RecentWindow {
   mean: number | null;
   /** Days in the window that were beyond ±2 SD in the worse direction (the persistence rule counts these). */
   abnormalDays: number;
-  /** Which side of the normal those days fell on. */
+  /** Which side of the normal those days (or the window average) fell on. */
   direction: "above" | "below" | null;
   window: number;
+  /**
+   * Which persistence rule explains the status: enough out-of-range days, or (1–5 scales only)
+   * a 5-day average far enough from normal even though fewer single days crossed the line.
+   */
+  basis: "days" | "average" | null;
 }
 
 export interface MemberAssessment {
@@ -126,7 +131,7 @@ export function evaluateIndicator(
     const z = robustZ(p.value, baseline);
     points.push({ day: p.day, value: p.value, center: baseline.center, spread: baseline.spread, z });
     badByDay.set(p.day, badness(z, meta.worseWhen));
-    zStatus = persistenceStatus(windowBadness(badByDay, p.day));
+    zStatus = persistenceStatus(windowBadness(badByDay, p.day), { ordinal: meta.ordinal });
     if (zStatus === "ok") runStart = null;
     else if (runStart === null) runStart = firstAbnormalDay(badByDay, p.day);
     baseline = updateBaseline(baseline, p, zStatus !== "ok");
@@ -134,7 +139,7 @@ export function evaluateIndicator(
 
   // Re-evaluate persistence at uptoDay itself (it may have no reading).
   if (baseline !== null && uptoDay >= BASELINE_DAYS) {
-    zStatus = persistenceStatus(windowBadness(badByDay, uptoDay));
+    zStatus = persistenceStatus(windowBadness(badByDay, uptoDay), { ordinal: meta.ordinal });
     if (zStatus === "ok") runStart = null;
   }
 
@@ -154,11 +159,16 @@ export function evaluateIndicator(
   const inWindow = points.filter((p) => p.day > uptoDay - PERSIST_WINDOW && p.day <= uptoDay);
   const abnormal = inWindow.filter((p) => p.z !== null && badness(p.z, meta.worseWhen) > WATCH_Z);
   const zSum = abnormal.reduce((sum, p) => sum + (p.z ?? 0), 0);
+  const zs = inWindow.flatMap((p) => (p.z === null ? [] : [p.z]));
+  const meanZ = zs.length >= PERSIST_MIN_DAYS ? zs.reduce((sum, v) => sum + v, 0) / zs.length : 0;
+  const byDays = abnormal.length >= PERSIST_MIN_DAYS;
+  const byAverage = !byDays && meta.ordinal === true && badness(meanZ, meta.worseWhen) > ORDINAL_WATCH_MEAN;
   const recent: RecentWindow = {
     mean: inWindow.length ? inWindow.reduce((sum, p) => sum + p.value, 0) / inWindow.length : null,
     abnormalDays: abnormal.length,
-    direction: abnormal.length === 0 ? null : zSum >= 0 ? "above" : "below",
+    direction: byAverage ? (meanZ >= 0 ? "above" : "below") : abnormal.length === 0 ? null : zSum >= 0 ? "above" : "below",
     window: PERSIST_WINDOW,
+    basis: byDays ? "days" : byAverage ? "average" : null,
   };
 
   return {
@@ -236,8 +246,8 @@ function evidenceFor(state: IndicatorState, uptoDay: number, windowed = false): 
     percentChange: percentChange(value, center),
     sinceDay: state.sinceDay ?? state.latest.day,
     ...(windowDays ? { windowDays } : { valueDay: state.latest.day }),
-    ...(!windowed && !state.threshold && state.recent.direction && state.recent.abnormalDays > 0
-      ? { trend: { abnormalDays: state.recent.abnormalDays, window: state.recent.window, direction: state.recent.direction } }
+    ...(!windowed && !state.threshold && state.recent.direction && state.recent.basis
+      ? { trend: { abnormalDays: state.recent.abnormalDays, window: state.recent.window, direction: state.recent.direction, basis: state.recent.basis } }
       : {}),
   };
 }
@@ -249,7 +259,10 @@ function describe(e: AlertEvidence): string {
   const base = `${meta.label} ${formatValue(e.indicator, e.value)}${unit} vs. your normal ${formatValue(e.indicator, e.baseline)}${unit}`;
   const change = formatChange(e);
   const text = change.percent ? `${base} (${change.percent})` : base;
-  return e.trend ? `${text}, ${e.trend.direction} your normal on ${e.trend.abnormalDays} of the last ${e.trend.window} days` : text;
+  if (!e.trend) return text;
+  return e.trend.basis === "average"
+    ? `${text}, ${e.trend.direction} your normal on average over the last ${e.trend.window} days`
+    : `${text}, ${e.trend.direction} your normal on ${e.trend.abnormalDays} of the last ${e.trend.window} days`;
 }
 
 function makeAlert(

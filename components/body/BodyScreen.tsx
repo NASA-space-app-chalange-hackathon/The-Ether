@@ -8,7 +8,7 @@ import { CrewSwitcher } from "@/components/home/CrewSwitcher";
 import { StatusIcon } from "@/components/ui/Badges";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Segmented } from "@/components/ui/Segmented";
-import { allRegionStatuses, REGION_IDS, type RegionId } from "@/lib/engine/regions";
+import { allRegionStatuses, regionIdsFor, type RegionId } from "@/lib/engine/regions";
 import type { MessageKey } from "@/lib/i18n";
 import { motionTokens } from "@/lib/motion-tokens";
 import { useAssessment } from "@/lib/state/DataProvider";
@@ -19,16 +19,19 @@ import { RegionPanel } from "./RegionPanel";
 const FRONT_ONLY: readonly RegionId[] = ["eyes", "heart", "gut"];
 const { duration, easing, distance } = motionTokens;
 
-function isRegion(v: string | null): v is RegionId {
-  return v !== null && (REGION_IDS as readonly string[]).includes(v);
+function isRegion(v: string | null, ids: readonly RegionId[]): v is RegionId {
+  return v !== null && (ids as readonly string[]).includes(v);
 }
 
 export function BodyScreen() {
   const t = useT();
   const { mode } = useAppState();
   const params = useSearchParams();
+  const regionIds = regionIdsFor(mode);
   const initial = params.get("region");
-  const [selected, setSelected] = useState<RegionId | null>(isRegion(initial) ? initial : null);
+  const [chosen, setSelected] = useState<RegionId | null>(isRegion(initial, regionIds) ? initial : null);
+  // A region from the other mode (e.g. eyes after switching to Steppe) is simply not shown.
+  const selected = chosen && regionIds.includes(chosen) ? chosen : null;
   const [side, setSide] = useState<BodySide>("front");
   const [radiation, setRadiation] = useState(initial === "radiation");
   const a = useAssessment();
@@ -67,10 +70,10 @@ export function BodyScreen() {
               )}
             </div>
             <div className="mx-auto h-[460px] max-w-xs">
-              <BodyFigure side={side} statuses={statuses} selected={selected} onSelect={select} radiationOverlay={radiation && mode === "space"} />
+              <BodyFigure side={side} regions={regionIds} statuses={statuses} selected={selected} onSelect={select} radiationOverlay={radiation && mode === "space"} />
             </div>
             <ul aria-label={t("body.systems")} className="grid grid-cols-2 gap-1.5 border-t border-line pt-4 sm:grid-cols-3">
-              {REGION_IDS.map((id) => {
+              {regionIds.map((id) => {
                 const status = statuses[id];
                 const on = selected === id;
                 return (

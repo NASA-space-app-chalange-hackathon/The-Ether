@@ -337,9 +337,18 @@
   "learn.earthTitle": "Why space research helps people on Earth",
   "data.apis": "NASA APIs — real data",
   "data.apisIntro": "Called only from our server routes, never from the browser. Answers are cached for a day; if NASA is slow, down or rate-limited, the app uses a committed snapshot of real responses, so the demo and offline mode keep working.",
-  "data.official": "Official challenge resources",
   "data.fetched": "fetched {date}",
   "data.simulatedTitle": "What is simulated",
   "data.other": "Other cited references",
-  "alerts.sinceOne": "Since day {day} · 1 day"
+  "alerts.sinceOne": "Since day {day} · 1 day",
+  "intro.watch": "Watch the 30-second demo",
+  "intro.body": "Or explore on your own: drag the Mission Clock to time-travel through a 180-day Mars mission.",
+  "intro.dismiss": "Dismiss",
+  "region.cold": "Cold exposure / skin",
+  "ind.coldExposure": "Time outdoors in deep cold",
+  "check.cold": "Hours outdoors in deep cold today",
+  "quest.warm": "Dress in layers and check fingers and toes",
+  "learn.resources": "NASA challenge resources",
+  "trends.reasonAvgAbove": "Status from the trend: your {n}-day average is above your normal.",
+  "trends.reasonAvgBelow": "Status from the trend: your {n}-day average is below your normal."
 }

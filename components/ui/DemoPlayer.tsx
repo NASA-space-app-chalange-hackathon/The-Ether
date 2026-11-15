@@ -3,7 +3,7 @@
 import { Play, Square, TriangleAlert } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import type { MessageKey } from "@/lib/i18n";
 import { motionTokens } from "@/lib/motion-tokens";
 import { DEMO_STEPS, scrubPath } from "@/lib/state/demo";
@@ -12,6 +12,7 @@ import { useT } from "@/lib/state/useAppState";
 import { LogoMark } from "./Logo";
 
 const FRAME_MS = 40;
+export const DEMO_START_EVENT = "the-ether:demo-start";
 const sleep = (ms: number) => new Promise((r) => window.setTimeout(r, ms));
 const { duration, easing, distance } = motionTokens;
 
@@ -46,6 +47,16 @@ export function DemoPlayer() {
     }
     stop();
   };
+
+  // Other components (the first-visit banner) can start the demo.
+  const onStart = useEffectEvent(() => {
+    if (!running.current) void play();
+  });
+  useEffect(() => {
+    const handler = () => onStart();
+    window.addEventListener(DEMO_START_EVENT, handler);
+    return () => window.removeEventListener(DEMO_START_EVENT, handler);
+  }, []);
 
   const active = caption !== null;
   return (

@@ -20,6 +20,14 @@ describe("persistenceStatus (3 of the last 5 days)", () => {
   it("a single huge spike is not enough", () => expect(persistenceStatus([0, 0, 0, 0, 9])).toBe("ok"));
   it("missing days (null) never count as abnormal", () =>
     expect(persistenceStatus([null, 2.5, null, 2.5, null])).toBe("ok"));
+  it("1–5 scales: a whole-step drop that alternates still flags via the 5-day mean", () => {
+    // ORION-B sleep quality, days 66–70: 3, 1, 3, 3, 2 vs a 3.6 ± 0.77 baseline
+    const window = [0.8, 3.5, 0.8, 0.8, 2.1];
+    expect(persistenceStatus(window)).toBe("ok");
+    expect(persistenceStatus(window, { ordinal: true })).toBe("watch");
+    expect(persistenceStatus([1, 0, 1.2, 0, 0.5], { ordinal: true })).toBe("ok");
+    expect(persistenceStatus([2.6, 2.7, 2.6, 2.6, 2.8], { ordinal: true })).toBe("critical");
+  });
   it("only the last 5 entries matter", () => expect(persistenceStatus([3, 3, 3, 0, 0, 0, 0, 0])).toBe("ok"));
 });
 

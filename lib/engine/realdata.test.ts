@@ -7,7 +7,7 @@ import { RULES } from "./escalation";
 import { activeSpaceWeather, evaluateMember } from "./evaluate";
 import { formatChange, formatValue, signed } from "./format";
 import { INDICATOR_HAZARDS } from "./hazards";
-import { INDICATOR_IDS } from "./indicators";
+import { INDICATORS, INDICATOR_IDS } from "./indicators";
 import { signalDelay, type Ephemeris } from "./signal";
 import { readingsFor } from "./testUtils";
 import type { SpaceWeatherEvent } from "./types";
@@ -105,12 +105,28 @@ describe("explainable numbers (bug fixes)", () => {
     expect(lapses.windowDays).toBe(5);
     expect(drift.whatChanged).toContain(`Attention lapses (PVT) ${formatValue("pvtLapses", lapses.value)} vs. your normal ${formatValue("pvtLapses", lapses.baseline)}`);
   });
-  it("Steppe heart rate 'Watch' with a normal reading today is explained by the persistence window", () => {
-    const herd = expandReadings(steppe as unknown as MissionDataset);
-    const hr = evaluateMember("herder-1", herd, 24).indicators.heartRate;
-    expect(hr.status).toBe("watch");
-    expect(Math.abs(hr.z!)).toBeLessThan(2); // today's value alone looks normal…
-    expect(hr.recent).toMatchObject({ abnormalDays: 3, direction: "above", window: 5 }); // …but 3 of the last 5 days were high
-    expect(hr.recent.mean).toBeGreaterThan(hr.latest!.value);
+  it("a 'Watch' whose reading today looks normal is explained by the persistence window", () => {
+    // Search the generated data for every such case (Space and Steppe), instead of hard-coding a day.
+    const cases: { id: string; day: number; ind: string; abnormal: number }[] = [];
+    const sets = [
+      { rs: readings, ids: ["orion-a", "orion-b", "orion-c", "orion-d"], days: 180 },
+      { rs: expandReadings(steppe as unknown as MissionDataset), ids: ["herder-1"], days: 30 },
+    ];
+    for (const { rs, ids, days } of sets) {
+      for (const id of ids) {
+        for (let day = 14; day < days; day++) {
+          for (const st of Object.values(evaluateMember(id, rs, day).indicators)) {
+            if (st.status !== "watch" || st.threshold || st.z === null || Math.abs(st.z) >= 2 || st.indicator === "exerciseMinutes") continue;
+            cases.push({ id, day, ind: st.indicator, abnormal: st.recent.abnormalDays });
+            const why = `${id} day ${day} ${st.indicator}`;
+            expect(st.recent.basis, why).not.toBeNull();
+            expect(st.recent.direction, why).not.toBeNull();
+            if (st.recent.basis === "days") expect(st.recent.abnormalDays, why).toBeGreaterThanOrEqual(3);
+            else expect(INDICATORS[st.indicator].ordinal, why).toBe(true); // the 5-day-average rule is for 1–5 scales only
+          }
+        }
+      }
+    }
+    expect(cases.length).toBeGreaterThan(0);
   });
 });

@@ -29,4 +29,6 @@ export const INDICATOR_HAZARDS: Record<IndicatorId, readonly HazardId[]> = {
   pvtLapses: ["isolation"],
   exerciseMinutes: ["gravity"],
   radiationDose: ["radiation"],
+  // Steppe mode: deep cold is the Earth twin of a hostile environment.
+  coldExposure: ["environment"],
 };

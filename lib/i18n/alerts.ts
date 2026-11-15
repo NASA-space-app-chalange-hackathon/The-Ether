@@ -24,7 +24,10 @@ function whatChangedMn(alert: Alert): string {
       const base = `${label} ${formatValue(e.indicator, e.value)}${unit} (таны хэвийн ${formatValue(e.indicator, e.baseline)}${unit}`;
       const text = change.percent ? `${base}, ${change.percent})` : `${base})`;
       if (!e.trend) return text;
-      return `${text}, сүүлийн ${e.trend.window} хоногийн ${e.trend.abnormalDays}-д хэвийнээс ${e.trend.direction === "above" ? "дээгүүр" : "доогуур"}`;
+      const side = e.trend.direction === "above" ? "дээгүүр" : "доогуур";
+      return e.trend.basis === "average"
+        ? `${text}, сүүлийн ${e.trend.window} хоногийн дунджаар хэвийнээс ${side}`
+        : `${text}, сүүлийн ${e.trend.window} хоногийн ${e.trend.abnormalDays}-д хэвийнээс ${side}`;
     });
   const days = alert.day - alert.sinceDay + 1;
   const windowDays = alert.evidence.find((e) => e.windowDays)?.windowDays;

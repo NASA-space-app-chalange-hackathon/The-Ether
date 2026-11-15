@@ -160,6 +160,9 @@ export function CheckScreen() {
         <NumberField id="temperature" label={t("check.temp")} unit="°C" step={0.1} value={draft.temperature} onChange={(v) => set({ temperature: v })} />
         <NumberField id="spo2" label={t("check.spo2")} unit="%" value={draft.spo2} onChange={(v) => set({ spo2: v })} optional />
         <NumberField id="bodyMass" label={t("check.mass")} unit="kg" step={0.1} value={draft.bodyMass} onChange={(v) => set({ bodyMass: v })} optional />
+        {mode === "steppe" && (
+          <NumberField id="coldExposure" label={t("check.cold")} unit="h" step={0.5} value={draft.coldExposure} onChange={(v) => set({ coldExposure: v })} optional />
+        )}
       </div>
     ),
     sleep: (

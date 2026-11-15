@@ -77,7 +77,8 @@ test("hidden-fatigue evidence: consistent decimals, signed units, labelled as 5-
   await expect(lapses).toContainText("3.0");
   await expect(lapses).toContainText("0.4");
   await expect(lapses).toContainText("+2.6");
-  await expect(table.getByRole("row", { name: /Self-reported mood/ })).toContainText("4.0");
+  // 1–5 scales always show one decimal and a signed change (e.g. "4.2 4.2 ±0.0").
+  await expect(table.getByRole("row", { name: /Self-reported mood/ })).toContainText(/\d\.\d\s+\d\.\d\s+[±+−]\d\.\d/);
   await expect(drift.getByTestId("evidence-note")).toContainText("5-day averages");
   await expect(drift).toContainText("Attention lapses (PVT) 3.0 vs. your normal 0.4");
 
@@ -101,7 +102,8 @@ test("Steppe: real NASA POWER weather, and a 'Watch' explained by the trend", as
   await page.goto("/trends");
   await waitForData(page);
   await page.getByRole("slider", { name: "Өдөр" }).fill("24");
-  await expect(page.getByTestId("trend-reason-heartRate")).toContainText("сүүлийн 5 хоногийн 3-д нь хэвийнээс дээгүүр");
+  await page.locator("fieldset label", { hasText: "Тэс хүйтэнд гадаа байсан цаг" }).click();
+  await expect(page.getByTestId("trend-reason-coldExposure")).toContainText("сүүлийн 5 хоногийн 5-д нь хэвийнээс дээгүүр");
   await expect(page.getByTestId("trend-weather")).toBeVisible();
   await page.getByTestId("mode-space").click();
   expect(problems).toEqual([]);
