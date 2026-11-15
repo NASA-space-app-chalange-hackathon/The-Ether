@@ -1,6 +1,16 @@
 import type { MissionEventKind } from "@/lib/data/dataset";
 
-/** Mongolian labels for dataset-provided names (datasets keep English as the source). */
+/** Mongolian labels for the Space mission's story events. */
+export const EVENTS_SPACE_MN: Record<MissionEventKind, string> = {
+  launch: "Ангараг руу нислэг эхэлсэн — гишүүн бүрийн хэвийн түвшинг суралцаж байна",
+  solar: "Нарны бөөмийн шуурга",
+  drift: "ORION-B: далд ядаргаа илэрсэн",
+  cardio: "ORION-C: зүрх судасны хандлага ахисан",
+  bone: "ORION-D: алгассан дасгал хуримтлагдаж байна",
+  cold: "Хүйтний давалгаа",
+};
+
+/** Mongolian labels for the Steppe story events (datasets keep English as the source). */
 export const EVENTS_MN: Record<MissionEventKind, string> = {
   launch: "Өвөлжөө — таны хэвийн түвшинг суралцаж байна",
   cold: "Хүйтний давалгаа — мал хамгаалах нэмэлт ажил",

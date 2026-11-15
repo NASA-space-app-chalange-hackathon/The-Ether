@@ -8,11 +8,11 @@ test("Crew: privacy-first — ORION-B's details hidden from crewmates, visible t
   await page.getByLabel("Mission day").fill("70");
   const b = page.locator('[data-testid="crew-card"][data-member="orion-b"]');
   await expect(b.getByTestId("crew-private")).toBeVisible();
-  await expect(b).not.toContainText("Possible hidden fatigue");
+  await expect(b).not.toContainText("You may be more tired than you feel");
   await expect(b.getByTestId("count-CMO")).toHaveText("1");
 
   await page.getByRole("radio", { name: "Crew Medical Officer" }).click();
-  await expect(b.getByTestId("crew-details")).toContainText("Possible hidden fatigue");
+  await expect(b.getByTestId("crew-details")).toContainText("You may be more tired than you feel");
   await expect(page.getByTestId("cohesion")).toContainText("Average crew pulse");
   expect(problems).toEqual([]);
 });

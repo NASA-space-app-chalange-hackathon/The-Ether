@@ -13,7 +13,8 @@ import {
   INDICATOR_CARDS,
   type Bilingual,
 } from "@/content/learn";
-import { RULES_MN } from "@/content/rules-mn";
+import { GLOSSARY } from "@/content/glossary";
+import { ruleText } from "@/content/rules-text";
 import { FALLBACK_ICON, HAZARD_ICON, INDICATOR_CARD_ICON, STEPPE_RISK_ICON } from "@/components/ui/icons";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { RealDataBadge } from "@/components/ui/RealDataBadge";
@@ -66,7 +67,7 @@ function readHash(): { tab: Tab; hazard: HazardId | null } {
 function HazardDetail({ id }: { id: HazardId }) {
   const t = useT();
   const labels = useLabels();
-  const { locale } = useAppState();
+  const { locale, mode } = useAppState();
   const name = locale === "mn" ? HAZARDS_MN[id].name : HAZARDS.find((h) => h.id === id)!.name;
   const indicators = INDICATOR_IDS.filter((i) => INDICATOR_HAZARDS[i].includes(id));
   const regions = REGION_IDS.filter((r) => REGION_CONTENT[r].hazards.includes(id));
@@ -98,7 +99,7 @@ function HazardDetail({ id }: { id: HazardId }) {
           <dd>
             <ul className="space-y-1">
               {rules.map((r) => (
-                <li key={r.id}>{locale === "mn" ? (RULES_MN[r.id as keyof typeof RULES_MN]?.title ?? r.title) : r.title}</li>
+                <li key={r.id}>{ruleText(r.id, mode, locale).title}</li>
               ))}
             </ul>
           </dd>
@@ -187,6 +188,24 @@ function RadiationSection() {
   );
 }
 
+function GlossarySection() {
+  const t = useT();
+  const { locale, mode } = useAppState();
+  return (
+    <section className="space-y-3" id="glossary" aria-labelledby="glossary-title">
+      <h2 id="glossary-title" className="eyebrow">{t("learn.glossary")}</h2>
+      <dl className="grid gap-3 sm:grid-cols-2" data-testid="glossary">
+        {GLOSSARY.filter((g) => g.modes.includes(mode)).map((g) => (
+          <div key={g.id} id={`glossary-${g.id}`} className="surface scroll-mt-40 space-y-1 p-4 target:ring-1 target:ring-accent/50">
+            <dt className="font-medium">{g.term[locale]}</dt>
+            <dd className="text-sm text-muted">{g.short[locale]}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
 function EarthSection() {
   const t = useT();
   const { locale } = useAppState();
@@ -222,6 +241,8 @@ export function LearnScreen() {
       setTab(h.tab);
       setHazard(h.hazard);
       if (h.hazard) requestAnimationFrame(() => document.getElementById(`hazard-${h.hazard}`)?.scrollIntoView({ block: "center" }));
+      const hash = window.location.hash.slice(1);
+      if (hash.startsWith("glossary")) requestAnimationFrame(() => document.getElementById(hash)?.scrollIntoView({ block: "center" }));
     };
     apply();
     window.addEventListener("hashchange", apply);
@@ -361,6 +382,8 @@ export function LearnScreen() {
               ))}
             </ul>
           </section>
+
+          <GlossarySection />
         </>
       )}
     </div>

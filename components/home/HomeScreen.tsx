@@ -1,9 +1,11 @@
 "use client";
 
-import { ArrowRight, CircleCheck, CornerDownRight, LoaderCircle, RadioTower } from "lucide-react";
+import { ArrowRight, CircleCheck, ClipboardCheck, CornerDownRight, LoaderCircle, RadioTower } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { AlertSummary } from "@/components/alerts/AlertSummary";
+import { IntroBanner } from "@/components/ui/IntroBanner";
+import { Term } from "@/components/ui/Term";
 import { PageHeader, Panel } from "@/components/ui/PageHeader";
 import { RealDataBadge } from "@/components/ui/RealDataBadge";
 import { StatusRing } from "@/components/ui/StatusRing";
@@ -53,9 +55,12 @@ export function HomeScreen() {
   const { lightTime } = useNasa();
 
   const heading = (
-    <PageHeader title={t("nav.home")}>
-      <CrewSwitcher />
-    </PageHeader>
+    <>
+      <IntroBanner />
+      <PageHeader title={t("nav.home")}>
+        <CrewSwitcher />
+      </PageHeader>
+    </>
   );
   if (!a || !dataset || !member) return <div className="space-y-6">{heading}</div>;
 
@@ -67,6 +72,13 @@ export function HomeScreen() {
   return (
     <div className="space-y-6">
       {heading}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <Link href="/check" className="btn btn-primary min-h-12 px-5 text-[15px]" data-testid="primary-check">
+          <ClipboardCheck size={17} strokeWidth={2} />
+          {t("home.primaryCta")}
+        </Link>
+        <p className="max-w-md text-sm text-muted">{t("home.primaryHelp")}</p>
+      </div>
       <div className="grid gap-4 lg:grid-cols-[1.25fr_1fr]">
         <Panel title={`${labels.memberName(member)} · ${labels.memberRole(member)}`}>
           <StatusRing regions={allRegionStatuses(a)} overall={a.overall} label={labels.memberName(member)} />
@@ -92,7 +104,7 @@ export function HomeScreen() {
                 label={
                   <>
                     <RadioTower size={12} strokeWidth={2} />
-                    {t("signal.label")} ({t(`signal.src.${delay.source}` as MessageKey)})
+                    <Term id="signal">{t("signal.label")}</Term> ({t(`signal.src.${delay.source}` as MessageKey)})
                   </>
                 }
               >
@@ -110,6 +122,7 @@ export function HomeScreen() {
           {mode === "space" && (
             <div className="mt-5 space-y-2">
               <p className="eyebrow">{t("home.environment")}</p>
+              <p className="text-sm text-muted">{t("home.envHelp")}</p>
               <EnvironmentSelector />
             </div>
           )}

@@ -1,4 +1,5 @@
 import type { Environment } from "@/lib/engine/types";
+import type { Locale } from "@/lib/i18n";
 
 export type Mode = "space" | "steppe";
 
@@ -10,8 +11,10 @@ export interface AppState {
   day: Record<Mode, number>;
   /** Space-mode environment (Steppe mode always uses "steppe"). */
   environment: Exclude<Environment, "steppe">;
-  /** First-visit "watch the demo" banner was dismissed or used. */
-  introDismissed: boolean;
+  /** First-visit intro was dismissed or used, per mode (each mode has its own intro). */
+  introDismissed: Record<Mode, boolean>;
+  /** UI language, independent of mode (English default, for international judges). */
+  locale: Locale;
 }
 
 /** Zero-click demo state: ORION-B on day 70 (hidden fatigue visible). */
@@ -20,7 +23,8 @@ export const DEFAULT_STATE: AppState = {
   memberId: { space: "orion-b", steppe: "herder-1" },
   day: { space: 70, steppe: 24 },
   environment: "transit",
-  introDismissed: false,
+  introDismissed: { space: false, steppe: false },
+  locale: "en",
 };
 
 const STORAGE_KEY = "the-ether:state:v1";
@@ -42,7 +46,12 @@ export function parseStored(raw: string | null): AppState {
     return {
       mode,
       environment,
-      introDismissed: s.introDismissed === true,
+      // Older saves stored one boolean for both modes.
+      introDismissed:
+        typeof s.introDismissed === "boolean"
+          ? { space: s.introDismissed, steppe: s.introDismissed }
+          : { space: s.introDismissed?.space === true, steppe: s.introDismissed?.steppe === true },
+      locale: s.locale === "mn" ? "mn" : "en",
       memberId: {
         space: str(s.memberId?.space, DEFAULT_STATE.memberId.space),
         steppe: str(s.memberId?.steppe, DEFAULT_STATE.memberId.steppe),

@@ -1,5 +1,6 @@
 "use client";
 
+import { Term } from "@/components/ui/Term";
 import { Check } from "lucide-react";
 import { useState } from "react";
 import { CrewSwitcher } from "@/components/home/CrewSwitcher";
@@ -65,6 +66,7 @@ export function TrendsScreen() {
         <p className="flex items-center gap-2 text-xs text-muted">
           <span aria-hidden className="h-2.5 w-4 rounded-sm bg-accent/25" />
           {t("trends.legend")}
+          <Term id="normal">{""}</Term>
         </p>
       </div>
 

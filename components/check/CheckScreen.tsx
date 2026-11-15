@@ -1,5 +1,6 @@
 "use client";
 
+import { Term } from "@/components/ui/Term";
 import { Annoyed, ArrowLeft, ArrowRight, ArrowUpRight, Check, ChevronRight, CircleCheck, Frown, Info, Laugh, Meh, RotateCcw, Smile, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
@@ -271,7 +272,10 @@ export function CheckScreen() {
       </nav>
 
       <section className="surface space-y-5 p-5 sm:p-6" aria-labelledby="step-title">
-        <h2 id="step-title" className="text-lg font-semibold tracking-tight">{t(`check.step.${step}` as MessageKey)}</h2>
+        <h2 id="step-title" className="flex items-center gap-1 text-lg font-semibold tracking-tight">
+          {t(`check.step.${step}` as MessageKey)}
+          {step === "pvt" && <Term id="pvt">{""}</Term>}
+        </h2>
         {step !== "review" && <Why step={step} />}
         {body[step]}
       </section>

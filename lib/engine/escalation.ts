@@ -93,7 +93,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
     steps: [
       { tier: "SELF", text: "Sit quietly for 5 minutes, then repeat the heart-rate and blood-pressure check." },
       { tier: "SELF", text: "Note caffeine, exercise, stress, or poor sleep in the last 24 hours." },
-      { tier: "CMO", text: "Crew Medical Officer: repeat the measurement with the medical kit cuff and review the 14-day trend." },
+      { tier: "CMO", text: "Crew doctor: repeat the measurement with the medical kit cuff and review the 14-day trend." },
       { tier: "EARTH", text: "Send the trend summary to the flight surgeon for a private medical conference." },
     ],
     sources: [SOURCES.riskCardio, SOURCES.accAha2017],
@@ -111,7 +111,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
     steps: [
       { tier: "SELF", text: "Stop strenuous activity, sit down, and re-measure SpO₂ with warm hands." },
       { tier: "SELF", text: "Tell a crewmate how you feel (headache, breathlessness, confusion)." },
-      { tier: "CMO", text: "Crew Medical Officer: check the cabin atmosphere readings and the crewmember's symptoms." },
+      { tier: "CMO", text: "Crew doctor: check the cabin atmosphere readings and the crewmember's symptoms." },
       { tier: "EARTH", text: "Notify the flight surgeon and environmental control team immediately." },
     ],
     sources: [SOURCES.riskHypoxia, SOURCES.whoPulseOx],
@@ -130,7 +130,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
     steps: [
       { tier: "SELF", text: "If low: eat a fast-acting carbohydrate snack and re-check in 15 minutes." },
       { tier: "SELF", text: "If high: drink water, log your last meals, and re-check before the next meal." },
-      { tier: "CMO", text: "Crew Medical Officer: review meal logs and the glucose trend with the crewmember." },
+      { tier: "CMO", text: "Crew doctor: review meal logs and the glucose trend with the crewmember." },
       { tier: "EARTH", text: "Ask the flight surgeon and nutrition team to review the menu plan." },
     ],
     sources: [SOURCES.riskNutrition, SOURCES.adaHypoglycemia],
@@ -149,7 +149,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
     steps: [
       { tier: "SELF", text: "Re-check temperature in 30 minutes; rest and drink fluids." },
       { tier: "SELF", text: "Wear a mask and wash hands to protect the crew." },
-      { tier: "CMO", text: "Crew Medical Officer: assess symptoms and consider isolation in the crew quarters." },
+      { tier: "CMO", text: "Crew doctor: assess symptoms and consider isolation in the crew quarters." },
       { tier: "EARTH", text: "Flight surgeon: review for possible infection and medication from the kit." },
     ],
     sources: [SOURCES.riskImmune, SOURCES.riskHostMicrobe, SOURCES.cdcFever],
@@ -168,7 +168,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
     steps: [
       { tier: "SELF", text: "Protect your full scheduled sleep window tonight; dim screens beforehand." },
       { tier: "SELF", text: "Skip caffeine in the second half of your workday." },
-      { tier: "CMO", text: "Crew Medical Officer: review the work schedule and lighting plan with the crewmember." },
+      { tier: "CMO", text: "Crew doctor: review the work schedule and lighting plan with the crewmember." },
     ],
     sources: [SOURCES.riskSleep],
     hazards: ["isolation", "environment"],
@@ -186,7 +186,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
     steps: [
       { tier: "SELF", text: "Take a 20-minute rest break before any critical task." },
       { tier: "SELF", text: "Repeat the reaction-time test after rest." },
-      { tier: "CMO", text: "Crew Medical Officer: consider reassigning safety-critical tasks today." },
+      { tier: "CMO", text: "Crew doctor: consider reassigning safety-critical tasks today." },
     ],
     sources: [SOURCES.riskSleep, SOURCES.basnerPvt],
     hazards: ["isolation"],
@@ -204,7 +204,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
     steps: [
       { tier: "SELF", text: "Schedule time for something you enjoy and a call or message home." },
       { tier: "SELF", text: "Share a meal or activity with a crewmate today." },
-      { tier: "CMO", text: "Crew Medical Officer: have a private check-in conversation." },
+      { tier: "CMO", text: "Crew doctor: have a private check-in conversation." },
       { tier: "EARTH", text: "Book a private session with the ground behavioral health team." },
     ],
     sources: [SOURCES.riskBehavioral, SOURCES.hrpHazards],
@@ -222,7 +222,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
       "Small crews living together for months face friction and communication breakdowns. NASA lists inadequate teamwork as a risk because crew cohesion directly affects mission safety.",
     steps: [
       { tier: "SELF", text: "Join today's shared crew quest or meal." },
-      { tier: "CMO", text: "Commander/CMO: hold a short crew debrief on workload and friction." },
+      { tier: "CMO", text: "Commander / crew doctor: hold a short crew debrief on workload and friction." },
     ],
     sources: [SOURCES.riskTeamwork],
     hazards: ["isolation"],
@@ -239,7 +239,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
       "Astronauts often eat less than they need in space. NASA tracks inadequate food and nutrition because steady weight loss means lost muscle, bone, and energy.",
     steps: [
       { tier: "SELF", text: "Add one extra snack today and log all meals." },
-      { tier: "CMO", text: "Crew Medical Officer: review intake against the menu plan." },
+      { tier: "CMO", text: "Crew doctor: review intake against the menu plan." },
     ],
     sources: [SOURCES.riskNutrition],
     hazards: ["distance", "gravity"],
@@ -256,7 +256,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
       "Without gravity, muscles and the heart lose fitness. Daily exercise is the main countermeasure NASA uses for reduced cardiorespiratory and musculoskeletal fitness.",
     steps: [
       { tier: "SELF", text: "Complete today's resistance and cardio sessions." },
-      { tier: "CMO", text: "Crew Medical Officer: check for injury or schedule conflicts blocking exercise." },
+      { tier: "CMO", text: "Crew doctor: check for injury or schedule conflicts blocking exercise." },
     ],
     sources: [SOURCES.riskFitness],
     hazards: ["gravity"],
@@ -273,7 +273,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
     steps: [
       { tier: "SELF", text: "Be honest in tonight's check-in: how tired do you really feel?" },
       { tier: "SELF", text: "Protect your full sleep window and take a rest break before critical tasks." },
-      { tier: "CMO", text: "Crew Medical Officer: private check-in; review schedule and consider lighter duties for 48 h." },
+      { tier: "CMO", text: "Crew doctor: private check-in; review schedule and consider lighter duties for 48 h." },
       { tier: "EARTH", text: "Ground behavioral health team: private conference with the crewmember." },
     ],
     sources: [SOURCES.riskSleep, SOURCES.riskBehavioral, SOURCES.basnerPvt, DEMO_PARAMETER],
@@ -291,7 +291,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
     steps: [
       { tier: "SELF", text: "Go to the storm shelter (the most shielded area) now and stay until the all-clear." },
       { tier: "SELF", text: "Keep your personal dosimeter on you." },
-      { tier: "CMO", text: "Crew Medical Officer: check each crewmember's dosimeter reading and log the dose." },
+      { tier: "CMO", text: "Crew doctor: check each crewmember's dosimeter reading and log the dose." },
     ],
     sources: [SOURCES.hrpHazards, SOURCES.riskRadiationCancer, SOURCES.csaRadiation],
     hazards: ["radiation"],
@@ -307,7 +307,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
       "Radiation dose adds up over a career and raises long-term cancer risk. NASA limits career effective dose to under 600 mSv.",
     steps: [
       { tier: "SELF", text: "Sleep in the most shielded crew quarters." },
-      { tier: "CMO", text: "Crew Medical Officer: review EVA and work-location plans to limit dose." },
+      { tier: "CMO", text: "Crew doctor: review EVA and work-location plans to limit dose." },
       { tier: "EARTH", text: "Flight surgeon: review remaining-mission dose projection." },
     ],
     sources: [SOURCES.nasaRadiationLimit, SOURCES.riskRadiationCancer],
@@ -324,7 +324,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
       "Without gravity loading the skeleton, weight-bearing bones lose mineral density during spaceflight. Resistance exercise is the main countermeasure; missed sessions add up.",
     steps: [
       { tier: "SELF", text: "Do today's resistance-exercise session (squats, deadlifts, heel raises)." },
-      { tier: "CMO", text: "Crew Medical Officer: review the exercise log and fix schedule conflicts." },
+      { tier: "CMO", text: "Crew doctor: review the exercise log and fix schedule conflicts." },
     ],
     sources: [SOURCES.riskBone, SOURCES.riskFitness, DEMO_PARAMETER],
     hazards: ["gravity"],

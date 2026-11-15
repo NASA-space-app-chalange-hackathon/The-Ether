@@ -1,5 +1,6 @@
 "use client";
 
+import { Term } from "@/components/ui/Term";
 import { CircleCheck, CornerDownRight, Dumbbell, Flame, Trophy } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";
@@ -143,7 +144,10 @@ export function QuestsScreen() {
               <div className="track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(mine.levelProgress * 100)}>
                 <motion.div className="absolute inset-0 origin-left bg-amber" initial={false} animate={{ scaleX: mine.levelProgress }} transition={BAR_TRANSITION} />
               </div>
-              <p className="font-mono text-xs text-muted">{t("quests.xp", { xp: mine.xp, next: LEVEL_XP - (mine.xp % LEVEL_XP) })}</p>
+              <p className="flex items-center gap-0.5 font-mono text-xs text-muted">
+                {t("quests.xp", { xp: mine.xp, next: LEVEL_XP - (mine.xp % LEVEL_XP) })}
+                <Term id="xp">{""}</Term>
+              </p>
               <dl className="grid grid-cols-2 gap-4 border-t border-line pt-4">
                 <div className="space-y-1">
                   <dt className="eyebrow flex items-center gap-1.5">

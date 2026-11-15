@@ -1,48 +1,72 @@
 "use client";
 
-import { Play, X } from "lucide-react";
+import { ArrowRight, Play, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import Link from "next/link";
 import { motionTokens } from "@/lib/motion-tokens";
 import { useMission } from "@/lib/state/DataProvider";
 import { useAppState, useT } from "@/lib/state/useAppState";
+import { useLabels } from "@/lib/state/useLabels";
 import { DEMO_START_EVENT } from "./DemoPlayer";
 
-/** First-visit invitation to the demo story; dismissed (or used) once, then gone for good. */
+/**
+ * First-visit introduction above Mission Home: what the app is, whose (simulated) data
+ * you're looking at, and the two things to do first. Each mode has its own version and
+ * is dismissed separately.
+ */
 export function IntroBanner() {
   const t = useT();
-  const { state, dismissIntro } = useAppState();
-  const { status } = useMission();
-  const show = status === "ready" && !state.introDismissed;
+  const labels = useLabels();
+  const { mode, day, memberId, introDismissed, dismissIntro } = useAppState();
+  const { status, members, maxDay } = useMission();
+  const member = members.find((m) => m.id === memberId);
+  const show = status === "ready" && !introDismissed && member !== undefined;
   return (
-    <AnimatePresence initial={false}>
+    <AnimatePresence initial={false} mode="wait">
       {show && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
+        <motion.section
+          key={mode}
+          initial={{ opacity: 0, y: -motionTokens.distance.sm }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, transition: { duration: motionTokens.duration.fast } }}
           transition={{ duration: motionTokens.duration.normal, ease: motionTokens.easing.smooth }}
-          className="overflow-hidden border-b border-line bg-panel"
+          aria-labelledby="intro-title"
+          className="surface relative overflow-hidden p-5 sm:p-6"
           data-testid="intro-banner"
         >
-          {/* Phone: [button … ✕] on one row, text on its own full-width row below. sm+: one row. */}
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2.5">
+          <span aria-hidden className="absolute inset-y-0 left-0 w-0.5 bg-accent" />
+          <div className="flex items-start gap-3">
+            <div className="max-w-3xl flex-1 space-y-2">
+              <h2 id="intro-title" className="font-medium text-accent">
+                {t(`intro.${mode}.title`)}
+              </h2>
+              <p className="text-sm leading-relaxed text-fg/90">{t(`intro.${mode}.what`)}</p>
+              <p className="text-sm text-muted" data-testid="intro-viewing">
+                {t(`intro.${mode}.viewing`, { name: labels.memberName(member!), day: Math.min(day, maxDay) })}
+              </p>
+            </div>
+            <button type="button" onClick={dismissIntro} aria-label={t("intro.dismiss")} title={t("intro.dismiss")} className="icon-btn shrink-0">
+              <X size={16} strokeWidth={2} />
+            </button>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => {
                 dismissIntro();
                 window.dispatchEvent(new Event(DEMO_START_EVENT));
               }}
-              className="btn btn-primary"
+              className="btn btn-secondary"
             >
               <Play size={14} strokeWidth={2.25} fill="currentColor" />
               {t("intro.watch")}
             </button>
-            <p className="order-last basis-full text-sm text-muted sm:order-none sm:min-w-0 sm:flex-1 sm:basis-0">{t("intro.body")}</p>
-            <button type="button" onClick={dismissIntro} aria-label={t("intro.dismiss")} title={t("intro.dismiss")} className="icon-btn ml-auto sm:ml-0">
-              <X size={16} strokeWidth={2} />
-            </button>
+            <Link href="/check" onClick={dismissIntro} className="btn btn-secondary">
+              {t("intro.check")}
+              <ArrowRight size={14} />
+            </Link>
           </div>
-        </motion.div>
+        </motion.section>
       )}
     </AnimatePresence>
   );

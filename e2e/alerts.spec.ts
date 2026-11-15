@@ -14,7 +14,7 @@ test("EARTH alert: evidence, checklist, ladder, and Message to Ground countdown"
   const card = page.locator('[data-testid="alert-card"][data-rule="cardiovascular"]');
   await expect(card).toBeVisible();
   await expect(card.getByRole("table", { name: /triggered/ })).toContainText("Systolic blood pressure");
-  await expect(card.locator('[aria-current="step"]')).toContainText("Earth");
+  await expect(card.locator('[aria-current="step"]')).toContainText("Doctors on Earth");
 
   await card.getByRole("checkbox").first().check();
   await expect(card).toContainText("1 of 4 done");
@@ -35,7 +35,7 @@ test("behavioral drift card explains with mood evidence; crew view lists the sol
   await open(page, "ORION-B", "70");
   const drift = page.locator('[data-testid="alert-card"][data-rule="behavioral-drift"]');
   await expect(drift).toContainText("Self-reported mood");
-  await expect(drift.locator('[aria-current="step"]')).toContainText("Crew Medical Officer");
+  await expect(drift.locator('[aria-current="step"]')).toContainText("Crew doctor");
 
   await page.getByLabel("Mission day").fill("40");
   await page.getByRole("radio", { name: "Whole crew" }).click();

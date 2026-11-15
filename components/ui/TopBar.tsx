@@ -40,6 +40,32 @@ function ModeToggle() {
   );
 }
 
+/** UI language, independent of mode: Steppe works in English and Space in Mongolian. */
+function LanguageToggle() {
+  const t = useT();
+  const { locale, setLocale } = useAppState();
+  return (
+    <div role="group" aria-label={t("lang.label")} className="flex rounded-[10px] border border-line bg-panel p-0.5 font-mono text-xs">
+      {(["en", "mn"] as const).map((l) => (
+        <button
+          key={l}
+          type="button"
+          lang={l}
+          aria-pressed={locale === l}
+          aria-label={t(`lang.name.${l}`)}
+          title={locale === l ? undefined : t("lang.switchTo", { lang: t(`lang.name.${l}`) })}
+          onClick={() => setLocale(l)}
+          data-testid={`lang-${l}`}
+          className="relative grid min-h-10 min-w-9 place-items-center rounded-lg px-2 font-medium text-muted transition-colors duration-150 hover:text-fg aria-pressed:text-bg"
+        >
+          {locale === l && <motion.span layoutId="lang-pill" transition={springs.snappy} aria-hidden className="absolute inset-0 rounded-lg bg-fg" />}
+          <span className="relative">{t(`lang.${l}`)}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 /** Brand, primary navigation and global actions. Nav wraps to its own row below lg. */
 export function TopBar() {
   const t = useT();
@@ -53,6 +79,7 @@ export function TopBar() {
         <NavBar />
         <div className="ml-auto flex h-14 shrink-0 items-center gap-2">
           <DemoPlayer />
+          <LanguageToggle />
           <ModeToggle />
         </div>
       </div>

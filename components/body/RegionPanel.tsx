@@ -1,13 +1,15 @@
 "use client";
 
+import { Term } from "@/components/ui/Term";
 import { CircleCheck, X } from "lucide-react";
 import { useState } from "react";
 import { RadiationMeter } from "@/components/home/RadiationMeter";
+import { AlertBullets, AlertHeadline } from "@/components/alerts/AlertBullets";
 import { TrendChart } from "@/components/charts/TrendChart";
 import { StatusBadge, StatusIcon, TierBadge } from "@/components/ui/Badges";
 import { HazardTags } from "@/components/ui/HazardTags";
 import { STATUS_STYLE } from "@/components/ui/status";
-import { REGION_CONTENT } from "@/content/risks";
+import { REGION_CONTENT, REGION_CONTENT_MN } from "@/content/risks";
 import { REGION_STEPPE } from "@/content/steppe";
 import { SourceList } from "@/components/ui/SourceList";
 import type { MemberAssessment } from "@/lib/engine/evaluate";
@@ -47,7 +49,11 @@ export function RegionPanel({ region, assessment, onClose }: { region: RegionId;
     <aside aria-labelledby="region-title" className="surface space-y-6 p-5 sm:p-6" data-testid="region-panel">
       <header className="flex items-start justify-between gap-3">
         <div className="space-y-2">
-          <h2 id="region-title" className="text-xl font-semibold tracking-tight">{t(`region.${region}` as MessageKey)}</h2>
+          <h2 id="region-title" className="flex items-center gap-1 text-xl font-semibold tracking-tight">
+            {t(`region.${region}` as MessageKey)}
+            {region === "eyes" && <Term id="sans">{""}</Term>}
+            {region === "radiation" && <Term id="msv">{""}</Term>}
+          </h2>
           <StatusBadge status={status} size="lg" />
           <HazardTags ids={content.hazards} />
         </div>
@@ -57,10 +63,10 @@ export function RegionPanel({ region, assessment, onClose }: { region: RegionId;
       </header>
 
       <Section title={t("panel.function")}>
-        <p className="text-sm leading-relaxed text-fg/90">{steppe ? steppe.function[locale] : content.function}</p>
+        <p className="text-sm leading-relaxed text-fg/90">{steppe ? steppe.function[locale] : locale === "mn" ? REGION_CONTENT_MN[region].function : content.function}</p>
       </Section>
       <Section title={t(steppe ? "panel.earth" : "panel.spaceflight")}>
-        <p className="text-sm leading-relaxed text-fg/90">{steppe ? steppe.effect[locale] : content.spaceflightEffect}</p>
+        <p className="text-sm leading-relaxed text-fg/90">{steppe ? steppe.effect[locale] : locale === "mn" ? REGION_CONTENT_MN[region].spaceflightEffect : content.spaceflightEffect}</p>
       </Section>
 
       {region === "radiation" && <RadiationMeter radiation={assessment.radiation} spaceWeather={assessment.spaceWeather} />}
@@ -137,10 +143,10 @@ export function RegionPanel({ region, assessment, onClose }: { region: RegionId;
             <div key={a.id} className="space-y-2.5 rounded-lg border border-line bg-panel-2/50 p-3.5">
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge status={a.severity} />
-                <span className="font-medium">{a.title}</span>
+                <AlertHeadline alert={a} className="font-medium" />
                 <span className="ml-auto"><TierBadge tier={a.tier} /></span>
               </div>
-              <p className="text-sm text-muted">{a.whatChanged}</p>
+              <AlertBullets alert={a} className="text-muted" />
               <ol className="space-y-1.5 text-sm">
                 {a.doNow.map((step) => (
                   <li key={step.text} className="flex flex-col items-start gap-1 sm:flex-row sm:gap-2">

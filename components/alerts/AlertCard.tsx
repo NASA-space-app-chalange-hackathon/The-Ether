@@ -15,8 +15,9 @@ import type { MessageKey } from "@/lib/i18n";
 import { NASA_LINKS } from "@/lib/nasa/config";
 import { useNasa, useSignalDelay } from "@/lib/state/NasaProvider";
 import { useChecklist } from "@/lib/state/checklist";
-import { useT } from "@/lib/state/useAppState";
+import { useAppState, useT } from "@/lib/state/useAppState";
 import { useLabels } from "@/lib/state/useLabels";
+import { AlertBullets, useAlertSummary } from "./AlertBullets";
 import { MessageToGround } from "./MessageToGround";
 import { TierLadder } from "./TierLadder";
 
@@ -114,6 +115,8 @@ function FirstResponder({ alert }: { alert: Alert }) {
 
 export function AlertCard({ alert, memberName }: { alert: Alert; memberName: string }) {
   const t = useT();
+  const { mode } = useAppState();
+  const { headline } = useAlertSummary(alert);
   const { done, toggle } = useChecklist(`${alert.id}@${alert.sinceDay}`);
   const style = STATUS_STYLE[alert.severity];
   const days = alert.day - alert.sinceDay + 1;
@@ -138,7 +141,10 @@ export function AlertCard({ alert, memberName }: { alert: Alert; memberName: str
 
       <div className="grid gap-x-8 gap-y-6 lg:grid-cols-2">
         <Block n={1} title={t("alerts.whatChanged")}>
-          <p className="text-sm leading-relaxed">{alert.whatChanged}</p>
+          <p className="font-medium" data-testid="alert-headline">{headline}</p>
+          <AlertBullets alert={alert} />
+          <h5 className="eyebrow pt-2">{t("alerts.fullNumbers")}</h5>
+          <p className="text-sm leading-relaxed text-fg/85">{alert.whatChanged}</p>
           {alert.realData?.map((r) => (
             <RealDataBadge key={r.source} source={r.source === "DONKI" ? "NASA DONKI" : "JPL Horizons"} href={r.url} />
           ))}
@@ -175,6 +181,7 @@ export function AlertCard({ alert, memberName }: { alert: Alert; memberName: str
         </Block>
         <Block n={4} title={t("alerts.who")}>
           <TierLadder tier={alert.tier} />
+          <p className="text-xs text-muted">{t(mode === "steppe" ? "alerts.steppeHelp" : "alerts.cmoHelp")}</p>
           <FirstResponder alert={alert} />
           <h5 className="eyebrow pt-3">{t("alerts.sources")}</h5>
           <SourceList sources={alert.sources} />
