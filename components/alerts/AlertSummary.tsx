@@ -7,10 +7,12 @@ import type { MessageKey } from "@/lib/i18n";
 import { useT } from "@/lib/state/useAppState";
 import { StatusIcon, TierBadge } from "@/components/ui/Badges";
 import { STATUS_STYLE } from "@/components/ui/status";
+import { AlertBullets, useAlertSummary } from "./AlertBullets";
 
 /** Compact alert row for Home and the crew view; links into the Action Center. */
 export function AlertSummary({ alert }: { alert: Alert }) {
   const t = useT();
+  const { headline } = useAlertSummary(alert);
   return (
     <li>
       <Link
@@ -21,13 +23,13 @@ export function AlertSummary({ alert }: { alert: Alert }) {
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <StatusIcon status={alert.severity} />
           <span className="sr-only">{t(`status.${alert.severity}` as MessageKey)}:</span>
-          <span className="font-medium">{alert.title}</span>
+          <span className="font-medium" data-testid="alert-headline">{headline}</span>
           <span className="ml-auto flex items-center gap-1.5">
             <TierBadge tier={alert.tier} />
             <ChevronRight size={14} className="text-muted transition-transform duration-150 group-hover:translate-x-0.5" />
           </span>
         </div>
-        <p className="mt-1 line-clamp-2 text-sm text-muted">{alert.whatChanged}</p>
+        <AlertBullets alert={alert} className="mt-1 text-muted" />
         <p className="mt-1 font-mono text-[11px] text-muted">{t("home.since", { day: alert.sinceDay })}</p>
       </Link>
     </li>

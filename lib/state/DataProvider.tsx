@@ -120,9 +120,12 @@ export function useAssessment(memberId?: string, dayOverride?: number): MemberAs
         : null,
     [member, id, mine, day, space, sep, delay],
   );
-  const { locale } = app;
+  const { locale, mode } = app;
   return useMemo(
-    () => (assessment && locale !== "en" ? { ...assessment, alerts: assessment.alerts.map((a) => localizeAlert(a, locale)) } : assessment),
-    [assessment, locale],
+    () =>
+      assessment && !(mode === "space" && locale === "en")
+        ? { ...assessment, alerts: assessment.alerts.map((a) => localizeAlert(a, locale, mode)) }
+        : assessment,
+    [assessment, locale, mode],
   );
 }

@@ -11,6 +11,7 @@ import { getSnapshot } from "@/lib/state/store";
 import { useAppState, useT } from "@/lib/state/useAppState";
 import { useLabels } from "@/lib/state/useLabels";
 import { EVENT_ICON } from "./icons";
+import { Term } from "./Term";
 
 const PLAY_INTERVAL_MS = 140;
 /** Half the slider thumb width: the thumb's centre travels from THUMB_R to (width − THUMB_R). */
@@ -93,9 +94,14 @@ export function MissionClock() {
           </ClockButton>
         </div>
 
-        <output className="min-w-28 font-mono text-sm text-fg" aria-live="polite" data-testid="clock-day">
-          {t("clock.dayOf", { day: current, max: maxDay })}
-        </output>
+        <div className="min-w-28">
+          <output className="block font-mono text-sm text-fg" aria-live="polite" data-testid="clock-day">
+            {t("clock.dayOf", { day: current, max: maxDay })}
+          </output>
+          <p className="text-[11px] leading-tight text-muted" id="clock-help" data-testid="clock-help">
+            {t(`clock.timeline.${mode}`)}
+          </p>
+        </div>
 
         <div className="relative min-w-60 flex-1 pt-6">
           <ul aria-label={t("clock.events")} className="absolute top-0 h-6" style={{ left: THUMB_R, right: THUMB_R }}>
@@ -105,7 +111,7 @@ export function MissionClock() {
               const passed = current >= e.day;
               const label = group.map((x) => (group.length > 1 ? `${t("clock.dayShort", { day: x.day })}: ` : "") + labels.event(x)).join("; ");
               return (
-                <li key={`${e.day}-${e.kind}`} className="absolute -translate-x-1/2" style={{ left: `${pct(e.day)}%` }}>
+                <li key={`${e.day}-${e.kind}`} className="group absolute -translate-x-1/2" style={{ left: `${pct(e.day)}%` }}>
                   <button
                     type="button"
                     onClick={() => setDay(e.day)}
@@ -118,6 +124,13 @@ export function MissionClock() {
                   >
                     <Icon size={13} strokeWidth={2} />
                   </button>
+                  {/* Visible label on hover / keyboard focus (the title attribute is slow and absent on touch). */}
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute left-1/2 top-full z-40 mt-7 hidden w-max max-w-64 -translate-x-1/2 rounded-md border border-line-strong bg-panel-2 px-2 py-1 text-[11px] leading-snug text-fg shadow-[0_8px_24px_rgb(0_0_0/0.45)] group-focus-within:block group-hover:block"
+                  >
+                    {t("clock.dayShort", { day: e.day })} · {label}
+                  </span>
                 </li>
               );
             })}
@@ -130,6 +143,7 @@ export function MissionClock() {
             value={current}
             onChange={(ev) => setDay(Number(ev.target.value))}
             aria-label={t("clock.label")}
+            aria-describedby="clock-help"
             aria-valuetext={t("clock.dayOf", { day: current, max: maxDay })}
             className="range block"
             style={{ ["--pct" as string]: `${pct(current)}%` }}
@@ -139,7 +153,7 @@ export function MissionClock() {
         {mode === "space" && (
           <p className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm" data-testid="signal-delay">
             <RadioTower size={14} strokeWidth={2} className="shrink-0 text-muted" />
-            <span className="whitespace-nowrap text-muted">{t("signal.label")}</span>
+            <Term id="signal" className="whitespace-nowrap text-muted">{t("signal.label")}</Term>
             <span className="whitespace-nowrap font-mono text-fg">{formatDelay(delay.oneWaySeconds)}</span>
             <span className="text-xs text-muted">({t(`signal.src.${delay.source}` as MessageKey)})</span>
           </p>

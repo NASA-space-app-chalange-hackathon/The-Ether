@@ -34,7 +34,7 @@ test("DONKI replay: markers on the clock, real event on Home, shelter alert with
   await expect(card).toContainText("replayed on mission day 40");
   await expect(card).toContainText("Real NASA data");
   await expect(card.getByRole("link", { name: /NASA DONKI — Solar energetic particle event/ })).toHaveAttribute("href", /ccmc\.gsfc\.nasa\.gov\/DONKI/);
-  await expect(card.locator('[aria-current="step"]')).toContainText("Crew Medical Officer");
+  await expect(card.locator('[aria-current="step"]')).toContainText("Crew doctor");
   await expect(card).toContainText("dosimeter");
   await expect(card.getByTestId("hazard-tags")).toContainText("Space Radiation");
   expect(problems).toEqual([]);
@@ -51,7 +51,7 @@ test("JPL Horizons: real light time drives Signal to Earth and 'CMO acts first' 
 
   await at(page, "/alerts", "ORION-C", "95");
   const card = page.locator('[data-testid="alert-card"][data-rule="cardiovascular"]');
-  await expect(card.getByTestId("first-responder")).toContainText("The Crew Medical Officer acts first");
+  await expect(card.getByTestId("first-responder")).toContainText("The crew doctor (CMO) acts first");
   await expect(card.getByTestId("hazard-tags")).toContainText("Distance from Earth");
 
   // On the Moon, Earth answers in seconds: no override.
@@ -80,7 +80,7 @@ test("hidden-fatigue evidence: consistent decimals, signed units, labelled as 5-
   // 1–5 scales always show one decimal and a signed change (e.g. "4.2 4.2 ±0.0").
   await expect(table.getByRole("row", { name: /Self-reported mood/ })).toContainText(/\d\.\d\s+\d\.\d\s+[±+−]\d\.\d/);
   await expect(drift.getByTestId("evidence-note")).toContainText("5-day averages");
-  await expect(drift).toContainText("Attention lapses (PVT) 3.0 vs. your normal 0.4");
+  await expect(drift).toContainText("Attention lapses 3.0 vs. your normal 0.4");
 
   await page.goto("/trends");
   await waitForData(page);
@@ -94,6 +94,7 @@ test("Steppe: real NASA POWER weather, and a 'Watch' explained by the trend", as
   await page.goto("/");
   await waitForData(page);
   await page.getByTestId("mode-steppe").click();
+  await page.getByTestId("lang-mn").click();
   await page.getByRole("slider", { name: "Өдөр" }).fill("17");
   const weather = page.getByTestId("steppe-weather");
   await expect(weather).toContainText("−35.2 °C");
@@ -115,7 +116,7 @@ test("Learn: group by hazard, CSA radiation + Earth notes, Data & sources tab", 
   await waitForData(page);
   await page.locator("#hazard-radiation").getByRole("button", { name: "Show what we track" }).click();
   const detail = page.getByTestId("hazard-detail");
-  await expect(detail).toContainText("Radiation dose (daily)");
+  await expect(detail).toContainText("Radiation dose today");
   await expect(detail.getByRole("link", { name: /Risk of radiation-induced cancers/i })).toHaveAttribute("href", /nasa\.gov\/reference/);
   await expect(page.getByTestId("indicator-cards").locator(":scope > li")).toHaveCount(3);
   await expect(page.getByTestId("csa-radiation")).toContainText("about 30%");

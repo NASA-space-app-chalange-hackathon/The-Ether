@@ -33,10 +33,13 @@ export function CrewSwitcher() {
   const { memberId, setMemberId } = useAppState();
   if (members.length < 2) return null;
   return (
-    <div role="group" aria-label={t("home.crew")} className="flex flex-wrap gap-1.5">
-      {members.map((m) => (
-        <MemberButton key={m.id} member={m} selected={m.id === memberId} onSelect={() => setMemberId(m.id)} />
-      ))}
+    <div className="space-y-1.5">
+      <p className="eyebrow" id="crew-help">{t("home.crewHelp")}</p>
+      <div role="group" aria-label={t("home.crew")} aria-describedby="crew-help" className="flex flex-wrap gap-1.5">
+        {members.map((m) => (
+          <MemberButton key={m.id} member={m} selected={m.id === memberId} onSelect={() => setMemberId(m.id)} />
+        ))}
+      </div>
     </div>
   );
 }

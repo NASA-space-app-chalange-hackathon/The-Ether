@@ -103,7 +103,7 @@ describe("explainable numbers (bug fixes)", () => {
     expect(drift.whatChanged).toMatch(/^5-day averages:/);
     const lapses = drift.evidence.find((e) => e.indicator === "pvtLapses")!;
     expect(lapses.windowDays).toBe(5);
-    expect(drift.whatChanged).toContain(`Attention lapses (PVT) ${formatValue("pvtLapses", lapses.value)} vs. your normal ${formatValue("pvtLapses", lapses.baseline)}`);
+    expect(drift.whatChanged).toContain(`Attention lapses ${formatValue("pvtLapses", lapses.value)} vs. your normal ${formatValue("pvtLapses", lapses.baseline)}`);
   });
   it("a 'Watch' whose reading today looks normal is explained by the persistence window", () => {
     // Search the generated data for every such case (Space and Steppe), instead of hard-coding a day.

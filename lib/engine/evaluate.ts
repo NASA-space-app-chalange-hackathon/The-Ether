@@ -1,6 +1,6 @@
 import { BASELINE_DAYS, buildBaseline, updateBaseline, type DailyValue } from "./baseline";
 import { detectBehavioralDrift, windowMean, type DriftResult, type WindowBadness } from "./composite";
-import { SPE_ACTIVE_DAYS, boneTracker, lowAdherenceSince, radiationTracker, type BoneTracker, type RadiationTracker } from "./cumulative";
+import { CAREER_LIMIT_MSV, SPE_ACTIVE_DAYS, boneTracker, lowAdherenceSince, radiationTracker, type BoneTracker, type RadiationTracker } from "./cumulative";
 import { INDICATOR_RULE, LONG_DELAY_SECONDS, RULES, resolveTier, stepsUpTo, tierRank, type RuleId } from "./escalation";
 import { formatChange, formatValue } from "./format";
 import { INDICATORS, INDICATOR_IDS } from "./indicators";
@@ -412,6 +412,7 @@ export function evaluateMember(
         : `Dosimeter: no spike yet (today ${today.toFixed(2)} mSv, usual ${usual.toFixed(2)}) — shelter anyway until the Crew Medical Officer confirms the dose.`,
     );
     const alert = makeAlert(memberId, "radiation-event", "critical", since, uptoDay, evidence, parts.join(" "), delay);
+    alert.facts = { todayDose: today, usualDose: usual, doseSpike: measured.eventActive, ...(sep ? { realDate: sep.realDate } : {}) };
     if (sep) {
       alert.realData = [{ source: "DONKI", realDate: sep.realDate, ...(sep.url ? { url: sep.url } : {}) }];
       alert.sources = [
@@ -428,16 +429,22 @@ export function evaluateMember(
   if (radiation.fractionOfLimit >= 0.5) {
     const severity: Severity = radiation.fractionOfLimit >= 0.8 ? "critical" : "watch";
     const what = `Career dose ${radiation.totalDose.toFixed(0)} mSv = ${(radiation.fractionOfLimit * 100).toFixed(0)}% of the 600 mSv limit.`;
-    alerts.push(makeAlert(memberId, "radiation-cumulative", severity, uptoDay, uptoDay, [], what, delay));
+    const cumulative = makeAlert(memberId, "radiation-cumulative", severity, uptoDay, uptoDay, [], what, delay);
+    cumulative.facts = { totalDose: radiation.totalDose, limitDose: CAREER_LIMIT_MSV };
+    alerts.push(cumulative);
   }
   if (lowExerciseSince !== null && bone.adherence !== null) {
     const what = `Exercise target met ${Math.round(bone.adherence * 100)}% over the last 14 days ${daysPhrase(lowExerciseSince, uptoDay)}.`;
-    alerts.push(makeAlert(memberId, "fitness", "watch", lowExerciseSince, uptoDay, [], what, delay));
+    const fitness = makeAlert(memberId, "fitness", "watch", lowExerciseSince, uptoDay, [], what, delay);
+    fitness.facts = { adherencePct: Math.round(bone.adherence * 100) };
+    alerts.push(fitness);
   }
   if ((bone.status === "watch" || bone.status === "critical") && bone.sinceDay !== null) {
     const pct = bone.adherence === null ? "—" : `${Math.round(bone.adherence * 100)}%`;
     const what = `Bone-loss risk score ${bone.score.toFixed(0)}/100; exercise target met ${pct} over the last 14 days.`;
-    alerts.push(makeAlert(memberId, "bone-loss", bone.status, bone.sinceDay, uptoDay, [], what, delay));
+    const boneAlert = makeAlert(memberId, "bone-loss", bone.status, bone.sinceDay, uptoDay, [], what, delay);
+    boneAlert.facts = { boneScore: Math.round(bone.score), ...(bone.adherence === null ? {} : { adherencePct: Math.round(bone.adherence * 100) }) };
+    alerts.push(boneAlert);
   }
 
   alerts.sort(

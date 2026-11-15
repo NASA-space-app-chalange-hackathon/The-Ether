@@ -19,7 +19,7 @@ test("a check-in flows into Home, Body Map and Alerts without a reload", async (
 
   // Client-side navigation only — no reload.
   await page.getByTestId("check-saved").getByRole("link", { name: "Mission Home" }).click();
-  await expect(page.getByTestId("home-alerts")).toContainText("Blood oxygen low");
+  await expect(page.getByTestId("home-alerts")).toContainText("Blood oxygen is lower than it should be");
   await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Body Map" }).click();
   await expect(page.locator('svg [data-region="lungs"]')).toHaveAttribute("data-status", "critical");
   await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Action Center" }).click();

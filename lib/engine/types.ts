@@ -174,4 +174,22 @@ export interface Alert {
   /** One-way light time to Earth when the alert was assessed (seconds). */
   commsDelaySeconds?: number;
   realData?: RealDataRef[];
+  /** Numbers behind alerts that have no evidence table, so the UI can phrase them in any language. */
+  facts?: AlertFacts;
+}
+
+export interface AlertFacts {
+  /** radiation-event: today's dose and the usual daily dose (mSv); whether the dosimeter spiked. */
+  todayDose?: number;
+  usualDose?: number;
+  doseSpike?: boolean;
+  /** radiation-event: real DONKI event date (yyyy-mm-dd), when one drives the alert. */
+  realDate?: string;
+  /** radiation-cumulative: career dose and limit (mSv). */
+  totalDose?: number;
+  limitDose?: number;
+  /** fitness / bone-loss: share of the exercise goal met over the last 14 days (0–100). */
+  adherencePct?: number;
+  /** bone-loss: risk score 0–100 (demo model). */
+  boneScore?: number;
 }

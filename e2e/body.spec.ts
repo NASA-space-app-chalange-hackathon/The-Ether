@@ -33,7 +33,7 @@ test("mouse click opens the panel with chart, actions and sources", async ({ pag
   const panel = page.getByTestId("region-panel");
   await expect(panel.getByRole("heading", { name: "Heart & vessels" })).toBeVisible();
   await expect(panel.getByTestId("trend-heartRate")).toBeVisible();
-  await expect(panel).toContainText("Earth · flight surgeon");
+  await expect(panel).toContainText("Doctors on Earth");
   await expect(panel.getByRole("link", { name: /Risk of Cardiovascular Adaptations/ })).toHaveAttribute("href", /nasa\.gov/);
 });
 
@@ -42,7 +42,7 @@ test("keyboard: focus a region and press Enter", async ({ page }) => {
   await region(page, "brain").focus();
   await page.keyboard.press("Enter");
   await expect(page.getByTestId("region-panel").getByRole("heading", { name: "Brain & behavior" })).toBeVisible();
-  await expect(page.getByTestId("region-panel")).toContainText("Possible hidden fatigue");
+  await expect(page.getByTestId("region-panel")).toContainText("You may be more tired than you feel");
 });
 
 test.describe("touch", () => {

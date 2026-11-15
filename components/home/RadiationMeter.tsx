@@ -1,5 +1,6 @@
 "use client";
 
+import { Term } from "@/components/ui/Term";
 import { Radiation, Sun } from "lucide-react";
 import { motion } from "motion/react";
 import { CAREER_LIMIT_MSV, type RadiationTracker } from "@/lib/engine/cumulative";
@@ -24,6 +25,7 @@ export function RadiationMeter({ radiation, spaceWeather = null }: { radiation: 
         <h3 className="flex items-center gap-2 text-sm font-medium">
           <Radiation size={14} strokeWidth={2} className="text-muted" />
           {t("radiation.title")}
+          <Term id="msv">{""}</Term>
         </h3>
         <StatusBadge status={radiation.status} />
       </div>
