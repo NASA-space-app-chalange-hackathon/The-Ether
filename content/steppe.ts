@@ -6,7 +6,6 @@ import type { Bilingual } from "./learn";
 /** Earth twin of the space hazards: what a herder household far from care faces. General guidance, not cited figures. */
 export interface SteppeRisk {
   id: "cold" | "altitude" | "isolation" | "distance";
-  icon: string;
   title: Bilingual;
   summary: Bilingual;
   /** The space hazard it mirrors (for the "same problem" story). */
@@ -17,7 +16,6 @@ export interface SteppeRisk {
 export const STEPPE_RISKS: readonly SteppeRisk[] = [
   {
     id: "cold",
-    icon: "❄️",
     title: { en: "Cold exposure", mn: "Хүйтний нөлөө" },
     summary: { en: "Long, deep winters tighten blood vessels, raise blood pressure, and risk frostbite during herd work.", mn: "Урт, хүйтэн өвөл судсыг агшааж, даралтыг нэмж, мал маллах үед хөлдөлтийн эрсдэлтэй." },
     mirrors: { en: "Hostile environment", mn: "Хүнд орчин" },
@@ -25,7 +23,6 @@ export const STEPPE_RISKS: readonly SteppeRisk[] = [
   },
   {
     id: "altitude",
-    icon: "⛰",
     title: { en: "High altitude", mn: "Өндөрлөг газар" },
     summary: { en: "Thinner air means a little less oxygen; smoke from the stove inside the ger makes it worse.", mn: "Агаар сийрэг тул хүчилтөрөгч бага; гэрийн зуухны утаа үүнийг улам дордуулна." },
     mirrors: { en: "Closed environment", mn: "Битүү орчин" },
@@ -33,7 +30,6 @@ export const STEPPE_RISKS: readonly SteppeRisk[] = [
   },
   {
     id: "isolation",
-    icon: "🏕",
     title: { en: "Isolation", mn: "Тусгаарлалт" },
     summary: { en: "Months at a remote winter camp with the same few people wear down sleep, mood, and relationships.", mn: "Алслагдсан өвөлжөөнд цөөн хүнтэй олон сар байх нь нойр, сэтгэл санаа, харилцаанд нөлөөлнө." },
     mirrors: { en: "Isolation and confinement", mn: "Тусгаарлалт ба хязгаарлагдмал орчин" },
@@ -41,7 +37,6 @@ export const STEPPE_RISKS: readonly SteppeRisk[] = [
   },
   {
     id: "distance",
-    icon: "🏥",
     title: { en: "Distance to the soum hospital", mn: "Сумын эмнэлэг хүртэлх зай" },
     summary: { en: "The nearest doctor can be hours away and the phone signal unreliable — so, like astronauts, herders must judge their own health first.", mn: "Ойрын эмч хэдэн цагийн зайтай, утасны сүлжээ тогтворгүй — сансрын нисгэгчдийн адил малчид эрүүл мэндээ эхлээд өөрсдөө үнэлэх хэрэгтэй." },
     mirrors: { en: "Distance from Earth", mn: "Дэлхийгээс хол" },

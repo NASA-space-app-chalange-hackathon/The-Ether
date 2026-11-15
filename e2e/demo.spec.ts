@@ -8,7 +8,7 @@ test("Demo Mode plays the story with captions and can be stopped", async ({ page
   await waitForData(page);
   await page.getByTestId("demo-button").click();
   await expect(page.getByTestId("demo-caption")).toContainText("learns each astronaut");
-  await expect(page.getByTestId("demo-caption")).toContainText("Solar storm", { timeout: 6_000 });
+  await expect(page.getByTestId("demo-caption")).toContainText(/real NASA solar storm/i, { timeout: 6_000 });
   await expect(page.getByTestId("clock-day")).toHaveText("Day 40 / 179");
   await expect(page.getByTestId("demo-caption")).toContainText("hidden fatigue", { timeout: 6_000 });
   await expect(page).toHaveURL(/\/body\?region=brain/);

@@ -30,6 +30,8 @@ test("Learn: 5 hazards and sourced indicator cards", async ({ page }) => {
 test("Learn: NASA challenge resources section links all five official resources", async ({ page }) => {
   await page.goto("/learn");
   await waitForData(page);
+  // The resources live in Learn → Data & sources, next to the NASA APIs.
+  await page.getByRole("radio", { name: "Data & sources" }).click();
   const section = page.getByTestId("challenge-resources");
   await expect(page.getByRole("heading", { name: "NASA challenge resources" })).toBeVisible();
   for (const href of [

@@ -1,0 +1,10 @@
+# Never upload local secrets or tooling with `vercel deploy`; the key comes from Vercel env vars.
+.env*
+!.env.example
+.claude
+.vercel
+.next
+node_modules
+test-results
+playwright-report
+*.tsbuildinfo

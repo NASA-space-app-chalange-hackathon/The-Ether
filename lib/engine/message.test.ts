@@ -5,7 +5,7 @@ import type { Alert } from "./types";
 const alert: Alert = {
   id: "orion-c:cardiovascular", memberId: "orion-c", ruleId: "cardiovascular", title: "Heart & blood pressure trend",
   severity: "critical", tier: "EARTH", day: 95, sinceDay: 84, whatChanged: "Resting heart rate +17% vs. your normal.",
-  whyItMatters: "", doNow: [], sources: [],
+  whyItMatters: "", doNow: [], sources: [], hazards: [],
   evidence: [{ indicator: "systolicBP", value: 139, baseline: 118, zScore: 3.6, percentChange: 18, sinceDay: 84 }],
 };
 

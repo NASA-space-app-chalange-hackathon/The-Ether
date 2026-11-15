@@ -25,7 +25,7 @@ _LIVE_URL_ · https://github.com/NASA-space-app-chalange-hackathon/The-Ether
 - tracks **cumulative radiation** against NASA's 600 mSv career limit and a **bone-loss risk** score from exercise adherence;
 - assigns each alert to **SELF, Crew Medical Officer, or EARTH** using an escalation table of severity × duration.
 
-**How it looks.** A dark cockpit UI built around the **Mission Clock**: drag from day 0 to 179 and every screen time-travels through a simulated Mars transit (solar storm on day 40, hidden fatigue on day 70, a cardiovascular escalation on day 95).
+**How it looks.** A dark cockpit UI built around the **Mission Clock**: drag from day 0 to 179 and every screen time-travels through a simulated Mars transit (a real NASA DONKI solar storm replayed on day 40, hidden fatigue on day 70, a cardiovascular escalation on day 95).
 - **Mission Home**: a status ring per body system, environment selector, signal delay and radiation meter.
 - **Body Map**: a clickable front/back figure, where each region opens its function, its spaceflight effect, NASA risk links, a trend vs. the personal baseline, and actions.
 - **Action Center**: explainable cards with a checklist and an escalation ladder. EARTH alerts open a **Message to Ground** pre-filled with the evidence and a live light-delay countdown.
@@ -36,7 +36,7 @@ _LIVE_URL_ · https://github.com/NASA-space-app-chalange-hackathon/The-Ether
 
 **Impact on Earth.** The same engine, in Mongolian, serves herder households who face the same problem: no doctor nearby, unreliable connection, and the need to self-assess. Steppe mode swaps the risk set (cold, altitude, isolation, distance to the soum hospital) and the ladder (self → family doctor → soum hospital / 103).
 
-**How we built it.** Next.js, TypeScript, Tailwind, Recharts, Framer Motion and IndexedDB (Dexie). There is no backend, no accounts and no keys; data stays on the device, and it works offline as a PWA. The engine, the rPPG signal pipeline (band-pass 0.7–3.5 Hz, FFT peak, SNR quality score) and the PVT scoring are pure TypeScript with 96 unit tests, plus 38 Playwright end-to-end tests: camera fallbacks, offline mode, and a scan for untranslated text in Steppe mode.
+**How we built it.** Next.js, TypeScript, Tailwind, Recharts, Framer Motion and IndexedDB (Dexie). There are no accounts and health data stays on the device; it works offline as a PWA. Three small server routes fetch real public NASA data (DONKI, JPL Horizons, NASA POWER), cached daily, with committed snapshots as a fallback. The engine, the rPPG signal pipeline (band-pass 0.7–3.5 Hz, FFT peak, SNR quality score) and the PVT scoring are pure TypeScript with 126 unit tests, plus 44 Playwright end-to-end tests: camera fallbacks, offline mode, and a scan for untranslated text in Steppe mode.
 
 ## NASA Data
 
@@ -74,7 +74,7 @@ We used **Claude (Anthropic) through Claude Code** as a coding and writing assis
 9. Canadian Space Agency — Why do we conduct science experiments in space? https://www.asc-csa.gc.ca/eng/iss/science/why-do-we-conduct-science-experiments-in-space.asp
 10. SwRI — Radiation exposure associated with a trip to Mars (Zeitlin C. et al., Science 2013;340:1080). https://www.swri.org/press-release/swri-led-team-calculates-radiation-exposure-associated-trip-mars
 11. WHO Pulse Oximetry Training Manual (2011). https://medbox.org/document/pulse-oximetry-training-manual
-12. 2017 ACC/AHA High Blood Pressure Guideline (ACC summary). https://acc.org/Latest-in-Cardiology/Articles/2017/11/08/11/47/mon-5pm-bp-guideline-aha-2017
+12. Whelton PK et al. 2017 ACC/AHA High Blood Pressure Guideline. Hypertension 2018;71(6):e13–e115. https://pubmed.ncbi.nlm.nih.gov/29133356/
 13. American Diabetes Association — Low Blood Glucose (Hypoglycemia). https://diabetes.org/living-with-diabetes/treatment-care/hypoglycemia-low-blood-glucose
 14. CDC — Definitions of Signs, Symptoms, and Conditions of Ill Travelers. https://www.cdc.gov/quarantine/maritime/definitions-signs-symptoms-conditions-ill-travelers.html
 15. Basner M, Dinges DF. Maximizing sensitivity of the PVT to sleep loss. Sleep 2011;34(5):581–591. https://pmc.ncbi.nlm.nih.gov/articles/PMC3079937/

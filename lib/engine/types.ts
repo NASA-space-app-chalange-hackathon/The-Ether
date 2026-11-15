@@ -2,6 +2,9 @@
  * Core domain types for The Ether health engine.
  * Kept framework-free so the engine stays pure and unit-testable.
  */
+import type { HazardId } from "./hazards";
+
+export type { HazardId };
 
 /** Who an alert's action is assigned to. */
 export type Tier = "SELF" | "CMO" | "EARTH";
@@ -103,6 +106,32 @@ export interface AlertEvidence {
   /** Percent change vs. baseline. */
   percentChange: number;
   sinceDay: number;
+  /** Set when `value` is an average over the last N days rather than one reading. */
+  windowDays?: number;
+  /** Mission day of the reading behind `value` (single readings only). */
+  valueDay?: number;
+  /** When the status comes from the persistence rule: how many recent days were out of range, and on which side. */
+  trend?: { abnormalDays: number; window: number; direction: "above" | "below"; basis: "days" | "average" };
+}
+
+/** A real NASA space-weather event replayed on the mission timeline (from DONKI). */
+export interface SpaceWeatherEvent {
+  /** Mission day the real event is replayed on. */
+  day: number;
+  /** Real calendar date of the event (yyyy-mm-dd). */
+  realDate: string;
+  /** DONKI page for the event. */
+  url: string | null;
+  /** GOES saw protons above 100 MeV. */
+  highEnergy: boolean;
+}
+
+/** Real (non-simulated) data that shaped an alert, shown with a "Real NASA data" badge. */
+export interface RealDataRef {
+  source: "DONKI" | "Horizons";
+  /** yyyy-mm-dd of the real observation, when there is one. */
+  realDate?: string;
+  url?: string;
 }
 
 /** One concrete step, owned by a tier of the escalation ladder. */
@@ -135,4 +164,14 @@ export interface Alert {
   sources: Source[];
   /** Inputs that triggered the alert, so the UI can explain it. */
   evidence: AlertEvidence[];
+  /** NASA HRP hazard(s) this alert comes from. */
+  hazards: HazardId[];
+  /**
+   * Set when the alert needs Earth but the light delay is long: the Crew Medical
+   * Officer acts first because Earth can't answer quickly.
+   */
+  firstResponder?: "CMO";
+  /** One-way light time to Earth when the alert was assessed (seconds). */
+  commsDelaySeconds?: number;
+  realData?: RealDataRef[];
 }

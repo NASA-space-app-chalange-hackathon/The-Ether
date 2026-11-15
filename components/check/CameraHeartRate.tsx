@@ -1,6 +1,8 @@
 "use client";
 
+import { Camera, Heart, Lock, RotateCcw, TriangleAlert } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { THEME } from "@/components/ui/theme";
 import { estimateHeartRate, liveWaveform, MIN_QUALITY, type HeartRateEstimate, type Sample } from "@/lib/engine/rppg";
 import { useT } from "@/lib/state/useAppState";
 
@@ -24,7 +26,7 @@ function Waveform({ points }: { points: number[] }) {
   const d = points.map((v, i) => `${(i / (points.length - 1)) * 300},${32 - (v / max) * 28}`).join(" ");
   return (
     <svg viewBox="0 0 300 64" className="h-16 w-full" aria-hidden data-testid="rppg-waveform">
-      <polyline points={d} fill="none" stroke="#ef4444" strokeWidth={2} strokeLinejoin="round" />
+      <polyline points={d} fill="none" stroke={THEME.red} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
     </svg>
   );
 }
@@ -123,21 +125,27 @@ export function CameraHeartRate({ onResult }: { onResult: (bpm: number, quality:
   const good = estimate !== null && estimate.bpm !== null && estimate.quality >= MIN_QUALITY;
 
   return (
-    <div className="space-y-3 rounded-lg border border-line bg-panel-2 p-4" data-testid="camera-hr">
-      <div className="relative mx-auto aspect-[4/3] w-full max-w-sm overflow-hidden rounded-lg bg-bg" hidden={phase !== "starting" && phase !== "measuring"}>
+    <div className="space-y-4 rounded-xl border border-line bg-panel-2/40 p-4 sm:p-5" data-testid="camera-hr">
+      <div className="relative mx-auto aspect-[4/3] w-full max-w-sm overflow-hidden rounded-lg bg-bg outline outline-1 -outline-offset-1 outline-white/10" hidden={phase !== "starting" && phase !== "measuring"}>
         <video ref={videoRef} muted playsInline className="h-full w-full -scale-x-100 object-cover" />
         <div
           aria-hidden
-          className="absolute rounded-[45%] border-2 border-dashed border-accent/80"
+          className="absolute rounded-[45%] border-[1.5px] border-dashed border-white/50"
           style={{ left: `${GUIDE.x * 100}%`, top: `${GUIDE.y * 100}%`, width: `${GUIDE.w * 100}%`, height: `${GUIDE.h * 100}%` }}
         />
-        <div aria-hidden className="absolute border-2 border-red/80" style={{ left: `${ROI.x * 100}%`, top: `${ROI.y * 100}%`, width: `${ROI.w * 100}%`, height: `${ROI.h * 100}%` }} />
+        <div aria-hidden className="absolute rounded-sm border-[1.5px] border-red/80" style={{ left: `${ROI.x * 100}%`, top: `${ROI.y * 100}%`, width: `${ROI.w * 100}%`, height: `${ROI.h * 100}%` }} />
       </div>
 
       {phase === "idle" && (
         <>
-          <p className="text-sm">📷 {t("camera.intro")}</p>
-          <button type="button" onClick={start} className="min-h-11 rounded-lg bg-accent px-5 font-semibold text-bg">{t("camera.start")}</button>
+          <p className="flex items-start gap-2.5 text-sm text-fg/90">
+            <Camera size={16} strokeWidth={2} className="mt-0.5 shrink-0 text-muted" />
+            {t("camera.intro")}
+          </p>
+          <button type="button" onClick={start} className="btn btn-primary">
+            <Camera size={14} strokeWidth={2} />
+            {t("camera.start")}
+          </button>
         </>
       )}
       {phase === "starting" && <p className="text-sm text-muted">{t("camera.starting")}</p>}
@@ -145,8 +153,11 @@ export function CameraHeartRate({ onResult }: { onResult: (bpm: number, quality:
         <div className="space-y-1" aria-live="polite">
           <p className="text-sm">{t("camera.hold")}</p>
           <Waveform points={wave} />
-          <p className="flex justify-between font-mono text-sm tabular-nums">
-            <span>{live ? `♥ ~${live} bpm` : "♥ …"}</span>
+          <p className="flex justify-between font-mono text-sm">
+            <span className="flex items-center gap-1.5">
+              <Heart size={13} className="text-red motion-safe:animate-pulse" fill="currentColor" />
+              {live ? `~${live} bpm` : "…"}
+            </span>
             <span data-testid="camera-remaining">{t("camera.remaining", { s: remaining })}</span>
           </p>
         </div>
@@ -155,21 +166,43 @@ export function CameraHeartRate({ onResult }: { onResult: (bpm: number, quality:
         <div className="space-y-2" data-testid="camera-result">
           {good ? (
             <>
-              <p className="font-mono text-4xl tabular-nums text-red">♥ {estimate.bpm} <span className="text-base text-muted">bpm</span></p>
+              <p className="flex items-baseline gap-2 font-mono text-4xl font-medium tracking-tight text-fg">
+                <Heart size={22} className="self-center text-red" fill="currentColor" />
+                {estimate.bpm} <span className="text-base text-muted">bpm</span>
+              </p>
               <p className="text-xs text-muted">{t("camera.quality", { q: Math.round(estimate.quality * 100) })}</p>
-              <button type="button" onClick={() => onResult(estimate.bpm!, estimate.quality)} className="min-h-11 rounded-lg bg-accent px-5 font-semibold text-bg">
+              <button type="button" onClick={() => onResult(estimate.bpm!, estimate.quality)} className="btn btn-primary">
                 {t("camera.use")}
               </button>
             </>
           ) : (
-            <p className="text-sm text-amber">▲ {t("camera.lowQuality")}</p>
+            <p className="flex items-center gap-2 text-sm text-amber">
+              <TriangleAlert size={14} strokeWidth={2.25} />
+              {t("camera.lowQuality")}
+            </p>
           )}
-          <button type="button" onClick={start} className="min-h-11 px-3 text-sm text-muted hover:text-fg">{t("camera.retry")}</button>
+          <button type="button" onClick={start} className="btn btn-ghost">
+            <RotateCcw size={14} />
+            {t("camera.retry")}
+          </button>
         </div>
       )}
-      {phase === "denied" && <p role="alert" className="text-sm text-amber">▲ {t("camera.denied")}</p>}
-      {phase === "unavailable" && <p role="alert" className="text-sm text-amber">▲ {t("camera.unavailable")}</p>}
-      <p className="text-xs text-muted">🔒 {t("camera.privacy")}</p>
+      {phase === "denied" && (
+        <p role="alert" className="flex items-center gap-2 text-sm text-amber">
+          <TriangleAlert size={14} strokeWidth={2.25} className="shrink-0" />
+          {t("camera.denied")}
+        </p>
+      )}
+      {phase === "unavailable" && (
+        <p role="alert" className="flex items-center gap-2 text-sm text-amber">
+          <TriangleAlert size={14} strokeWidth={2.25} className="shrink-0" />
+          {t("camera.unavailable")}
+        </p>
+      )}
+      <p className="flex items-center gap-2 text-xs text-muted">
+        <Lock size={12} strokeWidth={2} className="shrink-0" />
+        {t("camera.privacy")}
+      </p>
     </div>
   );
 }

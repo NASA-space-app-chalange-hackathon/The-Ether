@@ -39,14 +39,22 @@ On a Mars mission the dangerous health problems are rarely sudden. They are slow
 - **Trends**: multi-indicator charts with personal baseline bands, mission-event annotations, and 7 / 30 day / whole-mission ranges.
 - **Quests**: XP, levels, streaks, and a shared crew goal.
 - **Crew**: the CMO overview with a **privacy-first** toggle (crewmates see only colors unless a person shares).
-- **Learn**: NASA's 5 hazards and 10 indicator cards, each answering *can it be measured in space, why it matters, when to escalate*, with sources.
-- **Works offline** (PWA, hand-written service worker), **zero setup** (no accounts, keys or backend; data stays on the device), and **Demo Mode** to play the story with captions.
+- **Learn**: NASA's 5 hazards (pick one to see its indicators, body systems, alerts and HRP risk pages), the CSA radiation explainer, a list of the real DONKI solar storms on this mission, why space research helps Earth, and 10 indicator cards (*can it be measured in space, why it matters, when to escalate*). A **Data & sources** tab lists every official resource and NASA API and what it powers.
+- **Real NASA data**: DONKI solar storms, JPL Horizons light time and NASA POWER weather, marked with a "Real NASA data" badge; crew health data stays simulated.
+- **Works offline** (PWA, hand-written service worker), no accounts (health data stays on the device), and **Demo Mode** to play the story with captions.
 
 | | |
 | --- | --- |
 | ![Body Map](docs/screenshots/body-day95.png) | ![Action Center](docs/screenshots/alerts-day95.png) |
 | ![Trends](docs/screenshots/trends-day95.png) | ![Steppe mode](docs/screenshots/steppe-home.png) |
 | ![Quests](docs/screenshots/quests-day130.png) | ![Crew](docs/screenshots/crew-day70.png) |
+
+### Real NASA data
+
+| | |
+| --- | --- |
+| ![Day 40: real NASA DONKI solar storm (8 Jun 2024) on Home, with Signal to Earth from JPL Horizons](docs/screenshots/home-day40-real-data.png) | ![Solar particle event alert built from the real DONKI event: shelter, CMO checks dose](docs/screenshots/alerts-day40-solar.png) |
+| ![Steppe mode: real NASA POWER weather card in Mongolian](docs/screenshots/steppe-home.png) | ![Learn → Data & sources: every official resource and NASA API, live or snapshot](docs/screenshots/learn-data-sources.png) |
 
 ## The demo story (synthetic data)
 
@@ -55,7 +63,7 @@ Four fictional crewmembers (ORION-A…D) on a 180-day Mars transit:
 | Day | What happens | What The Ether shows |
 | --- | --- | --- |
 | 0–13 | Baseline period | "Learning your normal" |
-| 40 | ☀️ Solar particle event | Radiation spike, shelter guidance (SELF) |
+| 40 | ☀️ Solar particle event — a **real NASA DONKI event (8 Jun 2024)** replayed on the mission timeline (plus 6 other real 2024 events) | Radiation spike, shelter guidance; the CMO checks everyone's dose |
 | 62–77 | 🧠 ORION-B sleeps less and reacts slower but keeps reporting a good mood | Possible hidden fatigue → **CMO** |
 | 87 → 94 | 🫀 ORION-C resting HR and BP creep up | Watch → **CMO**, then critical → **EARTH** with Message to Ground |
 | 100+ | 🦴 ORION-D skips exercise | Missed-exercise quests, then a rising bone-loss risk score |
@@ -76,18 +84,20 @@ npm run dev            # http://localhost:3000
 | `npm run test` | Unit tests (Vitest): engine, rPPG, PVT, quests, data story, i18n |
 | `npm run e2e` | Playwright e2e on the production build (first run: `npx playwright install chromium`) |
 | `npm run generate` | Regenerate the seeded synthetic datasets in `public/data/` |
+| `npm run nasa:snapshot` | Re-fetch the committed fallback snapshots of real NASA API responses (`lib/nasa/snapshots/`) |
 
 ## Data used
 
 - **NASA**: HRP [5 Hazards](https://www.nasa.gov/hrp/hazards/), [Risks of Human Spaceflight](https://www.nasa.gov/hrp/risks/) (13 risk pages linked in the app), [Ongoing HRP Research](https://www.nasa.gov/hrp/ongoing-hrp-research/), [The Human Body in Space](https://www.nasa.gov/humans-in-space/the-human-body-in-space/), the [OCHMO radiation brief](https://www.nasa.gov/wp-content/uploads/2023/03/radiation-protection-technical-brief-ochmo.pdf) (600 mSv career limit), and NASA OSDR [OSD-569](https://osdr.nasa.gov/bio/repo/data/studies/OSD-569) (Inspiration4 crew blood panels; context only) and [RadLab](https://visualization.osdr.nasa.gov/radlab/).
+- **Real NASA data (APIs)**: [DONKI](https://kauai.ccmc.gsfc.nasa.gov/DONKI/) solar particle events (space-weather replay), [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) Earth–Mars light time (Signal to Earth, escalation), [NASA POWER](https://power.larc.nasa.gov/) Mongolian winter weather (Steppe mode). Called from server routes, cached daily, with a committed snapshot fallback. See Learn → *Data & sources* in the app.
 - **Space agency partner**: Canadian Space Agency, [radiation monitoring](https://www.asc-csa.gc.ca/eng/news/articles/2026/2026-02-26-monitoring-radiation-astronaut-health.asp) and [why science in space](https://www.asc-csa.gc.ca/eng/iss/science/why-do-we-conduct-science-experiments-in-space.asp).
-- **Other**: MSL RAD cruise dose ≈ 1.8 mSv/day (SwRI / Zeitlin et al. 2013), WHO pulse oximetry thresholds, 2017 ACC/AHA BP categories, ADA hypoglycemia, CDC fever definition, the Basner & Dinges PVT lapse definition, and the Verkruysse et al. rPPG green-channel finding.
+- **Other**: MSL RAD cruise dose ≈ 1.8 mSv/day (SwRI / Zeitlin et al. 2013), WHO pulse oximetry thresholds, 2017 ACC/AHA BP guideline (Whelton et al., *Hypertension* 2018), ADA hypoglycemia, CDC fever definition, the Basner & Dinges PVT lapse definition, and the Verkruysse et al. rPPG green-channel finding.
 
 Every source, every synthetic-data assumption and every threshold is listed in [docs/DATA.md](docs/DATA.md). Anything we could not source is labelled *"Demo parameter — not clinically validated"* in the app.
 
 ## Tech stack
 
-Next.js 16 (App Router) · TypeScript (strict) · Tailwind CSS 4 · Framer Motion · Recharts · Dexie (IndexedDB) · Vitest · Playwright. No backend, no API keys, no accounts. Deployed on Vercel.
+Next.js 16 (App Router) · TypeScript (strict) · Tailwind CSS 4 · Motion · Recharts · Dexie (IndexedDB) · Vitest · Playwright. No accounts; health data stays on the device. Three small server routes fetch public NASA data (set `NASA_API_KEY` in Vercel; `DEMO_KEY` is the local fallback — see `.env.example`). Deployed on Vercel.
 
 The health engine (`lib/engine`) is pure TypeScript and unit-tested: baseline, z-score, persistence, thresholds, composite drift, radiation and bone trackers, escalation, signal delay, rPPG, PVT and quests. The story test proves the demo timeline on the generated data.
 

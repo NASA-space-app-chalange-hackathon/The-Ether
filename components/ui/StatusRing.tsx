@@ -1,18 +1,22 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { ChevronRight } from "lucide-react";
+import { motion } from "motion/react";
 import Link from "next/link";
 import { regionIdsFor, type RegionId } from "@/lib/engine/regions";
 import type { Status } from "@/lib/engine/types";
 import type { MessageKey } from "@/lib/i18n";
+import { motionTokens } from "@/lib/motion-tokens";
 import { useAppState, useT } from "@/lib/state/useAppState";
-import { StatusBadge } from "./Badges";
+import { StatusIcon } from "./Badges";
 import { STATUS_STYLE } from "./status";
+import { THEME } from "./theme";
 
-const SIZE = 220;
-const R = 92;
-const STROKE = 18;
-const GAP_DEG = 4;
+const SIZE = 196;
+const R = 86;
+const STROKE = 8;
+const GAP_DEG = 5;
+const { duration, easing } = motionTokens;
 
 function arcPath(startDeg: number, endDeg: number): string {
   const p = (deg: number) => {
@@ -29,41 +33,49 @@ export function StatusRing({ regions, overall, label }: { regions: Record<Region
   const { mode } = useAppState();
   const REGION_IDS = regionIdsFor(mode);
   const seg = 360 / REGION_IDS.length;
+  const o = STATUS_STYLE[overall];
   return (
-    <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-      <div className="relative" style={{ width: SIZE, height: SIZE }}>
+    <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center">
+      <div className="relative shrink-0" style={{ width: SIZE, height: SIZE }}>
         <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} role="img" aria-label={`${label}: ${t(`status.${overall}` as MessageKey)}`}>
-          <circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke="#1e2a47" strokeWidth={STROKE} />
+          <circle cx={SIZE / 2} cy={SIZE / 2} r={R - 16} fill="none" stroke={THEME.line} strokeWidth={1} strokeDasharray="2 4" />
           {REGION_IDS.map((id, i) => (
             <motion.path
               key={id}
               d={arcPath(i * seg + GAP_DEG / 2, (i + 1) * seg - GAP_DEG / 2)}
               fill="none"
               strokeWidth={STROKE}
-              strokeLinecap="butt"
+              strokeLinecap="round"
               initial={{ pathLength: 0, stroke: STATUS_STYLE.unknown.fill }}
               animate={{ pathLength: 1, stroke: STATUS_STYLE[regions[id]].fill }}
-              transition={{ pathLength: { duration: 0.8, delay: i * 0.05, ease: "easeOut" }, stroke: { duration: 0.4 } }}
+              transition={{
+                pathLength: { duration: duration.slow, delay: i * (duration.instant / 2), ease: easing.smooth },
+                stroke: { duration: duration.normal, ease: easing.smooth },
+              }}
             />
           ))}
         </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center">
-          <span className="text-xs uppercase tracking-widest text-muted">{t("home.overall")}</span>
-          <StatusBadge status={overall} size="lg" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-center">
+          <span className="eyebrow">{t("home.overall")}</span>
+          <span className={`flex items-center gap-1.5 text-xl font-semibold tracking-tight ${o.text}`}>
+            <StatusIcon status={overall} size={18} />
+            {t(`status.${overall}` as MessageKey)}
+          </span>
         </div>
       </div>
-      <ul className="grid grid-cols-1 gap-1 text-sm" aria-label={t("home.regions")}>
+      <ul className="grid w-full grid-cols-1 gap-px text-sm" aria-label={t("home.regions")}>
         {REGION_IDS.map((id) => {
-          const s = STATUS_STYLE[regions[id]];
+          const status = regions[id];
           return (
             <li key={id}>
               <Link
                 href={`/body?region=${id}`}
-                className="flex min-h-8 items-center gap-2 rounded px-2 hover:bg-panel-2 focus-visible:outline-2 focus-visible:outline-accent"
+                className="group flex min-h-9 items-center gap-2.5 rounded-md px-2 transition-colors duration-150 hover:bg-panel-2"
               >
-                <span aria-hidden className={`w-4 text-center ${s.text}`}>{s.icon}</span>
-                <span>{t(`region.${id}` as MessageKey)}</span>
-                <span className="sr-only">: {t(`status.${regions[id]}` as MessageKey)}</span>
+                <StatusIcon status={status} />
+                <span className="flex-1">{t(`region.${id}` as MessageKey)}</span>
+                <span className={`text-xs ${status === "ok" ? "text-muted" : STATUS_STYLE[status].text}`}>{t(`status.${status}` as MessageKey)}</span>
+                <ChevronRight size={14} className="-ml-1 text-muted opacity-0 transition-[opacity,transform] duration-150 group-hover:translate-x-0.5 group-hover:opacity-100" />
               </Link>
             </li>
           );

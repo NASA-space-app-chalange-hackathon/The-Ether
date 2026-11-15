@@ -1,5 +1,19 @@
 import type { Environment } from "./types";
 
+/** One row of a real ephemeris (JPL Horizons): Earth–Mars light time on a calendar date. */
+export interface EphemerisRow {
+  date: string;
+  distanceAu: number | null;
+  lightTimeMin: number;
+}
+
+/** Real Earth–Mars light time for the mission dates (from JPL Horizons). */
+export interface Ephemeris {
+  /** Calendar date of mission day 0 (yyyy-mm-dd). */
+  missionStart: string;
+  rows: readonly EphemerisRow[];
+}
+
 /**
  * Approximate one-way signal delay (light time) between Earth and the crew.
  *
@@ -43,14 +57,49 @@ export function earthMarsDistanceKm(day: number): number {
   return distanceAU(EARTH_ORBIT_AU, earthAngle(day), MARS_ORBIT_AU, marsAngle(day)) * AU_KM;
 }
 
+/**
+ * horizons:     real JPL Horizons Earth–Mars light time on that date (Mars base, rover)
+ * interpolated: transit, between Earth (day 0) and Mars' real position on arrival — approximate
+ * model:        the circular-orbit model below (no ephemeris available) — approximate
+ * fixed:        Moon / ISS / Earth constants
+ */
+export type DelaySource = "horizons" | "interpolated" | "model" | "fixed";
+
 export interface SignalDelay {
   /** One-way light time in seconds. */
   oneWaySeconds: number;
   distanceKm: number;
-  approximate: true;
+  approximate: boolean;
+  source: DelaySource;
 }
 
-export function signalDelay(env: Environment, day: number): SignalDelay {
+function isoPlusDays(iso: string, days: number): string {
+  return new Date(Date.parse(`${iso}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
+}
+
+/** Real Earth–Mars light time (s) and distance (km) on a mission day, if the ephemeris covers it. */
+export function marsFromEphemeris(eph: Ephemeris, day: number): { seconds: number; km: number } | null {
+  const date = isoPlusDays(eph.missionStart, day);
+  const row = eph.rows.find((r) => r.date === date);
+  if (!row) return null;
+  const seconds = row.lightTimeMin * 60;
+  return { seconds, km: row.distanceAu !== null ? row.distanceAu * AU_KM : seconds * C_KM_S };
+}
+
+/**
+ * One-way signal delay to Earth. With an ephemeris, Mars base/rover use the real
+ * light time; transit scales it by the fraction of the journey flown (approximate:
+ * the spacecraft heads for where Mars will be on arrival).
+ */
+export function signalDelay(env: Environment, day: number, ephemeris?: Ephemeris): SignalDelay {
+  const real = ephemeris && (env === "mars" || env === "rover" || env === "transit") ? marsFromEphemeris(ephemeris, day) : null;
+  if (real) {
+    if (env === "transit") {
+      const s = Math.min(1, Math.max(0, day / (TRANSFER_DAYS - 1)));
+      return { oneWaySeconds: real.seconds * s, distanceKm: real.km * s, approximate: true, source: "interpolated" };
+    }
+    return { oneWaySeconds: real.seconds, distanceKm: real.km, approximate: false, source: "horizons" };
+  }
   let distanceKm: number;
   switch (env) {
     case "transit":
@@ -61,13 +110,12 @@ export function signalDelay(env: Environment, day: number): SignalDelay {
       distanceKm = earthMarsDistanceKm(day);
       break;
     case "lunar":
-      distanceKm = MOON_KM;
-      break;
+      return { oneWaySeconds: MOON_KM / C_KM_S, distanceKm: MOON_KM, approximate: true, source: "fixed" };
     case "iss":
     case "steppe":
-      return { oneWaySeconds: env === "iss" ? ISS_DELAY_S : 0, distanceKm: env === "iss" ? 400 : 0, approximate: true };
+      return { oneWaySeconds: env === "iss" ? ISS_DELAY_S : 0, distanceKm: env === "iss" ? 400 : 0, approximate: true, source: "fixed" };
   }
-  return { oneWaySeconds: distanceKm / C_KM_S, distanceKm, approximate: true };
+  return { oneWaySeconds: distanceKm / C_KM_S, distanceKm, approximate: true, source: "model" };
 }
 
 /** "12 min 40 s", "1.3 s", "< 1 s". */

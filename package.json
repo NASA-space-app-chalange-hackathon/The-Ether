@@ -11,12 +11,14 @@
     "test": "vitest run",
     "e2e": "playwright test",
     "generate": "node scripts/generate-mission.mts",
+    "nasa:snapshot": "node scripts/nasa-snapshot.mts",
     "gates": "npm run typecheck && npm run lint && npm run test && npm run build && npm run e2e"
   },
   "dependencies": {
     "dexie": "4.4.7",
     "dexie-react-hooks": "4.4.0",
-    "framer-motion": "14.14.0",
+    "lucide-react": "1.66.0",
+    "motion": "14.14.0",
     "next": "16.4.6",
     "react": "19.3.0",
     "react-dom": "19.3.0",

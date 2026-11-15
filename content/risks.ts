@@ -2,13 +2,14 @@ import type { RegionId } from "@/lib/engine/regions";
 import { SOURCES } from "@/lib/engine/sources";
 import type { Source } from "@/lib/engine/types";
 
-export type HazardId = "radiation" | "isolation" | "distance" | "gravity" | "environment";
+import type { HazardId } from "@/lib/engine/hazards";
+
+export type { HazardId };
 
 export interface Hazard {
   id: HazardId;
   /** Name exactly as NASA HRP lists it. */
   name: string;
-  icon: string;
   summary: string;
   source: Source;
 }
@@ -18,35 +19,30 @@ export const HAZARDS: readonly Hazard[] = [
   {
     id: "radiation",
     name: "Space Radiation",
-    icon: "☢",
     summary: "Outside Earth's magnetic field, crews are exposed to cosmic rays and solar particle events that raise long-term cancer risk and can affect the brain and heart.",
     source: SOURCES.hrpHazards,
   },
   {
     id: "isolation",
     name: "Isolation and Confinement",
-    icon: "◎",
     summary: "Months in a small habitat with the same few people can disturb sleep, mood, and teamwork.",
     source: SOURCES.hrpHazards,
   },
   {
     id: "distance",
     name: "Distance from Earth",
-    icon: "⟷",
     summary: "On Mars, messages take up to about 20 minutes each way, so the crew must detect and handle problems themselves.",
     source: SOURCES.nasaBodyInSpace,
   },
   {
     id: "gravity",
     name: "Gravity Fields",
-    icon: "⇣",
     summary: "Weightlessness and partial gravity shift fluids toward the head, unload bones and muscles, and confuse the balance system.",
     source: SOURCES.hrpHazards,
   },
   {
     id: "environment",
     name: "Hostile/Closed Environments",
-    icon: "⬡",
     summary: "A sealed spacecraft controls air, temperature, noise, and microbes — small changes affect everyone on board.",
     source: SOURCES.hrpHazards,
   },

@@ -1,23 +1,19 @@
 "use client";
 
+import { ENV_ICON } from "@/components/ui/icons";
 import type { AppState } from "@/lib/state/store";
 import { useAppState, useT } from "@/lib/state/useAppState";
 
-const ENVS: { id: AppState["environment"]; icon: string }[] = [
-  { id: "transit", icon: "🚀" },
-  { id: "iss", icon: "🛰" },
-  { id: "lunar", icon: "🌙" },
-  { id: "mars", icon: "🔴" },
-  { id: "rover", icon: "🛞" },
-];
+const ENVS: AppState["environment"][] = ["transit", "iss", "lunar", "mars", "rover"];
 
 export function EnvironmentSelector() {
   const t = useT();
   const { state, setEnvironment } = useAppState();
   return (
     <div role="radiogroup" aria-label={t("home.environment")} className="flex flex-wrap gap-1.5">
-      {ENVS.map(({ id, icon }) => {
+      {ENVS.map((id) => {
         const selected = state.environment === id;
+        const Icon = ENV_ICON[id];
         return (
           <button
             key={id}
@@ -25,11 +21,11 @@ export function EnvironmentSelector() {
             role="radio"
             aria-checked={selected}
             onClick={() => setEnvironment(id)}
-            className={`flex min-h-11 items-center gap-1.5 rounded-lg border px-3 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-accent ${
-              selected ? "border-accent bg-accent/10 text-fg" : "border-line text-muted hover:text-fg"
+            className={`flex min-h-10 items-center gap-2 rounded-lg border px-3 text-[13px] font-medium transition-[background-color,border-color,color] duration-150 ${
+              selected ? "border-line-strong bg-panel-2 text-fg" : "border-line text-muted hover:border-line-strong hover:text-fg"
             }`}
           >
-            <span aria-hidden>{icon}</span>
+            <Icon size={14} strokeWidth={2} className={selected ? "text-accent" : undefined} />
             {t(`env.${id}`)}
           </button>
         );

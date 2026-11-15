@@ -1,12 +1,14 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "motion/react";
 import { useState, type KeyboardEvent, type ReactNode } from "react";
 import type { RegionId } from "@/lib/engine/regions";
 import type { Status } from "@/lib/engine/types";
 import type { MessageKey } from "@/lib/i18n";
+import { motionTokens } from "@/lib/motion-tokens";
 import { useT } from "@/lib/state/useAppState";
 import { STATUS_STYLE } from "@/components/ui/status";
+import { THEME } from "@/components/ui/theme";
 
 export type BodySide = "front" | "back";
 
@@ -20,8 +22,9 @@ interface Props {
   radiationOverlay: boolean;
 }
 
-const SKIN = "#111c36";
-const OUTLINE = "#2a3a60";
+const SKIN = THEME.panel2;
+const OUTLINE = THEME.lineStrong;
+const { pulse: PULSE, scale: SCALE, duration: DURATION } = motionTokens;
 
 /** Neutral, abstract silhouette (no face, no gender cues). */
 function Silhouette() {
@@ -129,6 +132,7 @@ export function BodyFigure({ side, regions, statuses, selected, onSelect, radiat
     const isSel = selected === id;
     const isFocus = focused === id;
     const pulse = !reduceMotion && (status === "critical" || id === "heart");
+    const urgent = status === "critical";
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
@@ -150,13 +154,13 @@ export function BodyFigure({ side, regions, statuses, selected, onSelect, radiat
         onBlur={() => setFocused(null)}
         className="cursor-pointer outline-none"
         fill={style.fill}
-        fillOpacity={isSel || isFocus ? 0.9 : 0.55}
-        stroke={isSel || isFocus ? "#e6ecf8" : style.fill}
-        strokeWidth={isSel || isFocus ? 2.5 : 1.25}
+        fillOpacity={isSel || isFocus ? 0.85 : 0.4}
+        stroke={isSel || isFocus ? THEME.fg : style.fill}
+        strokeWidth={isSel || isFocus ? 2 : 1}
         style={{ transformBox: "fill-box", transformOrigin: "center" }}
-        animate={pulse ? { scale: status === "critical" ? [1, 1.07, 1] : [1, 1.04, 1] } : { scale: 1 }}
-        transition={pulse ? { duration: status === "critical" ? 0.8 : 1.1, repeat: Infinity, ease: "easeInOut" } : undefined}
-        whileHover={{ fillOpacity: 0.9 }}
+        animate={pulse ? { scale: urgent ? [1, SCALE.pop + 0.02, 1] : [1, SCALE.pop - 0.01, 1] } : { scale: 1 }}
+        transition={pulse ? { duration: urgent ? PULSE.urgent : PULSE.calm, repeat: Infinity, ease: "easeInOut" } : { duration: DURATION.fast }}
+        whileHover={{ fillOpacity: 0.85 }}
       >
         {node}
       </motion.g>
@@ -167,8 +171,8 @@ export function BodyFigure({ side, regions, statuses, selected, onSelect, radiat
     <svg viewBox="0 0 200 430" className="h-full max-h-[560px] w-full" role="group" aria-label={`${t("body.figure")} — ${t(side === "front" ? "body.front" : "body.back")}`}>
       <defs>
         <radialGradient id="rad-aura">
-          <stop offset="55%" stopColor={radStyle.fill} stopOpacity={0.05} />
-          <stop offset="100%" stopColor={radStyle.fill} stopOpacity={0.35} />
+          <stop offset="55%" stopColor={radStyle.fill} stopOpacity={0.03} />
+          <stop offset="100%" stopColor={radStyle.fill} stopOpacity={0.22} />
         </radialGradient>
       </defs>
       {radiationOverlay && regions.includes("radiation") && region("radiation", <ellipse cx={100} cy={222} rx={96} ry={214} fill="url(#rad-aura)" fillOpacity={1} />)}

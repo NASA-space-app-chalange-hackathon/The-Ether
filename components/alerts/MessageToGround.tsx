@@ -1,10 +1,12 @@
 "use client";
 
 import { useLiveQuery } from "dexie-react-hooks";
+import { CircleCheck, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getDB, type GroundMessage } from "@/lib/db/schema";
 import { arrivalTime, composeGroundMessage } from "@/lib/engine/message";
-import { formatDelay, signalDelay } from "@/lib/engine/signal";
+import { formatDelay } from "@/lib/engine/signal";
+import { useSignalDelay } from "@/lib/state/NasaProvider";
 import type { Alert } from "@/lib/engine/types";
 import { useAppState, useT } from "@/lib/state/useAppState";
 import { useLabels } from "@/lib/state/useLabels";
@@ -27,20 +29,28 @@ function SentMessage({ msg, now }: { msg: GroundMessage; now: number }) {
   const total = Math.max(1, (msg.arrivesAt - msg.sentAt) / 1000);
   const time = new Date(msg.sentAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   return (
-    <li className="space-y-1 rounded-lg border border-line bg-bg/60 p-3" data-testid="ground-sent">
-      <p className="text-xs text-muted">{t("ground.sent", { time })}</p>
+    <li className="space-y-2 rounded-lg border border-line bg-bg/60 p-3" data-testid="ground-sent">
+      <p className="font-mono text-xs text-muted">{t("ground.sent", { time })}</p>
       {remaining > 0 ? (
         <>
           <p className="flex items-baseline gap-2">
             <span className="text-sm">{t("ground.arrivesIn")}</span>
-            <span className="font-mono text-2xl tabular-nums text-accent" data-testid="ground-countdown">{formatDelay(remaining)}</span>
+            <span className="font-mono text-2xl font-medium tracking-tight text-accent" data-testid="ground-countdown">
+              {formatDelay(remaining)}
+            </span>
           </p>
-          <div className="h-1.5 overflow-hidden rounded-full bg-line">
-            <div className="h-full bg-accent transition-[width] duration-1000 ease-linear" style={{ width: `${Math.max(0, 100 - (remaining / total) * 100)}%` }} />
+          <div className="track h-1">
+            <div
+              className="absolute inset-0 origin-left bg-accent transition-transform duration-1000 ease-linear"
+              style={{ transform: `scaleX(${Math.max(0, 1 - remaining / total)})` }}
+            />
           </div>
         </>
       ) : (
-        <p className="text-sm font-semibold text-ok">✓ {t("ground.arrived")}</p>
+        <p className="flex items-center gap-2 text-sm font-medium text-ok">
+          <CircleCheck size={14} strokeWidth={2.25} />
+          {t("ground.arrived")}
+        </p>
       )}
     </li>
   );
@@ -48,11 +58,11 @@ function SentMessage({ msg, now }: { msg: GroundMessage; now: number }) {
 
 export function MessageToGround({ alert, memberName, completed }: { alert: Alert; memberName: string; completed: readonly string[] }) {
   const t = useT();
-  const { environment, mode, locale } = useAppState();
+  const { mode, locale } = useAppState();
   const labels = useLabels();
   const [draft, setDraft] = useState<string | null>(null);
   const composed = composeGroundMessage({ alert, memberName, completed, locale, label: labels.indicator });
-  const delay = signalDelay(environment, alert.day).oneWaySeconds;
+  const delay = useSignalDelay(alert.day).oneWaySeconds;
   const sent = useLiveQuery(() => getDB().messages.where("alertId").equals(alert.id).sortBy("sentAt"), [alert.id]) ?? [];
   const now = useNow(sent.map((m) => m.arrivesAt));
 
@@ -70,27 +80,22 @@ export function MessageToGround({ alert, memberName, completed }: { alert: Alert
   };
 
   return (
-    <section className="space-y-3 rounded-lg border border-accent/40 bg-accent/5 p-4" data-testid="ground-composer">
-      <h4 className="font-semibold text-accent">🌍 {t(mode === "steppe" ? "ground.titleSteppe" : "ground.title")}</h4>
-      {mode === "space" && (
-        <p className="text-sm">{t("ground.delayIfSent", { delay: formatDelay(delay), round: formatDelay(delay * 2) })}</p>
-      )}
-      <label className="block space-y-1">
-        <span className="text-xs text-muted">{t("ground.label")}</span>
-        <textarea
-          value={draft ?? composed}
-          onChange={(e) => setDraft(e.target.value)}
-          rows={8}
-          className="w-full rounded-lg border border-line bg-bg p-3 font-mono text-xs leading-relaxed text-fg focus:border-accent focus:outline-none"
-        />
+    <section className="space-y-4 rounded-xl border border-accent/25 bg-accent/[0.04] p-4 sm:p-5" data-testid="ground-composer">
+      <div className="space-y-1">
+        <h4 className="flex items-center gap-2 font-medium text-accent">
+          <Send size={15} strokeWidth={2} />
+          {t(mode === "steppe" ? "ground.titleSteppe" : "ground.title")}
+        </h4>
+        {mode === "space" && <p className="text-sm text-fg/80">{t("ground.delayIfSent", { delay: formatDelay(delay), round: formatDelay(delay * 2) })}</p>}
+      </div>
+      <label className="block space-y-1.5">
+        <span className="eyebrow">{t("ground.label")}</span>
+        <textarea value={draft ?? composed} onChange={(e) => setDraft(e.target.value)} rows={8} className="field block w-full p-3 font-mono text-xs leading-relaxed" />
       </label>
       <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={send}
-          className="min-h-11 rounded-lg bg-accent px-4 font-semibold text-bg transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-        >
-          {t("ground.send")} ↗
+        <button type="button" onClick={send} className="btn btn-primary">
+          {t("ground.send")}
+          <Send size={14} strokeWidth={2} />
         </button>
         <p className="text-xs text-muted">{t("ground.local")}</p>
       </div>

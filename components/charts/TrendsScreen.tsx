@@ -1,14 +1,34 @@
 "use client";
 
+import { Check } from "lucide-react";
 import { useState } from "react";
 import { CrewSwitcher } from "@/components/home/CrewSwitcher";
 import { StatusBadge } from "@/components/ui/Badges";
+import { HazardTags } from "@/components/ui/HazardTags";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Segmented } from "@/components/ui/Segmented";
+import type { IndicatorState } from "@/lib/engine/evaluate";
+import { formatValue } from "@/lib/engine/format";
+import { INDICATOR_HAZARDS } from "@/lib/engine/hazards";
 import { INDICATORS, INDICATOR_IDS } from "@/lib/engine/indicators";
 import type { IndicatorId } from "@/lib/engine/types";
+import type { TFunction } from "@/lib/state/useAppState";
 import { useAssessment, useMission } from "@/lib/state/DataProvider";
 import { useAppState, useT } from "@/lib/state/useAppState";
 import { useLabels } from "@/lib/state/useLabels";
 import { TrendChart } from "./TrendChart";
+import { WeatherPanel } from "./WeatherChart";
+
+/** Why an indicator is Watch/Critical when today's value alone may look normal. */
+function statusReason(st: IndicatorState, t: TFunction): string | null {
+  if (st.status !== "watch" && st.status !== "critical") return null;
+  if (st.threshold) return t("trends.reasonThreshold");
+  if (st.indicator === "exerciseMinutes") return t("trends.reasonAdherence");
+  const { abnormalDays, direction, window, basis } = st.recent;
+  if (basis === null || direction === null) return null;
+  if (basis === "average") return t(direction === "above" ? "trends.reasonAvgAbove" : "trends.reasonAvgBelow", { n: window });
+  return t(direction === "above" ? "trends.reasonAbove" : "trends.reasonBelow", { k: abnormalDays, n: window });
+}
 
 const DEFAULT_SELECTION: IndicatorId[] = ["heartRate", "systolicBP", "sleepHours", "pvtMeanRT"];
 const RANGES = [7, 30, 180] as const;
@@ -17,7 +37,7 @@ type Range = (typeof RANGES)[number];
 export function TrendsScreen() {
   const t = useT();
   const labels = useLabels();
-  const { day } = useAppState();
+  const { day, mode } = useAppState();
   const { events, maxDay } = useMission();
   const a = useAssessment();
   const [selection, setSelection] = useState<IndicatorId[]>(DEFAULT_SELECTION);
@@ -30,35 +50,48 @@ export function TrendsScreen() {
   const toggle = (id: IndicatorId) => setSelection((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-semibold">{t("nav.trends")}</h1>
-          <p className="max-w-xl text-sm text-muted">{t("trends.intro")}</p>
-        </div>
+    <div className="space-y-6">
+      <PageHeader title={t("nav.trends")} intro={t("trends.intro")}>
         <CrewSwitcher />
+      </PageHeader>
+
+      <div className="flex flex-wrap items-center gap-4">
+        <Segmented
+          label={t("trends.range")}
+          value={range}
+          onChange={setRange}
+          options={RANGES.map((r) => ({ value: r, label: r === 180 ? t("trends.all") : t("trends.days", { n: r }) }))}
+        />
+        <p className="flex items-center gap-2 text-xs text-muted">
+          <span aria-hidden className="h-2.5 w-4 rounded-sm bg-accent/25" />
+          {t("trends.legend")}
+        </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <div role="radiogroup" aria-label={t("trends.range")} className="flex rounded-lg border border-line p-0.5 text-sm">
-          {RANGES.map((r) => (
-            <button key={r} type="button" role="radio" aria-checked={range === r} onClick={() => setRange(r)} className="min-h-10 rounded-md px-4 aria-checked:bg-accent/15 aria-checked:text-accent">
-              {r === 180 ? t("trends.all") : t("trends.days", { n: r })}
-            </button>
-          ))}
+      <fieldset className="space-y-2">
+        <legend className="eyebrow mb-2">{t("trends.indicators")}</legend>
+        <div className="flex flex-wrap gap-1.5">
+          {available.map((id) => {
+            const on = selection.includes(id);
+            return (
+              <label
+                key={id}
+                className={`flex min-h-10 cursor-pointer items-center gap-2 rounded-lg border px-3 text-[13px] transition-[background-color,border-color,color] duration-150 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent ${
+                  on ? "border-line-strong bg-panel-2 text-fg" : "border-line text-muted hover:border-line-strong hover:text-fg"
+                }`}
+              >
+                <input type="checkbox" className="sr-only" checked={on} onChange={() => toggle(id)} />
+                <span
+                  aria-hidden
+                  className={`grid h-3.5 w-3.5 place-items-center rounded-[4px] border transition-colors duration-150 ${on ? "border-accent bg-accent text-bg" : "border-line-strong"}`}
+                >
+                  {on && <Check size={10} strokeWidth={3.5} />}
+                </span>
+                {labels.indicator(id)}
+              </label>
+            );
+          })}
         </div>
-        <p className="text-xs text-muted">{t("trends.legend")}</p>
-      </div>
-
-      <fieldset className="flex flex-wrap gap-1.5">
-        <legend className="mb-1.5 text-xs uppercase tracking-widest text-muted">{t("trends.indicators")}</legend>
-        {available.map((id) => (
-          <label key={id} className={`flex min-h-10 cursor-pointer items-center gap-2 rounded-full border px-3 text-sm ${selection.includes(id) ? "border-accent bg-accent/10" : "border-line text-muted"}`}>
-            <input type="checkbox" className="sr-only" checked={selection.includes(id)} onChange={() => toggle(id)} />
-            <span aria-hidden>{selection.includes(id) ? "●" : "○"}</span>
-            {labels.indicator(id)}
-          </label>
-        ))}
       </fieldset>
 
       {a && shown.length === 0 && <p className="text-muted">{t("trends.empty")}</p>}
@@ -69,18 +102,29 @@ export function TrendsScreen() {
             const meta = INDICATORS[id];
             const inRange = st.series.some((p) => p.day >= from && p.day <= today);
             return (
-              <section key={id} className="space-y-2 rounded-xl border border-line bg-panel p-4">
+              <section key={id} className="surface space-y-3 p-4 sm:p-5">
                 <header className="flex flex-wrap items-center gap-2">
-                  <h2 className="font-semibold">{labels.indicator(id)}</h2>
-                  <span className="text-xs text-muted">{meta.unit}</span>
-                  <span className="ml-auto"><StatusBadge status={st.status} /></span>
+                  <h2 className="font-medium">{labels.indicator(id)}</h2>
+                  <span className="font-mono text-xs text-muted">{meta.unit}</span>
+                  <span className="ml-auto">
+                    <StatusBadge status={st.status} />
+                  </span>
+                  <HazardTags ids={INDICATOR_HAZARDS[id]} className="w-full" />
                 </header>
                 {st.latest && (
-                  <p className="font-mono text-xs text-muted tabular-nums">
-                    {t("trends.latest", {
-                      value: `${st.latest.value.toFixed(meta.decimals)} ${meta.unit}`,
-                      normal: st.baseline && !st.learning ? st.baseline.center.toFixed(meta.decimals) : "—",
+                  <p className="font-mono text-xs text-muted" data-testid={`trend-latest-${id}`}>
+                    {t(st.latest.day === today ? "trends.today" : "trends.lastReading", {
+                      value: `${formatValue(id, st.latest.value)} ${meta.unit}`,
+                      day: st.latest.day,
                     })}
+                    {st.recent.mean !== null && <> · {t("trends.avg", { n: st.recent.window, value: formatValue(id, st.recent.mean) })}</>}
+                    {" · "}
+                    {t("trends.normal", { value: st.baseline && !st.learning ? formatValue(id, st.baseline.center) : "—" })}
+                  </p>
+                )}
+                {statusReason(st, t) && (
+                  <p className={`text-xs ${st.status === "critical" ? "text-red" : "text-amber"}`} data-testid={`trend-reason-${id}`}>
+                    {statusReason(st, t)}
                   </p>
                 )}
                 {inRange ? (
@@ -92,6 +136,7 @@ export function TrendsScreen() {
             );
           })}
       </div>
+      {mode === "steppe" && <WeatherPanel from={from} to={today} />}
     </div>
   );
 }

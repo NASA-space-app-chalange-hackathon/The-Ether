@@ -1,6 +1,8 @@
 "use client";
 
+import { Play, RotateCcw } from "lucide-react";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
+import { Segmented } from "@/components/ui/Segmented";
 import { GAP_MAX_MS, GAP_MIN_MS, nextGap, scorePvt, TIMEOUT_MS, type PvtResult, type PvtTrial } from "@/lib/engine/pvt";
 import { useT } from "@/lib/state/useAppState";
 
@@ -118,22 +120,25 @@ export function PvtTest({ onResult }: { onResult: (r: PvtResult | null) => void 
   if (phase === "ready" || phase === "done") {
     return (
       <div className="space-y-3">
-        <p className="text-sm">{t("check.pvt.instructions")}</p>
-        <div role="radiogroup" aria-label={t("check.pvt.duration")} className="flex w-fit rounded-lg border border-line p-0.5 text-sm">
-          {[false, true].map((q) => (
-            <button key={String(q)} type="button" role="radio" aria-checked={quick === q} onClick={() => setQuick(q)} className="min-h-10 rounded-md px-4 aria-checked:bg-accent/15 aria-checked:text-accent">
-              {t(q ? "check.pvt.quick" : "check.pvt.full")}
-            </button>
-          ))}
-        </div>
+        <p className="text-sm text-fg/90">{t("check.pvt.instructions")}</p>
+        <Segmented
+          label={t("check.pvt.duration")}
+          value={quick}
+          onChange={setQuick}
+          options={[
+            { value: false, label: t("check.pvt.full") },
+            { value: true, label: t("check.pvt.quick") },
+          ]}
+        />
         {result && (
-          <p className="rounded-lg border border-line bg-panel-2 p-3 font-mono text-sm" data-testid="pvt-result">
+          <p className="rounded-lg border border-line bg-panel-2/50 p-3 font-mono text-sm" data-testid="pvt-result">
             {result.validTrials >= 3
               ? t("check.pvt.result", { rt: result.meanRT ?? "—", lapses: result.lapses, falseStarts: result.falseStarts })
               : t("check.pvt.tooFew")}
           </p>
         )}
-        <button type="button" onClick={start} className="min-h-11 rounded-lg bg-accent px-5 font-semibold text-bg">
+        <button type="button" onClick={start} className="btn btn-primary">
+          {result ? <RotateCcw size={14} /> : <Play size={13} fill="currentColor" />}
           {result ? t("check.pvt.redo") : t("check.pvt.start")}
         </button>
       </div>
@@ -147,14 +152,14 @@ export function PvtTest({ onResult }: { onResult: (r: PvtResult | null) => void 
         type="button"
         onPointerDown={respond}
         data-testid={phase === "stimulus" ? "pvt-stimulus" : "pvt-wait"}
-        className={`grid h-56 w-full select-none place-items-center rounded-xl border-2 text-center transition-colors ${
-          phase === "stimulus" ? "border-amber bg-amber/15" : "border-line bg-panel-2"
+        className={`grid h-56 w-full touch-manipulation select-none place-items-center rounded-xl border text-center transition-colors duration-75 ${
+          phase === "stimulus" ? "border-amber/60 bg-amber/10" : "border-line bg-panel-2/40"
         }`}
       >
         {phase === "stimulus" ? (
           <span>
-            <span className="block font-mono text-6xl tabular-nums text-amber">{Math.round(counter)}</span>
-            <span className="text-sm font-semibold">{t("check.pvt.tap")}</span>
+            <span className="block font-mono text-6xl font-medium tracking-tight text-amber">{Math.round(counter)}</span>
+            <span className="text-sm font-medium">{t("check.pvt.tap")}</span>
           </span>
         ) : (
           <span className="text-lg text-muted">{falseStart ? t("check.pvt.falseStart") : t("check.pvt.wait")}</span>

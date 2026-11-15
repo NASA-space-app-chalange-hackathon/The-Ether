@@ -1,7 +1,10 @@
 "use client";
 
+import { CircleCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CrewSwitcher } from "@/components/home/CrewSwitcher";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Segmented } from "@/components/ui/Segmented";
 import type { DatasetMember } from "@/lib/data/dataset";
 import { useAssessment, useMission } from "@/lib/state/DataProvider";
 import { useAppState, useT } from "@/lib/state/useAppState";
@@ -38,28 +41,31 @@ export function ActionCenter() {
   }, [count]);
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-semibold">{t("nav.alerts")}</h1>
-          <p className="max-w-xl text-sm text-muted">{t("alerts.intro")}</p>
-        </div>
+    <div className="space-y-6">
+      <PageHeader title={t("nav.alerts")} intro={t("alerts.intro")}>
         <CrewSwitcher />
-      </div>
+      </PageHeader>
       {members.length > 1 && (
-        <div role="radiogroup" aria-label={t("alerts.scope")} className="flex w-fit rounded-lg border border-line p-0.5 text-sm">
-          {(["member", "crew"] as const).map((s) => (
-            <button key={s} type="button" role="radio" aria-checked={scope === s} onClick={() => setScope(s)} className="min-h-10 rounded-md px-4 aria-checked:bg-accent/15 aria-checked:text-accent">
-              {t(s === "member" ? "alerts.scopeMember" : "alerts.scopeCrew")}
-            </button>
-          ))}
-        </div>
+        <Segmented
+          label={t("alerts.scope")}
+          value={scope}
+          onChange={setScope}
+          options={[
+            { value: "member", label: t("alerts.scopeMember") },
+            { value: "crew", label: t("alerts.scopeCrew") },
+          ]}
+        />
       )}
       <div className="space-y-4" data-testid="alert-list">
         {shown.map((m) => (
           <MemberAlerts key={m.id} member={m} />
         ))}
-        {scope === "member" && a && count === 0 && <p className="rounded-xl border border-ok/30 bg-ok/10 p-4 text-ok">✓ {t("alerts.none")}</p>}
+        {scope === "member" && a && count === 0 && (
+          <p className="surface flex items-center gap-2.5 p-4 text-sm text-ok">
+            <CircleCheck size={16} strokeWidth={2.25} />
+            {t("alerts.none")}
+          </p>
+        )}
       </div>
     </div>
   );

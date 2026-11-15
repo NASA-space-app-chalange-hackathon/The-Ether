@@ -6,7 +6,7 @@ Challenge: **Create Health Monitoring Software for Astronauts on Space Missions*
 
 | Challenge text (summary) | How The Ether answers it | Where |
 | --- | --- | --- |
-| Long missions expose astronauts to radiation, isolation and confinement, altered gravity, distance from Earth, and a hostile closed environment (HRP's 5 hazards). | All five hazards, named exactly as on nasa.gov, are mapped to body regions, indicators and alerts. | `/learn`, Body Map panels, `content/risks.ts` |
+| Long missions expose astronauts to radiation, isolation and confinement, altered gravity, distance from Earth, and a hostile closed environment (HRP's 5 hazards). | All five hazards, named exactly as on nasa.gov, tag every alert, indicator and body system (small hazard labels that link to Learn, which groups content by hazard). Real NASA data per hazard: DONKI solar particle events (Space Radiation), JPL Horizons light time (Distance from Earth), NASA POWER winter weather (hostile environment, Steppe). | `/learn`, alerts, Trends, Body Map, `lib/engine/hazards.ts`, `lib/nasa` |
 | These lead to immune changes, bone loss, cardiovascular events, poor nutrition, and behavioral health problems. | Body regions and rules for immune/skin, bones, heart/vessels, gut/nutrition and brain/behavior, each linked to its NASA HRP risk page (13 risks). | `/body`, `lib/engine/escalation.ts` |
 | Astronauts must spot these changes in themselves. | A personal baseline per indicator; persistence-based alerts; a behavioral-drift composite that catches under-reported fatigue. | `lib/engine`, Action Center |
 | Build a visual tool that gathers health indicators… | Daily 3-Minute Check (camera HR, PVT-lite, vitals, sleep, mood + crew pulse) saved to the on-device database. | `/check` |
@@ -21,7 +21,7 @@ Challenge: **Create Health Monitoring Software for Astronauts on Space Missions*
 | Gamification. | Quests generated from the engine, XP, levels, streaks, and a cooperative crew goal. | `/quests` |
 | Routine prompts to take measurements. | The daily check-in quest and streak; Home "Today's quests". | `/`, `/quests` |
 | Simple explanations; don't assume a medical expert. | Plain-language "why it matters", "Why this test?" on every check step, and Learn cards. | `/check`, `/learn`, `/alerts` |
-| Support different environments (spacecraft, station, rover, lunar or Mars base). | Environment selector (Mars transit, space station, lunar base, Mars base, rover) that drives the signal-delay model. | Home, `lib/engine/signal.ts` |
+| Support different environments (spacecraft, station, rover, lunar or Mars base). | Environment selector (Mars transit, space station, lunar base, Mars base, rover). Mars base/rover use the real JPL Horizons light time; long delays make the CMO act first on Earth-level alerts. | Home, `lib/engine/signal.ts`, `lib/nasa/horizons.ts` |
 
 ## Questions worth considering → answers
 
@@ -39,6 +39,6 @@ Challenge: **Create Health Monitoring Software for Astronauts on Space Missions*
 | --- | --- |
 | Impact | Catches silent drift early in space; the same engine serves remote Mongolian herders (Steppe mode). |
 | Creativity | Mission Clock time-travel, hidden-fatigue detection, light-delay Message to Ground, camera rPPG, cooperative crew goal, Space ↔ Steppe. |
-| Validity | Robust statistics, persistence rules, sourced thresholds, every number cited or labelled as a demo parameter, 96 unit tests + 38 e2e tests. |
+| Validity | Robust statistics, persistence rules, sourced thresholds, every number cited or labelled as a demo parameter, 126 unit tests + 44 e2e tests. |
 | Relevance | Every challenge sentence and question is mapped above. |
 | Presentation | Demo Mode (30-second captioned story), screenshots, docs. |
