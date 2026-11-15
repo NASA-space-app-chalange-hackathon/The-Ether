@@ -24,7 +24,8 @@ export function IntroBanner() {
           className="overflow-hidden border-b border-line bg-panel"
           data-testid="intro-banner"
         >
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-2.5">
+          {/* Phone: [button … ✕] on one row, text on its own full-width row below. sm+: one row. */}
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2.5">
             <button
               type="button"
               onClick={() => {
@@ -36,8 +37,8 @@ export function IntroBanner() {
               <Play size={14} strokeWidth={2.25} fill="currentColor" />
               {t("intro.watch")}
             </button>
-            <p className="min-w-0 flex-1 text-sm text-muted">{t("intro.body")}</p>
-            <button type="button" onClick={dismissIntro} aria-label={t("intro.dismiss")} title={t("intro.dismiss")} className="icon-btn">
+            <p className="order-last basis-full text-sm text-muted sm:order-none sm:min-w-0 sm:flex-1 sm:basis-0">{t("intro.body")}</p>
+            <button type="button" onClick={dismissIntro} aria-label={t("intro.dismiss")} title={t("intro.dismiss")} className="icon-btn ml-auto sm:ml-0">
               <X size={16} strokeWidth={2} />
             </button>
           </div>
