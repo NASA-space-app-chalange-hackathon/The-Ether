@@ -284,5 +284,6 @@
   "region.cold": "Cold exposure / skin",
   "ind.coldExposure": "Time outdoors in deep cold",
   "check.cold": "Hours outdoors in deep cold today",
-  "quest.warm": "Dress in layers and check fingers and toes"
+  "quest.warm": "Dress in layers and check fingers and toes",
+  "learn.resources": "NASA challenge resources"
 }
