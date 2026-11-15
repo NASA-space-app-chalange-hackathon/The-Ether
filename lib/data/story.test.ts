@@ -83,3 +83,11 @@ describe("demo story (engine on generated data)", () => {
     expect(evaluateMember("herder-1", herd, 27).alerts.map((a) => a.ruleId)).toContain("cardiovascular");
   });
 });
+
+describe("review fix: 1–5 scales flag in the worse direction", () => {
+  it("ORION-B sleep quality (≈2/5 vs normal ≈4) is not Nominal on day 70", () => {
+    const st = at("orion-b", 70).indicators.sleepQuality;
+    expect(st.latest?.value).toBeLessThanOrEqual(2);
+    expect(st.status).not.toBe("ok");
+  });
+});
