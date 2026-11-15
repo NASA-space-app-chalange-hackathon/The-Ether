@@ -26,3 +26,20 @@ test("Learn: 5 hazards and sourced indicator cards", async ({ page }) => {
   await expect(page.getByTestId("indicator-cards")).toContainText("Can it be measured in space?");
   await expect(page.getByRole("link", { name: /Risk of Inadequate Teamwork/ })).toHaveAttribute("href", /nasa\.gov/);
 });
+
+test("Learn: NASA challenge resources section links all five official resources", async ({ page }) => {
+  await page.goto("/learn");
+  await waitForData(page);
+  const section = page.getByTestId("challenge-resources");
+  await expect(page.getByRole("heading", { name: "NASA challenge resources" })).toBeVisible();
+  for (const href of [
+    "https://www.nasa.gov/hrp/hazards/",
+    "https://www.nasa.gov/hrp/risks/",
+    "https://www.nasa.gov/hrp/ongoing-hrp-research/",
+    "https://www.asc-csa.gc.ca/eng/news/articles/2026/2026-02-26-monitoring-radiation-astronaut-health.asp",
+    "https://www.asc-csa.gc.ca/eng/iss/science/why-do-we-conduct-science-experiments-in-space.asp",
+  ]) {
+    await expect(section.locator(`a[href="${href}"]`)).toBeVisible();
+  }
+  await expect(section.locator(":scope > li")).toHaveCount(5);
+});

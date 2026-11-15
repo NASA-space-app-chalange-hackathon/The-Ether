@@ -138,3 +138,42 @@ export const HOW_IT_WORKS: Bilingual = {
   en: "The Ether learns each person's normal from the first 14 days (median and spread), compares every new reading with it, and only raises an alert when a change lasts (3 of the last 5 days) or crosses a safety threshold. Each alert says what changed, why it matters, what to do now, and who should act.",
   mn: "The Ether эхний 14 хоногоос хүн бүрийн хэвийн түвшинг суралцаж, шинэ хэмжилт бүрийг түүнтэй харьцуулна. Өөрчлөлт удаан үргэлжилбэл (сүүлийн 5 хоногийн 3) эсвэл аюулгүйн босгыг давбал л сэрэмжлүүлнэ. Сэрэмжлүүлэг бүр юу өөрчлөгдсөн, яагаад чухал, юу хийх, хэн хариуцахыг хэлнэ.",
 };
+
+/** The challenge's official Resources tab, and how The Ether uses each one. */
+export const CHALLENGE_RESOURCES: readonly { source: Source; use: Bilingual }[] = [
+  {
+    source: SOURCES.hrpHazards,
+    use: {
+      en: "Our hazard model: the five hazards (radiation, isolation and confinement, distance, gravity, hostile/closed environments) are named exactly as NASA lists them and tagged on every indicator card.",
+      mn: "Аюулын загвар: таван аюулыг NASA-гийн нэрээр нь авч, үзүүлэлт бүрт холбосон.",
+    },
+  },
+  {
+    source: SOURCES.hrpRisks,
+    use: {
+      en: "Every body region, alert and Learn card links to the matching HRP risk page — 13 risks from immune response to inadequate teamwork.",
+      mn: "Биеийн хэсэг, сэрэмжлүүлэг бүр харгалзах HRP эрсдэлийн хуудастай холбогдсон — нийт 13 эрсдэл.",
+    },
+  },
+  {
+    source: SOURCES.hrpResearch,
+    use: {
+      en: "Shows which countermeasures NASA is studying today; it guided our focus on sleep, vigilance testing, exercise and crew behavioral health.",
+      mn: "NASA-гийн одоогийн судалгааг харуулна; нойр, анхаарлын тест, дасгал, багийн сэтгэл зүйд анхаарахад чиглүүлсэн.",
+    },
+  },
+  {
+    source: SOURCES.csaRadiation,
+    use: {
+      en: "Background for the radiation meter and solar-storm alert: why dose is monitored continuously and why neutrons matter on the station.",
+      mn: "Цацрагийн хэмжүүр ба нарны шуурганы сэрэмжлүүлгийн суурь мэдээлэл.",
+    },
+  },
+  {
+    source: SOURCES.csaScience,
+    use: {
+      en: "Spaceflight changes resemble accelerated aging and a sedentary life on Earth — the reason the same engine can serve people far from care in Steppe mode.",
+      mn: "Сансрын өөрчлөлт дэлхий дээрх хөгшрөлт, хөдөлгөөний дутагдалтай төстэй — тиймээс ижил систем малчдад тусална.",
+    },
+  },
+];

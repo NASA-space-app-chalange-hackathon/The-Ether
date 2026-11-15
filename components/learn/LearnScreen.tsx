@@ -1,6 +1,6 @@
 "use client";
 
-import { HAZARDS_MN, HOW_IT_WORKS, INDICATOR_CARDS, type Bilingual } from "@/content/learn";
+import { CHALLENGE_RESOURCES, HAZARDS_MN, HOW_IT_WORKS, INDICATOR_CARDS, type Bilingual } from "@/content/learn";
 import { HAZARDS } from "@/content/risks";
 import { SourceList } from "@/components/ui/SourceList";
 import { STEPPE_RISKS } from "@/content/steppe";
@@ -50,6 +50,20 @@ export function LearnScreen() {
               <h3 className="font-semibold">{hazardName(h.id)}</h3>
               <p className="text-sm text-muted">{locale === "mn" ? HAZARDS_MN[h.id].summary : h.summary}</p>
               <SourceList sources={[h.source]} className="space-y-0.5 text-xs" />
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="space-y-3" aria-labelledby="resources-title">
+        <h2 id="resources-title" className="text-xs font-semibold uppercase tracking-widest text-muted">{t("learn.resources")}</h2>
+        <ul className="grid gap-3 md:grid-cols-2 lg:grid-cols-3" data-testid="challenge-resources">
+          {CHALLENGE_RESOURCES.map(({ source, use }) => (
+            <li key={source.id} className="space-y-2 rounded-xl border border-line bg-panel p-4">
+              <a href={source.url} target="_blank" rel="noreferrer" className="font-semibold text-accent hover:underline">
+                {source.title} ↗
+              </a>
+              <p className="text-sm text-muted">{tx(use)}</p>
             </li>
           ))}
         </ul>
