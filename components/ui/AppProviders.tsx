@@ -1,6 +1,6 @@
 "use client";
 
-import { MotionConfig } from "framer-motion";
+import { MotionConfig } from "motion/react";
 import type { ReactNode } from "react";
 import { DataProvider } from "@/lib/state/DataProvider";
 import { ServiceWorker } from "./ServiceWorker";

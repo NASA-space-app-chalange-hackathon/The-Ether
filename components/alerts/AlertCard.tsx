@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { StatusBadge, TierBadge } from "@/components/ui/Badges";
 import { SourceList } from "@/components/ui/SourceList";
 import { STATUS_STYLE } from "@/components/ui/status";
@@ -11,11 +12,13 @@ import { useLabels } from "@/lib/state/useLabels";
 import { MessageToGround } from "./MessageToGround";
 import { TierLadder } from "./TierLadder";
 
-function Block({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
+function Block({ n, title, children }: { n: number; title: string; children: ReactNode }) {
   return (
-    <section className="space-y-2">
-      <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted">
-        <span aria-hidden className="grid h-5 w-5 place-items-center rounded-full bg-line text-[10px] text-fg">{n}</span>
+    <section className="space-y-2.5">
+      <h4 className="eyebrow flex items-center gap-2">
+        <span aria-hidden className="text-fg/50">
+          {String(n).padStart(2, "0")}
+        </span>
         {title}
       </h4>
       {children}
@@ -28,30 +31,34 @@ function Evidence({ alert }: { alert: Alert }) {
   const labels = useLabels();
   if (alert.evidence.length === 0) return null;
   return (
-    <table className="w-full text-left text-sm" aria-label={t("alerts.evidence")}>
-      <thead className="text-xs text-muted">
-        <tr>
-          <th className="py-1 font-normal">{t("alerts.colIndicator")}</th>
-          <th className="py-1 text-right font-normal">{t("alerts.colValue")}</th>
-          <th className="py-1 text-right font-normal">{t("alerts.colNormal")}</th>
-          <th className="py-1 text-right font-normal">{t("alerts.colChange")}</th>
-        </tr>
-      </thead>
-      <tbody className="font-mono tabular-nums">
-        {alert.evidence.map((e) => {
-          const m = INDICATORS[e.indicator];
-          const change = m.changeAs === "absolute" ? (e.value - e.baseline).toFixed(1) : `${e.percentChange > 0 ? "+" : ""}${e.percentChange.toFixed(0)}%`;
-          return (
-            <tr key={e.indicator} className="border-t border-line">
-              <td className="py-1 font-sans">{labels.indicator(e.indicator)}</td>
-              <td className="py-1 text-right">{e.value.toFixed(m.decimals)} {m.unit}</td>
-              <td className="py-1 text-right text-muted">{e.baseline.toFixed(m.decimals)}</td>
-              <td className="py-1 text-right">{change}</td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+    <div className="overflow-x-auto rounded-lg border border-line">
+      <table className="w-full text-left text-sm" aria-label={t("alerts.evidence")}>
+        <thead className="bg-panel-2/60 text-xs text-muted">
+          <tr>
+            <th className="px-3 py-1.5 font-normal">{t("alerts.colIndicator")}</th>
+            <th className="px-3 py-1.5 text-right font-normal">{t("alerts.colValue")}</th>
+            <th className="px-3 py-1.5 text-right font-normal">{t("alerts.colNormal")}</th>
+            <th className="px-3 py-1.5 text-right font-normal">{t("alerts.colChange")}</th>
+          </tr>
+        </thead>
+        <tbody className="font-mono text-[13px]">
+          {alert.evidence.map((e) => {
+            const m = INDICATORS[e.indicator];
+            const change = m.changeAs === "absolute" ? (e.value - e.baseline).toFixed(1) : `${e.percentChange > 0 ? "+" : ""}${e.percentChange.toFixed(0)}%`;
+            return (
+              <tr key={e.indicator} className="border-t border-line">
+                <td className="px-3 py-1.5 font-sans">{labels.indicator(e.indicator)}</td>
+                <td className="whitespace-nowrap px-3 py-1.5 text-right">
+                  {e.value.toFixed(m.decimals)} <span className="text-muted">{m.unit}</span>
+                </td>
+                <td className="px-3 py-1.5 text-right text-muted">{e.baseline.toFixed(m.decimals)}</td>
+                <td className="px-3 py-1.5 text-right">{change}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -62,40 +69,59 @@ export function AlertCard({ alert, memberName }: { alert: Alert; memberName: str
   const days = alert.day - alert.sinceDay + 1;
 
   return (
-    <article id={alert.id} data-testid="alert-card" data-rule={alert.ruleId} className={`scroll-mt-40 space-y-4 rounded-xl border border-l-4 border-line bg-panel p-5 target:ring-2 target:ring-accent ${style.border}`}>
-      <header className="flex flex-wrap items-center gap-2">
+    <article
+      id={alert.id}
+      data-testid="alert-card"
+      data-rule={alert.ruleId}
+      className="surface relative scroll-mt-40 space-y-5 overflow-hidden p-5 target:ring-2 target:ring-accent/60 sm:p-6"
+    >
+      <span aria-hidden className="absolute inset-y-0 left-0 w-0.5" style={{ backgroundColor: style.fill }} />
+      <header className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <StatusBadge status={alert.severity} size="lg" />
-        <h3 className="text-lg font-semibold">{alert.title}</h3>
-        <span className="font-mono text-sm text-muted">· {memberName}</span>
-        <span className="ml-auto"><TierBadge tier={alert.tier} /></span>
+        <h3 className="text-lg font-semibold tracking-tight">{alert.title}</h3>
+        <span className="font-mono text-sm text-muted">{memberName}</span>
+        <span className="ml-auto">
+          <TierBadge tier={alert.tier} />
+        </span>
       </header>
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grid gap-x-8 gap-y-6 lg:grid-cols-2">
         <Block n={1} title={t("alerts.whatChanged")}>
           <p className="text-sm leading-relaxed">{alert.whatChanged}</p>
           <p className="font-mono text-xs text-muted">{t("alerts.since", { day: alert.sinceDay, days })}</p>
           <Evidence alert={alert} />
         </Block>
         <Block n={2} title={t("alerts.why")}>
-          <p className="text-sm leading-relaxed">{alert.whyItMatters}</p>
+          <p className="text-sm leading-relaxed text-fg/90">{alert.whyItMatters}</p>
         </Block>
         <Block n={3} title={t("alerts.doNow")}>
-          <ul className="space-y-1.5">
-            {alert.doNow.map((step) => (
-              <li key={step.text}>
-                <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-lg p-1.5 hover:bg-panel-2">
-                  <input type="checkbox" checked={done.includes(step.text)} onChange={() => toggle(step.text)} className="mt-0.5 h-5 w-5 shrink-0 accent-accent" />
-                  <span className={`flex-1 text-sm ${done.includes(step.text) ? "text-muted line-through" : ""}`}>{step.text}</span>
-                  <TierBadge tier={step.tier} />
-                </label>
-              </li>
-            ))}
+          <ul className="-mx-2 space-y-0.5">
+            {alert.doNow.map((step) => {
+              const checked = done.includes(step.text);
+              return (
+                <li key={step.text}>
+                  <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-lg px-2 py-2 transition-colors duration-150 hover:bg-panel-2">
+                    <input type="checkbox" checked={checked} onChange={() => toggle(step.text)} className="checkbox mt-0.5" />
+                    <span className={`flex-1 text-sm transition-colors duration-150 ${checked ? "text-muted line-through decoration-muted/60" : ""}`}>{step.text}</span>
+                    <TierBadge tier={step.tier} />
+                  </label>
+                </li>
+              );
+            })}
           </ul>
-          <p className="text-xs text-muted">{t("alerts.progress", { done: done.length, total: alert.doNow.length })}</p>
+          <div className="flex items-center gap-3">
+            <div className="track h-1 flex-1" aria-hidden>
+              <div
+                className="absolute inset-0 origin-left bg-accent transition-transform duration-300 ease-smooth"
+                style={{ transform: `scaleX(${alert.doNow.length ? done.length / alert.doNow.length : 0})` }}
+              />
+            </div>
+            <p className="font-mono text-xs text-muted">{t("alerts.progress", { done: done.length, total: alert.doNow.length })}</p>
+          </div>
         </Block>
         <Block n={4} title={t("alerts.who")}>
           <TierLadder tier={alert.tier} />
-          <h5 className="pt-2 text-xs uppercase tracking-widest text-muted">{t("alerts.sources")}</h5>
+          <h5 className="eyebrow pt-3">{t("alerts.sources")}</h5>
           <SourceList sources={alert.sources} />
         </Block>
       </div>

@@ -1,9 +1,10 @@
 "use client";
 
+import { CircleCheck, X } from "lucide-react";
 import { useState } from "react";
 import { RadiationMeter } from "@/components/home/RadiationMeter";
 import { TrendChart } from "@/components/charts/TrendChart";
-import { StatusBadge, TierBadge } from "@/components/ui/Badges";
+import { StatusBadge, StatusIcon, TierBadge } from "@/components/ui/Badges";
 import { STATUS_STYLE } from "@/components/ui/status";
 import { REGION_CONTENT } from "@/content/risks";
 import { REGION_STEPPE } from "@/content/steppe";
@@ -19,8 +20,8 @@ import { useLabels } from "@/lib/state/useLabels";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="space-y-2">
-      <h3 className="text-xs font-semibold uppercase tracking-widest text-muted">{title}</h3>
+    <section className="space-y-2.5">
+      <h3 className="eyebrow">{title}</h3>
       {children}
     </section>
   );
@@ -42,60 +43,59 @@ export function RegionPanel({ region, assessment, onClose }: { region: RegionId;
   const day = assessment.day;
 
   return (
-    <aside aria-labelledby="region-title" className="space-y-5 rounded-xl border border-line bg-panel p-5" data-testid="region-panel">
+    <aside aria-labelledby="region-title" className="surface space-y-6 p-5 sm:p-6" data-testid="region-panel">
       <header className="flex items-start justify-between gap-3">
         <div className="space-y-2">
-          <h2 id="region-title" className="text-xl font-semibold">{t(`region.${region}` as MessageKey)}</h2>
+          <h2 id="region-title" className="text-xl font-semibold tracking-tight">{t(`region.${region}` as MessageKey)}</h2>
           <StatusBadge status={status} size="lg" />
         </div>
-        <button type="button" onClick={onClose} aria-label={t("panel.close")} className="grid h-11 w-11 place-items-center rounded-lg border border-line hover:border-accent">
-          <span aria-hidden>✕</span>
+        <button type="button" onClick={onClose} aria-label={t("panel.close")} className="icon-btn">
+          <X size={16} strokeWidth={2} />
         </button>
       </header>
 
       <Section title={t("panel.function")}>
-        <p className="text-sm leading-relaxed">{steppe ? steppe.function[locale] : content.function}</p>
+        <p className="text-sm leading-relaxed text-fg/90">{steppe ? steppe.function[locale] : content.function}</p>
       </Section>
       <Section title={t(steppe ? "panel.earth" : "panel.spaceflight")}>
-        <p className="text-sm leading-relaxed">{steppe ? steppe.effect[locale] : content.spaceflightEffect}</p>
+        <p className="text-sm leading-relaxed text-fg/90">{steppe ? steppe.effect[locale] : content.spaceflightEffect}</p>
       </Section>
 
       {region === "radiation" && <RadiationMeter radiation={assessment.radiation} />}
       {region === "bones" && (
         <Section title={t("panel.boneScore")}>
-          <div className="h-3 overflow-hidden rounded-full bg-line" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(assessment.bone.score)} aria-label={t("panel.boneScore")}>
-            <div className="h-full" style={{ width: `${assessment.bone.score}%`, backgroundColor: STATUS_STYLE[assessment.bone.status].fill }} />
+          <div className="track" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(assessment.bone.score)} aria-label={t("panel.boneScore")}>
+            <div className="absolute inset-0 origin-left transition-transform duration-300 ease-smooth" style={{ transform: `scaleX(${assessment.bone.score / 100})`, backgroundColor: STATUS_STYLE[assessment.bone.status].fill }} />
           </div>
           <p className="font-mono text-xs text-muted">
             {assessment.bone.score.toFixed(0)}/100 ·{" "}
             {t("panel.adherence", { pct: assessment.bone.adherence === null ? "—" : `${Math.round(assessment.bone.adherence * 100)}%` })}
           </p>
-          <p className="text-xs italic text-muted">{t("panel.demoModel")}</p>
+          <p className="text-xs text-muted italic">{t("panel.demoModel")}</p>
         </Section>
       )}
 
       {withData.length > 0 ? (
         <Section title={t("panel.latest")}>
-          <ul className="divide-y divide-line rounded-lg border border-line">
+          <ul className="divide-y divide-line overflow-hidden rounded-lg border border-line">
             {withData.map((id) => {
               const st = assessment.indicators[id];
               const meta = INDICATORS[id];
-              const s = STATUS_STYLE[st.status];
               return (
                 <li key={id}>
                   <button
                     type="button"
                     onClick={() => setChosen(id)}
                     aria-pressed={chartIndicator === id}
-                    className="flex min-h-11 w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-panel-2 aria-pressed:bg-panel-2"
+                    className="flex min-h-11 w-full items-center gap-2.5 px-3 py-1.5 text-left text-sm transition-colors duration-150 hover:bg-panel-2/70 aria-pressed:bg-panel-2"
                   >
-                    <span aria-hidden className={`w-4 text-center ${s.text}`}>{s.icon}</span>
+                    <StatusIcon status={st.status} />
                     <span className="flex-1">{labels.indicator(id)}</span>
-                    <span className="font-mono tabular-nums">
+                    <span className="font-mono text-[13px]">
                       {st.latest!.value.toFixed(meta.decimals)} {meta.unit}
                     </span>
                     {st.baseline && !st.learning && (
-                      <span className="w-28 text-right font-mono text-xs text-muted tabular-nums">
+                      <span className="w-28 text-right font-mono text-xs text-muted">
                         {t("panel.normal", { value: st.baseline.center.toFixed(meta.decimals) })}
                       </span>
                     )}
@@ -106,7 +106,7 @@ export function RegionPanel({ region, assessment, onClose }: { region: RegionId;
           </ul>
         </Section>
       ) : (
-        region !== "radiation" && region !== "bones" && <p className="text-sm text-muted">– {t("panel.noData")}</p>
+        region !== "radiation" && region !== "bones" && <p className="text-sm text-muted">{t("panel.noData")}</p>
       )}
 
       {chartIndicator && (
@@ -126,17 +126,20 @@ export function RegionPanel({ region, assessment, onClose }: { region: RegionId;
 
       <Section title={t("panel.actions")}>
         {alerts.length === 0 ? (
-          <p className="text-sm text-ok">✓ {t("panel.noActions")}</p>
+          <p className="flex items-center gap-2 text-sm text-ok">
+            <CircleCheck size={14} strokeWidth={2.25} />
+            {t("panel.noActions")}
+          </p>
         ) : (
           alerts.map((a) => (
-            <div key={a.id} className="space-y-2 rounded-lg border border-line bg-panel-2 p-3">
+            <div key={a.id} className="space-y-2.5 rounded-lg border border-line bg-panel-2/50 p-3.5">
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge status={a.severity} />
-                <span className="font-semibold">{a.title}</span>
+                <span className="font-medium">{a.title}</span>
                 <span className="ml-auto"><TierBadge tier={a.tier} /></span>
               </div>
               <p className="text-sm text-muted">{a.whatChanged}</p>
-              <ol className="space-y-1 text-sm">
+              <ol className="space-y-1.5 text-sm">
                 {a.doNow.map((step) => (
                   <li key={step.text} className="flex flex-col items-start gap-1 sm:flex-row sm:gap-2">
                     <TierBadge tier={step.tier} />

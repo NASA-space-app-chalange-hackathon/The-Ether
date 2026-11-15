@@ -1,13 +1,11 @@
-import type { Status, Tier } from "@/lib/engine/types";
+import { CircleCheck, CircleDashed, OctagonAlert, TriangleAlert, type LucideIcon } from "lucide-react";
+import type { Status } from "@/lib/engine/types";
+import { THEME } from "./theme";
 
 /** Status → color + icon (never color alone). */
-export const STATUS_STYLE: Record<Status, { icon: string; text: string; bg: string; border: string; fill: string }> = {
-  ok: { icon: "✓", text: "text-ok", bg: "bg-ok/15", border: "border-ok/40", fill: "#22c55e" },
-  watch: { icon: "▲", text: "text-amber", bg: "bg-amber/15", border: "border-amber/40", fill: "#f59e0b" },
-  critical: { icon: "■", text: "text-red", bg: "bg-red/15", border: "border-red/50", fill: "#ef4444" },
-  unknown: { icon: "–", text: "text-grey", bg: "bg-grey/15", border: "border-grey/40", fill: "#64748b" },
+export const STATUS_STYLE: Record<Status, { icon: LucideIcon; text: string; bg: string; border: string; ring: string; fill: string }> = {
+  ok: { icon: CircleCheck, text: "text-ok", bg: "bg-ok/10", border: "border-ok/30", ring: "ring-ok/25", fill: THEME.ok },
+  watch: { icon: TriangleAlert, text: "text-amber", bg: "bg-amber/10", border: "border-amber/30", ring: "ring-amber/25", fill: THEME.amber },
+  critical: { icon: OctagonAlert, text: "text-red", bg: "bg-red/10", border: "border-red/35", ring: "ring-red/30", fill: THEME.red },
+  unknown: { icon: CircleDashed, text: "text-grey", bg: "bg-grey/10", border: "border-grey/30", ring: "ring-grey/25", fill: THEME.grey },
 };
-
-export const TIER_ICON: Record<Tier, string> = { SELF: "👤", CMO: "⚕", EARTH: "🌍" };
-/** Steppe ladder: self → family doctor → soum hospital / 103. */
-export const TIER_ICON_STEPPE: Record<Tier, string> = { SELF: "👤", CMO: "🩺", EARTH: "🏥" };

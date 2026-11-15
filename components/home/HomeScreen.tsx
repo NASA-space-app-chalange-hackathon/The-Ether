@@ -1,7 +1,10 @@
 "use client";
 
+import { ArrowRight, CircleCheck, CornerDownRight, LoaderCircle, RadioTower } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { AlertSummary } from "@/components/alerts/AlertSummary";
+import { PageHeader, Panel } from "@/components/ui/PageHeader";
 import { StatusRing } from "@/components/ui/StatusRing";
 import { dayToTimestamp } from "@/lib/data/dataset";
 import { dailyQuests } from "@/lib/engine/quests";
@@ -17,12 +20,21 @@ import { EnvironmentSelector } from "./EnvironmentSelector";
 import { RadiationMeter } from "./RadiationMeter";
 import { SteppeCareCard } from "./SteppeCareCard";
 
-function Card({ title, children, className = "" }: { title: string; children: React.ReactNode; className?: string }) {
+function MoreLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <section className={`rounded-xl border border-line bg-panel p-4 ${className}`}>
-      <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted">{title}</h2>
+    <Link href={href} className="group mt-3 inline-flex min-h-10 items-center gap-1.5 text-sm text-muted transition-colors duration-150 hover:text-fg">
       {children}
-    </section>
+      <ArrowRight size={14} className="transition-transform duration-150 group-hover:translate-x-0.5" />
+    </Link>
+  );
+}
+
+function Stat({ label, children, className = "" }: { label: ReactNode; children: ReactNode; className?: string }) {
+  return (
+    <div className={`space-y-1 ${className}`}>
+      <dt className="eyebrow flex items-center gap-1.5">{label}</dt>
+      <dd>{children}</dd>
+    </div>
   );
 }
 
@@ -36,12 +48,11 @@ export function HomeScreen() {
   const member = members.find((m) => m.id === memberId);
 
   const heading = (
-    <div className="flex flex-wrap items-end justify-between gap-3">
-      <h1 className="text-2xl font-semibold">{t("nav.home")}</h1>
+    <PageHeader title={t("nav.home")}>
       <CrewSwitcher />
-    </div>
+    </PageHeader>
   );
-  if (!a || !dataset || !member) return <div className="space-y-4">{heading}</div>;
+  if (!a || !dataset || !member) return <div className="space-y-6">{heading}</div>;
 
   const current = Math.min(day, maxDay);
   const date = formatDate(dayToTimestamp(dataset.startDate, current), locale);
@@ -50,53 +61,58 @@ export function HomeScreen() {
   const learning = current < 14;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {heading}
       <div className="grid gap-4 lg:grid-cols-[1.25fr_1fr]">
-        <Card title={`${labels.memberName(member)} · ${labels.memberRole(member)}`}>
+        <Panel title={`${labels.memberName(member)} · ${labels.memberRole(member)}`}>
           <StatusRing regions={allRegionStatuses(a)} overall={a.overall} label={labels.memberName(member)} />
-          {learning && <p className="mt-3 text-sm text-accent">◔ {t("status.learning")}</p>}
-        </Card>
+          {learning && (
+            <p className="mt-4 flex items-center gap-2 text-sm text-accent">
+              <LoaderCircle size={14} className="animate-spin motion-reduce:animate-none" />
+              {t("status.learning")}
+            </p>
+          )}
+        </Panel>
 
-        <Card title={t("home.mission")}>
-          <dl className="grid grid-cols-2 gap-3">
-            <div>
-              <dt className="text-xs text-muted">{t("clock.label")}</dt>
-              <dd className="font-mono text-3xl tabular-nums">{current}</dd>
-            </div>
-            <div>
-              <dt className="text-xs text-muted">{t("home.date")}</dt>
-              <dd className="font-mono text-lg">{date}</dd>
-            </div>
+        <Panel title={t("home.mission")}>
+          <dl className="grid grid-cols-2 gap-x-4 gap-y-5">
+            <Stat label={t("clock.label")}>
+              <span className="font-mono text-3xl font-medium tracking-tight">{current}</span>
+            </Stat>
+            <Stat label={t("home.date")}>
+              <span className="font-mono text-base">{date}</span>
+            </Stat>
             {mode === "space" && (
-              <div className="col-span-2">
-                <dt className="text-xs text-muted">📡 {t("signal.label")} ({t("signal.approx")})</dt>
-                <dd className="font-mono text-2xl tabular-nums text-accent">{formatDelay(delay.oneWaySeconds)}</dd>
-              </div>
+              <Stat
+                className="col-span-2"
+                label={
+                  <>
+                    <RadioTower size={12} strokeWidth={2} />
+                    {t("signal.label")} ({t("signal.approx")})
+                  </>
+                }
+              >
+                <span className="font-mono text-2xl font-medium tracking-tight text-accent">{formatDelay(delay.oneWaySeconds)}</span>
+              </Stat>
             )}
           </dl>
           {mode === "space" && (
-            <div className="mt-3 space-y-2">
-              <p className="text-xs text-muted">{t("home.environment")}</p>
+            <div className="mt-5 space-y-2">
+              <p className="eyebrow">{t("home.environment")}</p>
               <EnvironmentSelector />
             </div>
           )}
-          {mode === "space" ? (
-            <div className="mt-4">
-              <RadiationMeter radiation={a.radiation} />
-            </div>
-          ) : (
-            <div className="mt-2">
-              <SteppeCareCard />
-            </div>
-          )}
-        </Card>
+          <div className="mt-5 border-t border-line pt-5">{mode === "space" ? <RadiationMeter radiation={a.radiation} /> : <SteppeCareCard />}</div>
+        </Panel>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1.25fr_1fr]">
-        <Card title={t("home.alerts")}>
+        <Panel title={t("home.alerts")}>
           {a.alerts.length === 0 ? (
-            <p className="text-sm text-ok">✓ {t("home.noAlerts")}</p>
+            <p className="flex items-center gap-2 text-sm text-ok">
+              <CircleCheck size={14} strokeWidth={2.25} />
+              {t("home.noAlerts")}
+            </p>
           ) : (
             <ul className="space-y-2" data-testid="home-alerts">
               {a.alerts.slice(0, 3).map((alert) => (
@@ -104,28 +120,29 @@ export function HomeScreen() {
               ))}
             </ul>
           )}
-          <Link href="/alerts" className="mt-3 inline-flex min-h-11 items-center text-sm text-accent hover:underline">
-            {t("home.allAlerts")} →
-          </Link>
-        </Card>
+          <MoreLink href="/alerts">{t("home.allAlerts")}</MoreLink>
+        </Panel>
 
-        <Card title={t("home.quests")}>
-          <ul className="space-y-1.5">
+        <Panel title={t("home.quests")}>
+          <ul className="divide-y divide-line">
             {quests.map((q) => (
-              <li key={q.id} className="flex items-start gap-2 text-sm">
-                <span aria-hidden className="mt-0.5 text-accent">◇</span>
+              <li key={q.id} className="flex items-start gap-3 py-2.5 text-sm first:pt-0">
+                <span aria-hidden className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
                 <span className="flex-1">
                   {t(`quest.${q.kind}` as MessageKey)}
-                  {q.reason && <span className="block text-xs text-amber">↳ {a.alerts.find((x) => x.ruleId === q.reason)?.title}</span>}
+                  {q.reason && (
+                    <span className="mt-0.5 flex items-center gap-1 text-xs text-amber">
+                      <CornerDownRight size={12} className="shrink-0" />
+                      {a.alerts.find((x) => x.ruleId === q.reason)?.title}
+                    </span>
+                  )}
                 </span>
                 <span className="font-mono text-xs text-muted">+{q.xp} XP</span>
               </li>
             ))}
           </ul>
-          <Link href="/quests" className="mt-3 inline-flex min-h-11 items-center text-sm text-accent hover:underline">
-            {t("home.allQuests")} →
-          </Link>
-        </Card>
+          <MoreLink href="/quests">{t("home.allQuests")}</MoreLink>
+        </Panel>
       </div>
     </div>
   );

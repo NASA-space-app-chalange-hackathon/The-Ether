@@ -1,38 +1,49 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { Radiation, Sun } from "lucide-react";
+import { motion } from "motion/react";
 import { CAREER_LIMIT_MSV, type RadiationTracker } from "@/lib/engine/cumulative";
+import { motionTokens } from "@/lib/motion-tokens";
 import { useT } from "@/lib/state/useAppState";
 import { StatusBadge } from "@/components/ui/Badges";
 import { STATUS_STYLE } from "@/components/ui/status";
 
 export function RadiationMeter({ radiation }: { radiation: RadiationTracker }) {
   const t = useT();
-  const pct = Math.min(100, radiation.fractionOfLimit * 100);
-  const priorPct = Math.min(100, (radiation.priorDose / CAREER_LIMIT_MSV) * 100);
+  const fraction = Math.min(1, radiation.fractionOfLimit);
+  const prior = Math.min(1, radiation.priorDose / CAREER_LIMIT_MSV);
   return (
-    <div className="space-y-2" data-testid="radiation-meter">
+    <div className="space-y-2.5" data-testid="radiation-meter">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold">☢ {t("radiation.title")}</h3>
+        <h3 className="flex items-center gap-2 text-sm font-medium">
+          <Radiation size={14} strokeWidth={2} className="text-muted" />
+          {t("radiation.title")}
+        </h3>
         <StatusBadge status={radiation.status} />
       </div>
-      <div className="relative h-3 overflow-hidden rounded-full bg-line" role="meter" aria-valuemin={0} aria-valuemax={CAREER_LIMIT_MSV} aria-valuenow={Math.round(radiation.totalDose)} aria-label={t("radiation.title")}>
-        <div className="absolute inset-y-0 left-0 bg-grey" style={{ width: `${priorPct}%` }} />
+      <div className="track" role="meter" aria-valuemin={0} aria-valuemax={CAREER_LIMIT_MSV} aria-valuenow={Math.round(radiation.totalDose)} aria-label={t("radiation.title")}>
         <motion.div
-          className="absolute inset-y-0 left-0"
-          style={{ backgroundColor: STATUS_STYLE[radiation.status].fill, opacity: 0.85 }}
-          animate={{ width: `${pct}%` }}
-          transition={{ duration: 0.3 }}
+          className="absolute inset-0 origin-left"
+          style={{ backgroundColor: STATUS_STYLE[radiation.status].fill }}
+          initial={false}
+          animate={{ scaleX: fraction }}
+          transition={{ duration: motionTokens.duration.normal, ease: motionTokens.easing.smooth }}
         />
+        <div className="absolute inset-0 origin-left bg-grey" style={{ transform: `scaleX(${prior})` }} />
         <div className="absolute inset-y-0 left-1/2 w-px bg-fg/40" aria-hidden />
       </div>
-      <p className="flex flex-wrap justify-between gap-2 font-mono text-xs text-muted tabular-nums">
+      <p className="flex flex-wrap justify-between gap-2 font-mono text-xs text-muted">
         <span>{t("radiation.career", { total: radiation.totalDose.toFixed(0), limit: CAREER_LIMIT_MSV })}</span>
         {radiation.todayDose !== null && <span>{t("radiation.today", { dose: radiation.todayDose.toFixed(2) })}</span>}
       </p>
       {radiation.eventActive && (
-        <p className="animate-pulse rounded-md border border-red/50 bg-red/15 px-3 py-2 text-sm font-semibold text-red">
-          ☀️ {t("radiation.event")}
+        <p className="flex items-center gap-2.5 rounded-lg border border-red/30 bg-red/10 px-3 py-2 text-sm font-medium text-red">
+          <span aria-hidden className="relative flex h-2 w-2 shrink-0">
+            <span className="absolute inset-0 animate-ping rounded-full bg-red opacity-60 motion-reduce:hidden" />
+            <span className="relative h-2 w-2 rounded-full bg-red" />
+          </span>
+          <Sun size={14} strokeWidth={2} className="shrink-0" />
+          {t("radiation.event")}
         </p>
       )}
     </div>

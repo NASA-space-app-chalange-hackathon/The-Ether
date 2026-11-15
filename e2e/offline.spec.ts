@@ -13,7 +13,7 @@ test("offline: after one online visit, the app loads and works with the network 
     }
   });
   await expect
-    .poll(() => page.evaluate(async () => (await (await caches.open("ether-v1-cache")).keys()).length), { timeout: 20_000 })
+    .poll(() => page.evaluate(async () => (await (await caches.open("ether-v2-cache")).keys()).length), { timeout: 20_000 })
     .toBeGreaterThan(20);
 
   const problems = watchForProblems(page);

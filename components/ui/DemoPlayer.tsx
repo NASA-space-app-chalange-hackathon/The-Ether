@@ -1,15 +1,19 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { Play, Square, TriangleAlert } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { MessageKey } from "@/lib/i18n";
+import { motionTokens } from "@/lib/motion-tokens";
 import { DEMO_STEPS, scrubPath } from "@/lib/state/demo";
 import { getSnapshot, updateState } from "@/lib/state/store";
 import { useT } from "@/lib/state/useAppState";
+import { LogoMark } from "./Logo";
 
 const FRAME_MS = 40;
 const sleep = (ms: number) => new Promise((r) => window.setTimeout(r, ms));
+const { duration, easing, distance } = motionTokens;
 
 /** Plays the scripted demo story with captions — built for recording the 30-second video. */
 export function DemoPlayer() {
@@ -52,21 +56,22 @@ export function DemoPlayer() {
         aria-pressed={active}
         title={t(active ? "demo.stop" : "demo.startLabel")}
         data-testid="demo-button"
-        className="flex min-h-10 items-center gap-1.5 rounded-full border border-line px-3 text-sm transition-colors hover:border-accent aria-pressed:border-red aria-pressed:text-red"
+        className="btn btn-ghost min-h-10 min-w-10 px-2.5 aria-pressed:text-red sm:px-3"
       >
-        <span aria-hidden>{active ? "■" : "▶"}</span>
+        {active ? <Square size={13} strokeWidth={2.25} fill="currentColor" /> : <Play size={13} strokeWidth={2.25} fill="currentColor" />}
         <span className="sr-only sm:not-sr-only">{active ? t("demo.stop") : t("demo.start")}</span>
       </button>
       <AnimatePresence mode="wait">
         {active && caption !== "demo.end" && (
           <motion.div
             key={caption}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0, y: distance.md, filter: "blur(4px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, transition: { duration: duration.fast } }}
+            transition={{ duration: duration.normal, ease: easing.smooth }}
             role="status"
             data-testid="demo-caption"
-            className="pointer-events-none fixed inset-x-0 bottom-6 z-50 mx-auto w-fit max-w-3xl rounded-xl border border-accent/40 bg-bg/90 px-6 py-3 text-center text-lg font-semibold shadow-2xl backdrop-blur"
+            className="pointer-events-none fixed inset-x-4 bottom-6 z-50 mx-auto w-fit max-w-3xl rounded-xl border border-line-strong bg-panel/90 px-5 py-3 text-center text-base font-medium shadow-[0_12px_40px_rgb(0_0_0/0.55)] backdrop-blur-md"
           >
             {t(caption)}
           </motion.div>
@@ -77,17 +82,21 @@ export function DemoPlayer() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: duration.normal, ease: easing.smooth }}
             role="status"
             data-testid="demo-caption"
-            className="fixed inset-0 z-50 grid place-items-center bg-bg/95 backdrop-blur"
+            className="fixed inset-0 z-50 grid place-items-center bg-bg/95 px-4 backdrop-blur"
           >
             <div className="space-y-4 text-center">
-              <p className="flex items-center justify-center gap-3 text-5xl font-semibold">
-                <span aria-hidden className="h-6 w-6 rounded-full bg-accent shadow-[0_0_24px] shadow-accent" />
+              <p className="flex items-center justify-center gap-3 text-5xl font-semibold tracking-tight">
+                <LogoMark size={44} />
                 {t("app.name")}
               </p>
-              <p className="text-2xl text-muted">{t("demo.end")}</p>
-              <p className="text-sm text-amber">⚠ {t("disclaimer")}</p>
+              <p className="text-xl text-muted">{t("demo.end")}</p>
+              <p className="flex items-center justify-center gap-2 text-sm text-muted">
+                <TriangleAlert size={14} strokeWidth={2.25} className="text-amber" />
+                {t("disclaimer")}
+              </p>
             </div>
           </motion.div>
         )}

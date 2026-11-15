@@ -1,9 +1,11 @@
 "use client";
 
+import { Annoyed, ArrowLeft, ArrowRight, ArrowUpRight, Check, ChevronRight, CircleCheck, Frown, Info, Laugh, Meh, RotateCcw, Smile, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { CrewSwitcher } from "@/components/home/CrewSwitcher";
 import { StatusBadge } from "@/components/ui/Badges";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { draftToReadings, inBounds, INPUT_BOUNDS, type CheckInDraft } from "@/lib/data/checkin";
 import { dayToTimestamp } from "@/lib/data/dataset";
 import { getDB } from "@/lib/db/schema";
@@ -28,22 +30,31 @@ const WHY: Record<Exclude<StepId, "review">, { key: MessageKey; sources: Source[
   mood: { key: "check.mood.why", sources: [SOURCES.riskBehavioral, SOURCES.riskTeamwork, SOURCES.hrpHazards] },
 };
 
-const FACES = ["😫", "🙁", "😐", "🙂", "😄"];
+const FACES: LucideIcon[] = [Frown, Annoyed, Meh, Smile, Laugh];
 
 function Why({ step }: { step: Exclude<StepId, "review"> }) {
   const t = useT();
   const w = WHY[step];
   return (
-    <details className="group rounded-lg border border-line bg-panel-2 p-3 text-sm">
-      <summary className="flex min-h-8 cursor-pointer items-center gap-2 font-semibold text-accent">ⓘ {t("check.why")}</summary>
-      <p className="mt-2 leading-relaxed">{t(w.key)}</p>
-      <ul className="mt-2 space-y-1">
-        {w.sources.map((s) => (
-          <li key={s.id}>
-            <a href={s.url} target="_blank" rel="noreferrer" className="text-xs text-accent hover:underline">{s.title} ↗</a>
-          </li>
-        ))}
-      </ul>
+    <details className="group rounded-lg border border-line bg-panel-2/40 text-sm">
+      <summary className="flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-lg px-3 font-medium text-muted transition-colors duration-150 hover:text-fg [&::-webkit-details-marker]:hidden">
+        <Info size={14} strokeWidth={2} />
+        {t("check.why")}
+        <ChevronRight size={14} className="ml-auto transition-transform duration-200 ease-smooth group-open:rotate-90" />
+      </summary>
+      <div className="space-y-2 border-t border-line px-3 py-3">
+        <p className="leading-relaxed text-fg/90">{t(w.key)}</p>
+        <ul className="space-y-1">
+          {w.sources.map((s) => (
+            <li key={s.id}>
+              <a href={s.url} target="_blank" rel="noreferrer" className="link inline-flex items-center gap-1 text-xs">
+                {s.title}
+                <ArrowUpRight size={11} className="opacity-60" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
     </details>
   );
 }
@@ -55,8 +66,8 @@ function NumberField({ id, label, unit, value, onChange, step = 1, optional }: {
   const [min, max] = INPUT_BOUNDS[id] ?? [0, 1000];
   const valid = inBounds(id, value);
   return (
-    <label className="block space-y-1">
-      <span className="text-sm">
+    <label className="block space-y-1.5">
+      <span className="text-sm text-fg/90">
         {label} {optional && <span className="text-xs text-muted">({t("check.optional")})</span>}
       </span>
       <span className="flex items-center gap-2">
@@ -69,9 +80,9 @@ function NumberField({ id, label, unit, value, onChange, step = 1, optional }: {
           value={value ?? ""}
           onChange={(e) => onChange(e.target.value === "" ? undefined : Number(e.target.value))}
           aria-invalid={!valid}
-          className="min-h-11 w-32 rounded-lg border border-line bg-bg px-3 font-mono text-lg tabular-nums focus:border-accent focus:outline-none aria-invalid:border-red"
+          className="field min-h-11 w-32 px-3 font-mono text-base"
         />
-        <span className="text-sm text-muted">{unit}</span>
+        <span className="font-mono text-sm text-muted">{unit}</span>
       </span>
       {!valid && <span className="block text-xs text-red">{t("check.invalid", { min, max })}</span>}
     </label>
@@ -82,20 +93,25 @@ function Scale({ label, value, onChange, faces }: { label: string; value: number
   const t = useT();
   return (
     <fieldset className="space-y-2">
-      <legend className="text-sm">{label}</legend>
-      <div className="flex flex-wrap gap-2">
-        {[1, 2, 3, 4, 5].map((n) => (
-          <button
-            key={n}
-            type="button"
-            aria-pressed={value === n}
-            onClick={() => onChange(n)}
-            className="flex min-h-14 min-w-20 flex-col items-center justify-center rounded-lg border border-line px-2 text-xs aria-pressed:border-accent aria-pressed:bg-accent/15"
-          >
-            {faces && <span aria-hidden className="text-2xl">{FACES[n - 1]}</span>}
-            <span>{n} · {t(`scale.${n}` as MessageKey)}</span>
-          </button>
-        ))}
+      <legend className="mb-2 text-sm text-fg/90">{label}</legend>
+      <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-5">
+        {[1, 2, 3, 4, 5].map((n) => {
+          const Face = FACES[n - 1];
+          return (
+            <button
+              key={n}
+              type="button"
+              aria-pressed={value === n}
+              onClick={() => onChange(n)}
+              className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-lg border border-line px-2 py-2 text-xs text-muted transition-[background-color,border-color,color,transform] duration-150 hover:border-line-strong hover:text-fg active:scale-[0.97] aria-pressed:border-accent/60 aria-pressed:bg-accent/10 aria-pressed:text-fg"
+            >
+              {faces && <Face size={20} strokeWidth={1.75} />}
+              <span>
+                <span className="font-mono">{n}</span> · {t(`scale.${n}` as MessageKey)}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </fieldset>
   );
@@ -130,7 +146,7 @@ export function CheckScreen() {
       <div className="space-y-3">
         <CameraHeartRate onResult={(bpm, quality) => set({ heartRate: bpm, heartRateSource: "camera", heartRateQuality: quality })} />
         {draft.heartRateSource === "camera" && draft.heartRate !== undefined && (
-          <p className="text-sm text-ok" data-testid="camera-recorded">✓ {t("camera.recorded", { bpm: draft.heartRate, q: Math.round((draft.heartRateQuality ?? 0) * 100) })}</p>
+          <p className="flex items-center gap-2 text-sm text-ok" data-testid="camera-recorded"><CircleCheck size={14} strokeWidth={2.25} />{t("camera.recorded", { bpm: draft.heartRate, q: Math.round((draft.heartRateQuality ?? 0) * 100) })}</p>
         )}
         <NumberField id="heartRate" label={t("check.hr.manual")} unit="bpm" value={draft.heartRate} onChange={(v) => set({ heartRate: v, heartRateSource: "manual" })} />
       </div>
@@ -156,9 +172,9 @@ export function CheckScreen() {
       <div className="space-y-5">
         <Scale label={t("check.mood")} value={draft.mood} onChange={(v) => set({ mood: v })} faces />
         <Scale label={t(mode === "steppe" ? "check.crewPulseSteppe" : "check.crewPulse")} value={draft.crewPulse} onChange={(v) => set({ crewPulse: v })} />
-        <label className="block space-y-1">
-          <span className="text-sm">{t("check.note")}</span>
-          <textarea value={draft.note ?? ""} onChange={(e) => set({ note: e.target.value })} rows={2} className="w-full rounded-lg border border-line bg-bg p-2 text-sm focus:border-accent focus:outline-none" />
+        <label className="block space-y-1.5">
+          <span className="text-sm text-fg/90">{t("check.note")}</span>
+          <textarea value={draft.note ?? ""} onChange={(e) => set({ note: e.target.value })} rows={2} className="field block w-full p-3 text-sm" />
         </label>
       </div>
     ),
@@ -167,11 +183,11 @@ export function CheckScreen() {
         {readings.length === 0 ? (
           <p className="text-muted">{t("check.nothing")}</p>
         ) : (
-          <ul className="divide-y divide-line rounded-lg border border-line font-mono text-sm">
+          <ul className="divide-y divide-line overflow-hidden rounded-lg border border-line font-mono text-sm">
             {readings.map((r) => (
-              <li key={r.indicator} className="flex justify-between px-3 py-1.5">
+              <li key={r.indicator} className="flex justify-between px-3 py-2">
                 <span className="font-sans">{labels.indicator(r.indicator)}</span>
-                <span className="tabular-nums">{r.value} {INDICATORS[r.indicator].unit}</span>
+                <span>{r.value} <span className="text-muted">{INDICATORS[r.indicator].unit}</span></span>
               </li>
             ))}
           </ul>
@@ -182,18 +198,26 @@ export function CheckScreen() {
 
   if (saved) {
     return (
-      <div className="space-y-4">
-        <h1 className="text-2xl font-semibold">{t("nav.check")}</h1>
-        <div className="space-y-3 rounded-xl border border-ok/40 bg-ok/10 p-5" data-testid="check-saved">
-          <p className="font-semibold text-ok">✓ {t("check.saved")}</p>
-          {assessment && <StatusBadge status={assessment.overall} size="lg" />}
-          <div className="flex flex-wrap gap-3 text-sm">
-            <Link href="/" className="text-accent hover:underline">{t("nav.home")} →</Link>
-            <Link href="/body" className="text-accent hover:underline">{t("nav.body")} →</Link>
-            <Link href="/trends" className="text-accent hover:underline">{t("nav.trends")} →</Link>
-            <Link href="/alerts" className="text-accent hover:underline">{t("nav.alerts")} →</Link>
+      <div className="space-y-6">
+        <PageHeader title={t("nav.check")} />
+        <div className="surface space-y-5 p-5 sm:p-6" data-testid="check-saved">
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="flex items-center gap-2 font-medium text-ok">
+              <CircleCheck size={18} strokeWidth={2.25} />
+              {t("check.saved")}
+            </p>
+            {assessment && <StatusBadge status={assessment.overall} size="lg" />}
           </div>
-          <button type="button" onClick={() => { setDraft({}); setSaved(false); setStep("hr"); }} className="min-h-11 rounded-lg border border-line px-4 text-sm">
+          <div className="flex flex-wrap gap-2 text-sm">
+            {(["/", "/body", "/trends", "/alerts"] as const).map((href) => (
+              <Link key={href} href={href} className="btn btn-secondary group">
+                {t(href === "/" ? "nav.home" : href === "/body" ? "nav.body" : href === "/trends" ? "nav.trends" : "nav.alerts")}
+                <ArrowRight size={14} className="transition-transform duration-150 group-hover:translate-x-0.5" />
+              </Link>
+            ))}
+          </div>
+          <button type="button" onClick={() => { setDraft({}); setSaved(false); setStep("hr"); }} className="btn btn-ghost -ml-2">
+            <RotateCcw size={14} />
             {t("check.again")}
           </button>
         </div>
@@ -202,52 +226,74 @@ export function CheckScreen() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-semibold">{t("nav.check")}</h1>
-          <p className="text-sm text-muted">{t("check.intro")}</p>
-          {member && <p className="font-mono text-xs text-accent">{t("check.savingFor", { member: labels.memberName(member), day: current })}</p>}
-        </div>
+    <div className="space-y-6">
+      <PageHeader
+        title={t("nav.check")}
+        intro={
+          <>
+            <p>{t("check.intro")}</p>
+            {member && <p className="mt-1.5 font-mono text-xs text-accent">{t("check.savingFor", { member: labels.memberName(member), day: current })}</p>}
+          </>
+        }
+      >
         <CrewSwitcher />
-      </div>
+      </PageHeader>
 
       <nav aria-label={t("check.steps")}>
         <ol className="flex flex-wrap gap-1.5">
-          {STEPS.map((s, i) => (
-            <li key={s}>
-              <button
-                type="button"
-                onClick={() => setStep(s)}
-                aria-current={s === step ? "step" : undefined}
-                className={`flex min-h-10 items-center gap-2 rounded-full border px-3 text-sm ${s === step ? "border-accent bg-accent/15 text-accent" : i < idx ? "border-line text-fg" : "border-line text-muted"}`}
-              >
-                <span className="font-mono text-xs">{i + 1}</span>
-                {t(`check.step.${s}` as MessageKey)}
-              </button>
-            </li>
-          ))}
+          {STEPS.map((s, i) => {
+            const current = s === step;
+            const done = i < idx;
+            return (
+              <li key={s}>
+                <button
+                  type="button"
+                  onClick={() => setStep(s)}
+                  aria-current={current ? "step" : undefined}
+                  className={`flex min-h-10 items-center gap-2 rounded-lg border px-3 text-[13px] font-medium transition-[background-color,border-color,color] duration-150 ${
+                    current ? "border-line-strong bg-panel-2 text-fg" : done ? "border-line text-fg/80 hover:border-line-strong" : "border-line text-muted hover:border-line-strong hover:text-fg"
+                  }`}
+                >
+                  <span
+                    className={`grid h-5 w-5 place-items-center rounded-full font-mono text-[10px] ${current ? "bg-fg text-bg" : done ? "bg-accent/15 text-accent" : "bg-panel-2 text-muted"}`}
+                  >
+                    {done ? <Check size={11} strokeWidth={3} aria-hidden /> : i + 1}
+                  </span>
+                  {t(`check.step.${s}` as MessageKey)}
+                </button>
+              </li>
+            );
+          })}
         </ol>
       </nav>
 
-      <section className="space-y-4 rounded-xl border border-line bg-panel p-5" aria-labelledby="step-title">
-        <h2 id="step-title" className="text-lg font-semibold">{t(`check.step.${step}` as MessageKey)}</h2>
+      <section className="surface space-y-5 p-5 sm:p-6" aria-labelledby="step-title">
+        <h2 id="step-title" className="text-lg font-semibold tracking-tight">{t(`check.step.${step}` as MessageKey)}</h2>
         {step !== "review" && <Why step={step} />}
         {body[step]}
       </section>
 
       <div className="flex flex-wrap gap-2">
         {idx > 0 && (
-          <button type="button" onClick={() => setStep(STEPS[idx - 1])} className="min-h-11 rounded-lg border border-line px-4">← {t("check.back")}</button>
+          <button type="button" onClick={() => setStep(STEPS[idx - 1])} className="btn btn-secondary">
+            <ArrowLeft size={14} />
+            {t("check.back")}
+          </button>
         )}
         {step !== "review" ? (
           <>
-            <button type="button" onClick={() => setStep(STEPS[idx + 1])} className="min-h-11 rounded-lg bg-accent px-5 font-semibold text-bg">{t("check.next")} →</button>
-            <button type="button" onClick={() => setStep(STEPS[idx + 1])} className="min-h-11 px-3 text-sm text-muted hover:text-fg">{t("check.skip")}</button>
+            <button type="button" onClick={() => setStep(STEPS[idx + 1])} className="btn btn-primary group">
+              {t("check.next")}
+              <ArrowRight size={14} className="transition-transform duration-150 group-hover:translate-x-0.5" />
+            </button>
+            <button type="button" onClick={() => setStep(STEPS[idx + 1])} className="btn btn-ghost">
+              {t("check.skip")}
+            </button>
           </>
         ) : (
-          <button type="button" onClick={save} disabled={readings.length === 0 || hasInvalid} className="min-h-11 rounded-lg bg-accent px-5 font-semibold text-bg disabled:opacity-40">
-            ✓ {t("check.save")}
+          <button type="button" onClick={save} disabled={readings.length === 0 || hasInvalid} className="btn btn-primary">
+            <Check size={14} strokeWidth={2.5} />
+            {t("check.save")}
           </button>
         )}
       </div>

@@ -5,7 +5,7 @@
  * - RSC fetches (client-side navigation): network only; offline, Next falls back to a full page load,
  *   which is served from the cache.
  */
-const VERSION = "ether-v1";
+const VERSION = "ether-v2"; // bump when the UI changes so returning visitors drop the old cached pages
 const CACHE = `${VERSION}-cache`;
 const ROUTES = ["/", "/body", "/check", "/alerts", "/trends", "/quests", "/crew", "/learn"];
 const ASSETS = ["/data/mission.json", "/data/steppe.json", "/manifest.webmanifest", "/icon.svg", "/icons/icon-192.png", "/icons/icon-512.png"];
