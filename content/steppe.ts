@@ -89,6 +89,10 @@ export const REGION_STEPPE: Record<RegionId, { function: Bilingual; effect: Bili
     function: { en: "Turns food into energy and keeps blood sugar steady.", mn: "Хоолыг эрчим хүч болгож, цусны сахарыг тогтвортой барина." },
     effect: { en: "A winter diet heavy in meat and salt, with few vegetables, affects blood pressure and sugar.", mn: "Мах, давс ихтэй, ногоо багатай өвлийн хоол даралт, сахарт нөлөөлнө." },
   },
+  cold: {
+    function: { en: "Skin and circulation keep fingers, toes, ears and face warm.", mn: "Арьс, цусны эргэлт хуруу, хөл, чих, нүүрийг дулаан байлгана." },
+    effect: { en: "Hours outside in deep cold during a cold snap bring frostbite and hypothermia risk, and push blood pressure up.", mn: "Хүйтний давалгааны үед тэс хүйтэнд удаан байх нь хөлдөх, даарах эрсдэлтэй бөгөөд даралтыг өсгөнө." },
+  },
   radiation: {
     function: { en: "Not tracked on Earth in this mode.", mn: "Энэ горимд цацраг хэмжихгүй." },
     effect: { en: "The same app in space tracks radiation dose.", mn: "Сансрын горимд цацрагийн тунг хянана." },

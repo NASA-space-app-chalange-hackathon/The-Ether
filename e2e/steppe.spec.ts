@@ -38,7 +38,15 @@ test("Steppe toggle: Mongolian UI, herder data, Earth ladder, soum hospital card
   await expect(page.getByTestId("home-alerts")).toContainText("Зүрх, даралтын өөрчлөлт");
   await expect(page.getByTestId("home-alerts")).toContainText("Сумын эмнэлэг · 103");
 
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Биеийн зураг" }).click();
+  await expect(page.locator('svg [data-region="cold"]').first()).toHaveAttribute("data-status", /watch|critical/);
+  await expect(page.locator('svg [data-region="eyes"]')).toHaveCount(0);
+  const systems = page.getByRole("list", { name: "Биеийн тогтолцоо" });
+  await expect(systems.getByRole("button", { name: /Хүйтний нөлөө/ })).toBeVisible();
+  await expect(systems.getByRole("button", { name: /Цацраг|SANS/ })).toHaveCount(0);
+
   await page.getByTestId("mode-space").click();
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Mission Home" }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Mission Home");
   expect(problems).toEqual([]);
 });

@@ -280,5 +280,9 @@
   "notFound.back": "Back to Mission Home",
   "intro.watch": "▶ Watch the 30-second demo",
   "intro.body": "Or explore on your own: drag the Mission Clock to time-travel through a 180-day Mars mission.",
-  "intro.dismiss": "Dismiss"
+  "intro.dismiss": "Dismiss",
+  "region.cold": "Cold exposure / skin",
+  "ind.coldExposure": "Time outdoors in deep cold",
+  "check.cold": "Hours outdoors in deep cold today",
+  "quest.warm": "Dress in layers and check fingers and toes"
 }

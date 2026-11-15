@@ -6,7 +6,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { StatusBadge, TierBadge } from "@/components/ui/Badges";
 import { STATUS_STYLE } from "@/components/ui/status";
 import type { DatasetMember } from "@/lib/data/dataset";
-import { allRegionStatuses, REGION_IDS } from "@/lib/engine/regions";
+import { allRegionStatuses, regionIdsFor } from "@/lib/engine/regions";
 import type { Tier } from "@/lib/engine/types";
 import type { MessageKey } from "@/lib/i18n";
 import { useAssessment, useData, useMission } from "@/lib/state/DataProvider";
@@ -19,6 +19,7 @@ function MemberCard({ member, viewer }: { member: DatasetMember; viewer: Viewer 
   const t = useT();
   const a = useAssessment(member.id);
   const labels = useLabels();
+  const { mode } = useAppState();
   if (!a) return null;
   const regions = allRegionStatuses(a);
   const details = viewer === "cmo" || member.sharesDetails;
@@ -34,7 +35,7 @@ function MemberCard({ member, viewer }: { member: DatasetMember; viewer: Viewer 
         <StatusBadge status={a.overall} size="lg" />
       </header>
       <ul className="flex flex-wrap gap-1.5" aria-label={t("home.regions")}>
-        {REGION_IDS.map((id) => {
+        {regionIdsFor(mode).map((id) => {
           const s = STATUS_STYLE[regions[id]];
           return (
             <li key={id} title={t(`region.${id}` as MessageKey)} className={`grid h-8 w-8 place-items-center rounded-md border text-sm ${s.border} ${s.bg} ${s.text}`}>

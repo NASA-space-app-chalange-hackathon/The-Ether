@@ -12,6 +12,8 @@ export type BodySide = "front" | "back";
 
 interface Props {
   side: BodySide;
+  /** Regions shown in the current mode. */
+  regions: readonly RegionId[];
   statuses: Record<RegionId, Status>;
   selected: RegionId | null;
   onSelect: (id: RegionId) => void;
@@ -49,6 +51,15 @@ function regionShapes(side: BodySide): Partial<Record<RegionId, ReactNode>> {
       <>
         <ellipse cx={82} cy={120} rx={15} ry={25} />
         <ellipse cx={118} cy={120} rx={15} ry={25} />
+      </>
+    ),
+    // Steppe: extremities most exposed to frostbite.
+    cold: (
+      <>
+        <circle cx={20} cy={252} r={12} />
+        <circle cx={180} cy={252} r={12} />
+        <ellipse cx={82} cy={414} rx={14} ry={9} />
+        <ellipse cx={118} cy={414} rx={14} ry={9} />
       </>
     ),
   };
@@ -105,7 +116,7 @@ function regionShapes(side: BodySide): Partial<Record<RegionId, ReactNode>> {
   };
 }
 
-export function BodyFigure({ side, statuses, selected, onSelect, radiationOverlay }: Props) {
+export function BodyFigure({ side, regions, statuses, selected, onSelect, radiationOverlay }: Props) {
   const t = useT();
   const reduceMotion = useReducedMotion();
   const [focused, setFocused] = useState<RegionId | null>(null);
@@ -160,9 +171,9 @@ export function BodyFigure({ side, statuses, selected, onSelect, radiationOverla
           <stop offset="100%" stopColor={radStyle.fill} stopOpacity={0.35} />
         </radialGradient>
       </defs>
-      {radiationOverlay && region("radiation", <ellipse cx={100} cy={222} rx={96} ry={214} fill="url(#rad-aura)" fillOpacity={1} />)}
+      {radiationOverlay && regions.includes("radiation") && region("radiation", <ellipse cx={100} cy={222} rx={96} ry={214} fill="url(#rad-aura)" fillOpacity={1} />)}
       <Silhouette />
-      {(Object.entries(shapes) as [RegionId, ReactNode][]).map(([id, node]) => region(id, node))}
+      {(Object.entries(shapes) as [RegionId, ReactNode][]).filter(([id]) => regions.includes(id)).map(([id, node]) => region(id, node))}
     </svg>
   );
 }

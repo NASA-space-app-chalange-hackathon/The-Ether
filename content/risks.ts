@@ -129,6 +129,14 @@ export const REGION_CONTENT: Record<RegionId, RegionContent> = {
     hazards: ["environment", "distance"],
     risks: [SOURCES.riskNutrition],
   },
+  cold: {
+    id: "cold",
+    name: "Cold exposure / skin",
+    function: "Skin and circulation keep fingers, toes and face warm.",
+    spaceflightEffect: "Not a spaceflight system in this app — used in Steppe mode for deep-cold exposure.",
+    hazards: ["environment"],
+    risks: [SOURCES.csaScience],
+  },
   radiation: {
     id: "radiation",
     name: "Radiation exposure",

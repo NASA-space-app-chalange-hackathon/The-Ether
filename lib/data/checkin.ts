@@ -17,6 +17,7 @@ export interface CheckInDraft {
   sleepQuality?: number;
   mood?: number;
   crewPulse?: number;
+  coldExposure?: number;
   note?: string;
 }
 
@@ -30,6 +31,7 @@ export const INPUT_BOUNDS: Partial<Record<IndicatorId, [number, number]>> = {
   spo2: [70, 100],
   bodyMass: [30, 200],
   sleepHours: [0, 16],
+  coldExposure: [0, 24],
 };
 
 export function inBounds(id: IndicatorId, v: number | undefined): boolean {
@@ -38,7 +40,7 @@ export function inBounds(id: IndicatorId, v: number | undefined): boolean {
   return Number.isFinite(v) && (!b || (v >= b[0] && v <= b[1]));
 }
 
-const SIMPLE: IndicatorId[] = ["systolicBP", "diastolicBP", "glucose", "temperature", "spo2", "bodyMass", "sleepHours", "sleepQuality", "mood", "crewPulse"];
+const SIMPLE: IndicatorId[] = ["systolicBP", "diastolicBP", "glucose", "temperature", "spo2", "bodyMass", "sleepHours", "sleepQuality", "mood", "crewPulse", "coldExposure"];
 
 /** Convert a draft into engine readings for one member/day. Out-of-bounds values are dropped. */
 export function draftToReadings(draft: CheckInDraft, memberId: string, day: number, timestamp: string): Reading[] {

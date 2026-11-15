@@ -91,3 +91,16 @@ describe("review fix: 1–5 scales flag in the worse direction", () => {
     expect(st.status).not.toBe("ok");
   });
 });
+
+describe("review fix: Steppe regions", () => {
+  it("the cold snap drives the cold-exposure region before blood pressure", async () => {
+    const { regionStatus, STEPPE_REGION_IDS } = await import("@/lib/engine/regions");
+    const herd = expandReadings(steppeDs);
+    expect(STEPPE_REGION_IDS).not.toContain("eyes");
+    expect(STEPPE_REGION_IDS).not.toContain("radiation");
+    expect(regionStatus(evaluateMember("herder-1", herd, 12), "cold")).toBe("ok");
+    const d19 = evaluateMember("herder-1", herd, 19);
+    expect(regionStatus(d19, "cold")).not.toBe("ok");
+    expect(d19.alerts.map((a) => a.ruleId)).toContain("cold");
+  });
+});
