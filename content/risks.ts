@@ -2,7 +2,9 @@ import type { RegionId } from "@/lib/engine/regions";
 import { SOURCES } from "@/lib/engine/sources";
 import type { Source } from "@/lib/engine/types";
 
-export type HazardId = "radiation" | "isolation" | "distance" | "gravity" | "environment";
+import type { HazardId } from "@/lib/engine/hazards";
+
+export type { HazardId };
 
 export interface Hazard {
   id: HazardId;

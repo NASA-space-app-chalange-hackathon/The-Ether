@@ -5,6 +5,7 @@ import { useState } from "react";
 import { RadiationMeter } from "@/components/home/RadiationMeter";
 import { TrendChart } from "@/components/charts/TrendChart";
 import { StatusBadge, StatusIcon, TierBadge } from "@/components/ui/Badges";
+import { HazardTags } from "@/components/ui/HazardTags";
 import { STATUS_STYLE } from "@/components/ui/status";
 import { REGION_CONTENT } from "@/content/risks";
 import { REGION_STEPPE } from "@/content/steppe";
@@ -48,6 +49,7 @@ export function RegionPanel({ region, assessment, onClose }: { region: RegionId;
         <div className="space-y-2">
           <h2 id="region-title" className="text-xl font-semibold tracking-tight">{t(`region.${region}` as MessageKey)}</h2>
           <StatusBadge status={status} size="lg" />
+          <HazardTags ids={content.hazards} />
         </div>
         <button type="button" onClick={onClose} aria-label={t("panel.close")} className="icon-btn">
           <X size={16} strokeWidth={2} />
@@ -61,7 +63,7 @@ export function RegionPanel({ region, assessment, onClose }: { region: RegionId;
         <p className="text-sm leading-relaxed text-fg/90">{steppe ? steppe.effect[locale] : content.spaceflightEffect}</p>
       </Section>
 
-      {region === "radiation" && <RadiationMeter radiation={assessment.radiation} />}
+      {region === "radiation" && <RadiationMeter radiation={assessment.radiation} spaceWeather={assessment.spaceWeather} />}
       {region === "bones" && (
         <Section title={t("panel.boneScore")}>
           <div className="track" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(assessment.bone.score)} aria-label={t("panel.boneScore")}>

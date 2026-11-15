@@ -5,7 +5,8 @@ import { CircleCheck, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getDB, type GroundMessage } from "@/lib/db/schema";
 import { arrivalTime, composeGroundMessage } from "@/lib/engine/message";
-import { formatDelay, signalDelay } from "@/lib/engine/signal";
+import { formatDelay } from "@/lib/engine/signal";
+import { useSignalDelay } from "@/lib/state/NasaProvider";
 import type { Alert } from "@/lib/engine/types";
 import { useAppState, useT } from "@/lib/state/useAppState";
 import { useLabels } from "@/lib/state/useLabels";
@@ -57,11 +58,11 @@ function SentMessage({ msg, now }: { msg: GroundMessage; now: number }) {
 
 export function MessageToGround({ alert, memberName, completed }: { alert: Alert; memberName: string; completed: readonly string[] }) {
   const t = useT();
-  const { environment, mode, locale } = useAppState();
+  const { mode, locale } = useAppState();
   const labels = useLabels();
   const [draft, setDraft] = useState<string | null>(null);
   const composed = composeGroundMessage({ alert, memberName, completed, locale, label: labels.indicator });
-  const delay = signalDelay(environment, alert.day).oneWaySeconds;
+  const delay = useSignalDelay(alert.day).oneWaySeconds;
   const sent = useLiveQuery(() => getDB().messages.where("alertId").equals(alert.id).sortBy("sentAt"), [alert.id]) ?? [];
   const now = useNow(sent.map((m) => m.arrivesAt));
 

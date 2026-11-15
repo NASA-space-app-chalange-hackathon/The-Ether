@@ -7,6 +7,17 @@ export interface MissionEvent {
   kind: MissionEventKind;
   icon: string;
   label: string;
+  /** Set when the event comes from real NASA data replayed on the mission timeline. */
+  real?: RealEventRef;
+}
+
+export interface RealEventRef {
+  source: "DONKI" | "POWER";
+  /** Real calendar date (yyyy-mm-dd). */
+  realDate: string;
+  url?: string;
+  /** POWER: daily minimum temperature (°C). */
+  tMin?: number;
 }
 
 export interface DatasetMember extends CrewMember {

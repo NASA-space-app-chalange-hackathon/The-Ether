@@ -127,3 +127,176 @@ export const HOW_IT_WORKS: Bilingual = {
   en: "The Ether learns each person's normal from the first 14 days (median and spread), compares every new reading with it, and only raises an alert when a change lasts (3 of the last 5 days) or crosses a safety threshold. Each alert says what changed, why it matters, what to do now, and who should act.",
   mn: "The Ether эхний 14 хоногоос хүн бүрийн хэвийн түвшинг суралцаж, шинэ хэмжилт бүрийг түүнтэй харьцуулна. Өөрчлөлт удаан үргэлжилбэл (сүүлийн 5 хоногийн 3) эсвэл аюулгүйн босгыг давбал л сэрэмжлүүлнэ. Сэрэмжлүүлэг бүр юу өөрчлөгдсөн, яагаад чухал, юу хийх, хэн хариуцахыг хэлнэ.",
 };
+
+/**
+ * Plain-language summary of the CSA article "Monitoring radiation for astronaut health"
+ * (26 Feb 2026). Every point paraphrases the article; nothing is added.
+ */
+export const CSA_RADIATION: readonly Bilingual[] = [
+  {
+    en: "Radiation is one of the main challenges for astronauts who live and work beyond the protection of Earth's atmosphere.",
+    mn: "Дэлхийн агаар мандлын хамгаалалтаас гадна амьдарч, ажилладаг сансрын нисгэгчдэд цацраг бол гол бэрхшээлүүдийн нэг.",
+  },
+  {
+    en: "On the International Space Station, neutron radiation makes up about 30% of all radiation. The CSA calls it especially harmful: it can seriously damage the body, so it needs special protection.",
+    mn: "Олон улсын сансрын станцад нийт цацрагийн 30 орчим хувийг нейтроны цацраг эзэлдэг. Канадын сансрын агентлаг үүнийг онцгой хортой гэж үздэг: биед ноцтой гэмтэл учруулж болох тул тусгай хамгаалалт шаарддаг.",
+  },
+  {
+    en: "Canada has measured radiation on the ISS for years — for example bubble detectors (used by astronaut David Saint-Jacques), MOSFET, EVARM, and Radi-N / Radi-N2.",
+    mn: "Канад олон жил ОУСС-д цацраг хэмжиж ирсэн — жишээ нь бөмбөлөгт мэдрэгч (сансрын нисгэгч Давид Сен-Жак ашигласан), MOSFET, EVARM, Radi-N / Radi-N2.",
+  },
+  {
+    en: "Next comes CANS, the Canadian Active Neutron Spectrometer: a compact instrument that measures neutron exposure continuously and on its own. The CSA gave Bubble Technology Industries a $5.5 million contract to keep developing it.",
+    mn: "Дараагийнх нь CANS буюу Канадын идэвхтэй нейтроны спектрометр: нейтроны цацрагийг тасралтгүй, бие даан хэмждэг авсаархан багаж. Агентлаг үүнийг үргэлжлүүлэн хөгжүүлэхээр Bubble Technology Industries компанитай 5.5 сая долларын гэрээ байгуулсан.",
+  },
+  {
+    en: "Better measurements help design better ways to lower the risk to astronauts' health. The CSA adds that the same data could help on Earth too — for example in cancer therapy and in radiation protection for aircrews.",
+    mn: "Илүү сайн хэмжилт нь сансрын нисгэгчдийн эрүүл мэндийн эрсдэлийг бууруулах арга боловсруулахад тусална. Мөн энэ мэдээлэл дэлхий дээр ч хэрэгтэй — жишээ нь хорт хавдрын эмчилгээ, нисэх багийн цацрагийн хамгаалалтад.",
+  },
+];
+
+/** How The Ether uses the radiation explainer (our own statement, not the CSA's). */
+export const CSA_RADIATION_IN_APP: Bilingual = {
+  en: "In The Ether, each crewmember's dose is tracked against NASA's career limit, and real solar particle events from NASA DONKI become shelter alerts. The dosimeter numbers are simulated; an instrument like CANS is what would feed this screen on a real mission.",
+  mn: "The Ether-д багийн гишүүн бүрийн тунг NASA-гийн карьерын хязгаартай харьцуулж, NASA DONKI-гийн бодит нарны бөөмийн шуургыг хоргодох сэрэмжлүүлэг болгоно. Дозиметрийн тоо загварчилсан; бодит нислэгт CANS шиг багаж энэ дэлгэцэд мэдээлэл өгнө.",
+};
+
+/**
+ * Why space research helps people on Earth — paraphrased from the CSA page
+ * "Why do we conduct science experiments in space?". The last point is our own link to Steppe mode.
+ */
+export const EARTH_BENEFITS: readonly Bilingual[] = [
+  {
+    en: "Studying how the body changes in space shows what happens with less physical activity: the effects seen in astronauts resemble accelerated aging and the health problems of a sedentary lifestyle.",
+    mn: "Сансарт бие хэрхэн өөрчлөгдөхийг судлах нь хөдөлгөөн багассан үед юу болдгийг харуулдаг: сансрын нисгэгчдэд ажиглагддаг өөрчлөлт нь хурдасгасан хөгшрөлт, суугаа амьдралын хэв маягийн эрүүл мэндийн асуудалтай төстэй.",
+  },
+  {
+    en: "Six months in space produce data that would take years to gather on Earth.",
+    mn: "Сансарт зургаан сар байхад дэлхий дээр олон жил цуглуулах мэдээлэл гардаг.",
+  },
+  {
+    en: "The findings can help people with balance problems (such as seniors), osteoporosis, cardiovascular disorders and type 2 diabetes.",
+    mn: "Судалгааны үр дүн тэнцвэрийн асуудалтай хүмүүс (жишээ нь ахмад настан), ясны сийрэгжилт, зүрх судасны эмгэг, 2-р хэлбэрийн чихрийн шижинтэй хүмүүст тусалж болно.",
+  },
+];
+
+export const EARTH_BENEFITS_OURS: Bilingual = {
+  en: "That is the idea behind Steppe mode: a herder far from the soum hospital faces the same problem as a crew far from Earth — notice changes early and act before help can arrive.",
+  mn: "Тал нутгийн горимын санаа үүнд оршино: сумын эмнэлгээс хол байгаа малчин, дэлхийгээс хол байгаа багийн адил асуудалтай тулгардаг — өөрчлөлтийг эрт анзаарч, тусламж ирэхээс өмнө арга хэмжээ авах.",
+};
+
+export type DataSourceKind = "official" | "api";
+export type DataFeedKey = "spaceWeather" | "lightTime" | "weather";
+
+export interface DataSourceEntry {
+  id: string;
+  kind: DataSourceKind;
+  /** Proper name, kept in English. */
+  name: string;
+  url: string;
+  /** What it powers in the app. */
+  powers: Bilingual;
+  /** For APIs: the server route that calls it, and which feed holds its data. */
+  route?: string;
+  feed?: DataFeedKey;
+  hazard?: HazardId;
+}
+
+/** Every official challenge resource and NASA API The Ether uses, and what each one powers. */
+export const DATA_SOURCES: readonly DataSourceEntry[] = [
+  {
+    id: "hrpHazards",
+    kind: "official",
+    name: "NASA HRP — 5 Hazards of Human Spaceflight",
+    url: SOURCES.hrpHazards.url!,
+    powers: {
+      en: "The five hazard names. Every alert, indicator and body system is tagged with its hazard(s), and Learn groups content by hazard.",
+      mn: "Таван аюулын нэр. Сэрэмжлүүлэг, үзүүлэлт, биеийн систем бүрийг аюултай нь холбож, Мэдлэг хэсэг аюулаар бүлэглэнэ.",
+    },
+  },
+  {
+    id: "hrpRisks",
+    kind: "official",
+    name: "NASA HRP — Risks of Human Spaceflight",
+    url: SOURCES.hrpRisks.url!,
+    powers: {
+      en: "13 of the 17 listed risks. Each alert and body system links to its own NASA risk page.",
+      mn: "Жагсаасан 17 эрсдэлийн 13. Сэрэмжлүүлэг, биеийн систем бүр NASA-гийн өөрийн эрсдэлийн хуудас руу холбогдоно.",
+    },
+  },
+  {
+    id: "hrpResearch",
+    kind: "official",
+    name: "NASA HRP — Ongoing HRP Research",
+    url: SOURCES.hrpResearch.url!,
+    powers: {
+      en: "Background for the Learn cards: HRP studies how to protect astronauts' health and performance, across behavioral performance, health countermeasures and space radiation.",
+      mn: "Мэдлэг картын суурь: HRP сансрын нисгэгчдийн эрүүл мэнд, гүйцэтгэлийг хамгаалах аргыг зан төлөв, эрүүл мэндийн хамгаалалт, сансрын цацрагийн чиглэлээр судалдаг.",
+    },
+  },
+  {
+    id: "csaRadiation",
+    kind: "official",
+    name: "Canadian Space Agency — Monitoring radiation for astronaut health",
+    url: SOURCES.csaRadiation.url!,
+    powers: {
+      en: "The radiation explainer (neutron radiation, Canadian ISS instruments, CANS) and a source on every solar particle event alert.",
+      mn: "Цацрагийн тайлбар (нейтроны цацраг, Канадын ОУСС дахь багаж, CANS), нарны бөөмийн шуурганы сэрэмжлүүлэг бүрийн эх сурвалж.",
+    },
+  },
+  {
+    id: "csaScience",
+    kind: "official",
+    name: "Canadian Space Agency — Why do we conduct science experiments in space?",
+    url: SOURCES.csaScience.url!,
+    powers: {
+      en: "The \"why space research helps Earth\" note, which is the reason Steppe mode exists.",
+      mn: "\"Сансрын судалгаа дэлхийд хэрхэн тусалдаг\" тэмдэглэл — Тал нутгийн горимын үндэслэл.",
+    },
+  },
+  {
+    id: "donki",
+    kind: "api",
+    name: "NASA DONKI — Solar Energetic Particle events (api.nasa.gov, backup: CCMC kauai)",
+    url: "https://kauai.ccmc.gsfc.nasa.gov/DONKI/",
+    route: "/api/nasa/space-weather",
+    feed: "spaceWeather",
+    hazard: "radiation",
+    powers: {
+      en: "Space weather replay: real 2024 solar particle events seen by GOES are mapped onto mission days — markers on the Mission Clock and Trends, and a shelter alert where the Crew Medical Officer checks everyone's dose.",
+      mn: "Сансрын цаг агаарын давталт: GOES бүртгэсэн 2024 оны бодит нарны бөөмийн шуургыг нислэгийн өдрүүдэд буулгана — Цагийн шугам, Чиг хандлага дээрх тэмдэг, багийн эмч хүн бүрийн тунг шалгах хоргодох сэрэмжлүүлэг.",
+    },
+  },
+  {
+    id: "horizons",
+    kind: "api",
+    name: "NASA JPL Horizons — Earth–Mars one-way light time",
+    url: "https://ssd.jpl.nasa.gov/horizons/",
+    route: "/api/nasa/light-time",
+    feed: "lightTime",
+    hazard: "distance",
+    powers: {
+      en: "\"Signal to Earth\" for Mars base and rover (real light time on each mission date) and Mars transit (approximate, scaled toward Mars). Long delays make Earth-level alerts say the Crew Medical Officer acts first; the Message to Ground countdown uses the same number.",
+      mn: "Ангараг дахь бааз, роверын \"Дэлхий хүртэлх дохио\" (өдөр бүрийн бодит гэрлийн хугацаа), Ангараг руу нисэх үе (ойролцоо). Саатал урт бол дэлхийн түвшний сэрэмжлүүлэгт багийн эмч эхэлж арга хэмжээ авна гэж заана.",
+    },
+  },
+  {
+    id: "power",
+    kind: "api",
+    name: "NASA POWER — daily weather (temperature, wind)",
+    url: "https://power.larc.nasa.gov/",
+    route: "/api/nasa/weather",
+    feed: "weather",
+    hazard: "environment",
+    powers: {
+      en: "Steppe mode: real February 2024 weather near Uliastai, Zavkhan aimag — today's weather card, the temperature chart on Trends, and the cold-snap marker.",
+      mn: "Тал нутгийн горим: Завхан аймгийн Улиастайн орчмын 2024 оны 2-р сарын бодит цаг агаар — өнөөдрийн цаг агаарын карт, Чиг хандлага дахь температурын график, хүйтний давалгааны тэмдэг.",
+    },
+  },
+];
+
+/** What is simulated (shown on Data & sources). */
+export const SIMULATED_NOTE: Bilingual = {
+  en: "Simulated: every crew and herder health reading (heart rate, blood pressure, sleep, mood, reaction time, exercise, dosimeter). They come from a seeded generator so the demo story is repeatable. The dosimeter spikes are timed to the real DONKI events, but their size is simulated.",
+  mn: "Загварчилсан: багийн гишүүд ба малчны эрүүл мэндийн бүх хэмжилт (зүрхний цохилт, даралт, нойр, сэтгэл санаа, хариу үйлдэл, дасгал, дозиметр). Үзүүлэнг давтагдахуйц болгохын тулд тогтмол үүсгэгчээр гаргасан. Дозиметрийн өсөлт DONKI-гийн бодит үйл явдалтай давхцах боловч хэмжээ нь загварчилсан.",
+};

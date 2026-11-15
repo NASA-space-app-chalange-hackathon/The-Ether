@@ -2,8 +2,11 @@
 
 import { ChevronLeft, ChevronRight, Pause, Play, RadioTower } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
-import { formatDelay, signalDelay } from "@/lib/engine/signal";
+import type { MissionEvent } from "@/lib/data/dataset";
+import { formatDelay } from "@/lib/engine/signal";
+import type { MessageKey } from "@/lib/i18n";
 import { useMission } from "@/lib/state/DataProvider";
+import { useSignalDelay } from "@/lib/state/NasaProvider";
 import { getSnapshot } from "@/lib/state/store";
 import { useAppState, useT } from "@/lib/state/useAppState";
 import { useLabels } from "@/lib/state/useLabels";
@@ -12,15 +15,29 @@ import { EVENT_ICON } from "./icons";
 const PLAY_INTERVAL_MS = 140;
 /** Half the slider thumb width: the thumb's centre travels from THUMB_R to (width − THUMB_R). */
 const THUMB_R = 7;
+/** Events closer than this many days share one marker, so icons never overlap. */
+const CLUSTER_DAYS = 4;
+
+/** Group events that sit within CLUSTER_DAYS of the first event in the group. */
+export function clusterEvents(events: readonly MissionEvent[]): MissionEvent[][] {
+  const groups: MissionEvent[][] = [];
+  for (const e of [...events].sort((a, b) => a.day - b.day)) {
+    const last = groups[groups.length - 1];
+    if (last && e.day - last[0].day < CLUSTER_DAYS) last.push(e);
+    else groups.push([e]);
+  }
+  return groups;
+}
 
 /** The hero control: scrub the whole UI through the mission, day 0 → end. */
 export function MissionClock() {
   const t = useT();
   const labels = useLabels();
-  const { day, setDay, mode, environment } = useAppState();
+  const { day, setDay, mode } = useAppState();
   const { status, events, maxDay } = useMission();
   const [playing, setPlaying] = useState(false);
   const current = Math.min(day, maxDay);
+  const signalDelay = useSignalDelay(current);
 
   useEffect(() => {
     if (!playing) return;
@@ -50,7 +67,7 @@ export function MissionClock() {
     );
   }
 
-  const delay = signalDelay(environment, current);
+  const delay = signalDelay;
   const step = (delta: number) => setDay(Math.min(maxDay, Math.max(0, current + delta)));
   const pct = (d: number) => (maxDay === 0 ? 0 : (d / maxDay) * 100);
 
@@ -82,16 +99,19 @@ export function MissionClock() {
 
         <div className="relative min-w-60 flex-1 pt-6">
           <ul aria-label={t("clock.events")} className="absolute top-0 h-6" style={{ left: THUMB_R, right: THUMB_R }}>
-            {events.map((e) => {
+            {clusterEvents(events).map((group) => {
+              const e = group[0];
               const Icon = EVENT_ICON[mode][e.kind];
               const passed = current >= e.day;
+              const label = group.map((x) => (group.length > 1 ? `${t("clock.dayShort", { day: x.day })}: ` : "") + labels.event(x)).join("; ");
               return (
                 <li key={`${e.day}-${e.kind}`} className="absolute -translate-x-1/2" style={{ left: `${pct(e.day)}%` }}>
                   <button
                     type="button"
                     onClick={() => setDay(e.day)}
-                    title={`${t("clock.dayOf", { day: e.day, max: maxDay })} — ${labels.event(e)}`}
-                    aria-label={t("clock.jump", { day: e.day, label: labels.event(e) })}
+                    title={`${t("clock.dayOf", { day: e.day, max: maxDay })} — ${label}`}
+                    aria-label={t("clock.jump", { day: e.day, label })}
+                    data-real={e.real ? e.real.source : undefined}
                     className={`grid h-6 w-6 place-items-center rounded-md transition-[color,background-color,transform] duration-150 hover:-translate-y-px hover:bg-panel-2 hover:text-fg ${
                       passed ? "text-fg" : "text-muted/70"
                     }`}
@@ -121,7 +141,7 @@ export function MissionClock() {
             <RadioTower size={14} strokeWidth={2} className="text-muted" />
             <span className="text-muted">{t("signal.label")}</span>
             <span className="font-mono text-fg">{formatDelay(delay.oneWaySeconds)}</span>
-            <span className="text-xs text-muted">({t("signal.approx")})</span>
+            <span className="text-xs text-muted">({t(`signal.src.${delay.source}` as MessageKey)})</span>
           </p>
         )}
       </div>

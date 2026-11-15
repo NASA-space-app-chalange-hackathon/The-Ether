@@ -1,4 +1,5 @@
 import { DEMO_PARAMETER, SOURCES } from "./sources";
+import type { HazardId } from "./hazards";
 import type { ActionStep, IndicatorId, Severity, Source, Tier } from "./types";
 
 export type RuleId =
@@ -33,7 +34,16 @@ export interface EscalationRule {
   /** Steps for every tier; the UI shows SELF up to the assigned tier. */
   steps: readonly ActionStep[];
   sources: readonly Source[];
+  /** NASA HRP hazard(s) the rule's risk comes from (see lib/engine/hazards.ts). */
+  hazards: readonly HazardId[];
 }
+
+/**
+ * One-way light time above which Earth can't take part in a live conversation, so an
+ * Earth-tier alert says the Crew Medical Officer acts first. Demo parameter: at 60 s one
+ * way, a question and answer already take more than 2 minutes.
+ */
+export const LONG_DELAY_SECONDS = 60;
 
 const TIER_RANK: Record<Tier, number> = { SELF: 0, CMO: 1, EARTH: 2 };
 const SEVERITY_RANK: Record<Severity, number> = { watch: 1, critical: 2 };
@@ -85,6 +95,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
       { tier: "EARTH", text: "Send the trend summary to the flight surgeon for a private medical conference." },
     ],
     sources: [SOURCES.riskCardio, SOURCES.accAha2017],
+    hazards: ["gravity"],
   },
   hypoxia: {
     id: "hypoxia",
@@ -102,6 +113,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
       { tier: "EARTH", text: "Notify the flight surgeon and environmental control team immediately." },
     ],
     sources: [SOURCES.riskHypoxia, SOURCES.whoPulseOx],
+    hazards: ["environment"],
   },
   glucose: {
     id: "glucose",
@@ -120,6 +132,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
       { tier: "EARTH", text: "Ask the flight surgeon and nutrition team to review the menu plan." },
     ],
     sources: [SOURCES.riskNutrition, SOURCES.adaHypoglycemia],
+    hazards: ["distance", "environment"],
   },
   fever: {
     id: "fever",
@@ -138,6 +151,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
       { tier: "EARTH", text: "Flight surgeon: review for possible infection and medication from the kit." },
     ],
     sources: [SOURCES.riskImmune, SOURCES.riskHostMicrobe, SOURCES.cdcFever],
+    hazards: ["environment"],
   },
   sleep: {
     id: "sleep",
@@ -155,6 +169,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
       { tier: "CMO", text: "Crew Medical Officer: review the work schedule and lighting plan with the crewmember." },
     ],
     sources: [SOURCES.riskSleep],
+    hazards: ["isolation", "environment"],
   },
   vigilance: {
     id: "vigilance",
@@ -172,6 +187,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
       { tier: "CMO", text: "Crew Medical Officer: consider reassigning safety-critical tasks today." },
     ],
     sources: [SOURCES.riskSleep, SOURCES.basnerPvt],
+    hazards: ["isolation"],
   },
   mood: {
     id: "mood",
@@ -190,6 +206,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
       { tier: "EARTH", text: "Book a private session with the ground behavioral health team." },
     ],
     sources: [SOURCES.riskBehavioral, SOURCES.hrpHazards],
+    hazards: ["isolation"],
   },
   teamwork: {
     id: "teamwork",
@@ -206,6 +223,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
       { tier: "CMO", text: "Commander/CMO: hold a short crew debrief on workload and friction." },
     ],
     sources: [SOURCES.riskTeamwork],
+    hazards: ["isolation"],
   },
   nutrition: {
     id: "nutrition",
@@ -222,6 +240,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
       { tier: "CMO", text: "Crew Medical Officer: review intake against the menu plan." },
     ],
     sources: [SOURCES.riskNutrition],
+    hazards: ["distance", "gravity"],
   },
   fitness: {
     id: "fitness",
@@ -238,6 +257,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
       { tier: "CMO", text: "Crew Medical Officer: check for injury or schedule conflicts blocking exercise." },
     ],
     sources: [SOURCES.riskFitness],
+    hazards: ["gravity"],
   },
   "behavioral-drift": {
     id: "behavioral-drift",
@@ -255,22 +275,24 @@ export const RULES: Record<RuleId, EscalationRule> = {
       { tier: "EARTH", text: "Ground behavioral health team: private conference with the crewmember." },
     ],
     sources: [SOURCES.riskSleep, SOURCES.riskBehavioral, SOURCES.basnerPvt, DEMO_PARAMETER],
+    hazards: ["isolation"],
   },
   "radiation-event": {
     id: "radiation-event",
     title: "Solar particle event — shelter now",
     ladder: [
       { severity: "watch", minDays: 0, tier: "SELF" },
-      { severity: "critical", minDays: 0, tier: "SELF" },
+      { severity: "critical", minDays: 0, tier: "CMO" },
     ],
     whyItMatters:
       "Space radiation is one of NASA's five hazards. A solar particle event can deliver many days' worth of dose in hours; heavy shielding greatly reduces what you absorb.",
     steps: [
       { tier: "SELF", text: "Go to the storm shelter (the most shielded area) now and stay until the all-clear." },
       { tier: "SELF", text: "Keep your personal dosimeter on you." },
-      { tier: "CMO", text: "Crew Medical Officer: log each crewmember's dose after the event." },
+      { tier: "CMO", text: "Crew Medical Officer: check each crewmember's dosimeter reading and log the dose." },
     ],
     sources: [SOURCES.hrpHazards, SOURCES.riskRadiationCancer, SOURCES.csaRadiation],
+    hazards: ["radiation"],
   },
   "radiation-cumulative": {
     id: "radiation-cumulative",
@@ -287,6 +309,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
       { tier: "EARTH", text: "Flight surgeon: review remaining-mission dose projection." },
     ],
     sources: [SOURCES.nasaRadiationLimit, SOURCES.riskRadiationCancer],
+    hazards: ["radiation"],
   },
   "bone-loss": {
     id: "bone-loss",
@@ -302,6 +325,7 @@ export const RULES: Record<RuleId, EscalationRule> = {
       { tier: "CMO", text: "Crew Medical Officer: review the exercise log and fix schedule conflicts." },
     ],
     sources: [SOURCES.riskBone, SOURCES.riskFitness, DEMO_PARAMETER],
+    hazards: ["gravity"],
   },
 };
 

@@ -53,3 +53,4 @@ THE_ETHER_BUILD_PROMPT.md*
 /blob-report/
 /playwright/.cache/
 docs/*.local.md
+!.env.example

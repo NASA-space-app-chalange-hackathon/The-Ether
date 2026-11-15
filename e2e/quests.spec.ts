@@ -9,7 +9,8 @@ test("Quests: generated from the engine, XP/streaks from data, crew goal, tick w
   await page.getByLabel("Mission day").fill("99");
   const streak = async () => Number((await page.getByTestId("exercise-streak").innerText()).split(" ")[0]);
   // Readings stream in from IndexedDB after the first render, so poll instead of reading once.
-  await expect.poll(streak).toBeGreaterThan(20);
+  // Day 85 is a shelter day (real DONKI event, no exercise), so the streak runs from day 86.
+  await expect.poll(streak).toBeGreaterThanOrEqual(14);
 
   await page.getByLabel("Mission day").fill("130");
   await expect(page.getByTestId("quest-list")).toContainText("Extra resistance session for bone health");

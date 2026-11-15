@@ -1,11 +1,12 @@
 import { BASELINE_DAYS, buildBaseline, updateBaseline, type DailyValue } from "./baseline";
 import { detectBehavioralDrift, windowMean, type DriftResult, type WindowBadness } from "./composite";
-import { boneTracker, lowAdherenceSince, radiationTracker, type BoneTracker, type RadiationTracker } from "./cumulative";
-import { INDICATOR_RULE, RULES, resolveTier, stepsUpTo, tierRank, type RuleId } from "./escalation";
+import { SPE_ACTIVE_DAYS, boneTracker, lowAdherenceSince, radiationTracker, type BoneTracker, type RadiationTracker } from "./cumulative";
+import { INDICATOR_RULE, LONG_DELAY_SECONDS, RULES, resolveTier, stepsUpTo, tierRank, type RuleId } from "./escalation";
+import { formatChange, formatValue } from "./format";
 import { INDICATORS, INDICATOR_IDS } from "./indicators";
-import { PERSIST_WINDOW, persistenceStatus, statusRank, worstStatus } from "./persistence";
+import { PERSIST_WINDOW, WATCH_Z, persistenceStatus, statusRank, worstStatus } from "./persistence";
 import { checkThreshold, type AbsoluteThreshold } from "./thresholds";
-import type { Alert, AlertEvidence, Baseline, IndicatorId, Reading, Severity, Status } from "./types";
+import type { Alert, AlertEvidence, Baseline, IndicatorId, Reading, Severity, SpaceWeatherEvent, Status } from "./types";
 import { badness, percentChange, robustZ } from "./zscore";
 
 /** A reading older than this (days) no longer represents the current state. */
@@ -35,6 +36,18 @@ export interface IndicatorState {
   /** True while still inside the 14-day learning window. */
   learning: boolean;
   series: SeriesPoint[];
+  /** The last PERSIST_WINDOW days, so the UI can explain a status that today's value alone doesn't show. */
+  recent: RecentWindow;
+}
+
+export interface RecentWindow {
+  /** Mean of the readings in the window (null if none). */
+  mean: number | null;
+  /** Days in the window that were beyond ±2 SD in the worse direction (the persistence rule counts these). */
+  abnormalDays: number;
+  /** Which side of the normal those days fell on. */
+  direction: "above" | "below" | null;
+  window: number;
 }
 
 export interface MemberAssessment {
@@ -44,6 +57,8 @@ export interface MemberAssessment {
   drift: DriftResult & { sinceDay: number | null };
   radiation: RadiationTracker;
   bone: BoneTracker;
+  /** Real NASA DONKI event active on this day (replayed), if any. */
+  spaceWeather: SpaceWeatherEvent | null;
   alerts: Alert[];
   overall: Status;
 }
@@ -51,6 +66,19 @@ export interface MemberAssessment {
 export interface EvaluateOptions {
   /** Radiation dose from previous missions (mSv). */
   priorDose?: number;
+  /** Real solar particle events (NASA DONKI) replayed on mission days; they act as a shelter warning for everyone. */
+  spaceWeather?: readonly SpaceWeatherEvent[];
+  /** One-way light time to Earth on this day (seconds), e.g. from JPL Horizons. */
+  commsDelaySeconds?: number;
+}
+
+/** A replayed solar particle event keeps its shelter guidance active for this many days. Demo parameter. */
+export const SEP_WARNING_DAYS = SPE_ACTIVE_DAYS;
+
+/** The most recent replayed event still active on `day`, if any. */
+export function activeSpaceWeather(events: readonly SpaceWeatherEvent[], day: number): SpaceWeatherEvent | null {
+  const active = events.filter((e) => e.day <= day && day - e.day < SEP_WARNING_DAYS);
+  return active.length ? active.reduce((a, b) => (b.day > a.day ? b : a)) : null;
 }
 
 /**
@@ -110,8 +138,8 @@ export function evaluateIndicator(
     if (zStatus === "ok") runStart = null;
   }
 
-  const recent = latest !== null && latest.day >= uptoDay - THRESHOLD_RECENT_DAYS;
-  const threshold = recent && latest ? checkThreshold(indicator, latest.value) : null;
+  const latestIsRecent = latest !== null && latest.day >= uptoDay - THRESHOLD_RECENT_DAYS;
+  const threshold = latestIsRecent && latest ? checkThreshold(indicator, latest.value) : null;
   const thresholdStart = threshold ? thresholdRunStart(byDay, indicator, threshold, latest!.day) : null;
 
   let status: Status = series.length ? worstStatus([zStatus, threshold?.severity ?? "ok"]) : "unknown";
@@ -121,6 +149,17 @@ export function evaluateIndicator(
     (d): d is number => d !== null,
   );
   const z = latest && baseline && !learning ? robustZ(latest.value, baseline) : null;
+
+  // Explain the persistence window ending today.
+  const inWindow = points.filter((p) => p.day > uptoDay - PERSIST_WINDOW && p.day <= uptoDay);
+  const abnormal = inWindow.filter((p) => p.z !== null && badness(p.z, meta.worseWhen) > WATCH_Z);
+  const zSum = abnormal.reduce((sum, p) => sum + (p.z ?? 0), 0);
+  const recent: RecentWindow = {
+    mean: inWindow.length ? inWindow.reduce((sum, p) => sum + p.value, 0) / inWindow.length : null,
+    abnormalDays: abnormal.length,
+    direction: abnormal.length === 0 ? null : zSum >= 0 ? "above" : "below",
+    window: PERSIST_WINDOW,
+  };
 
   return {
     indicator,
@@ -133,6 +172,7 @@ export function evaluateIndicator(
     threshold,
     learning,
     series: points,
+    recent,
   };
 }
 
@@ -179,9 +219,13 @@ function evidenceFor(state: IndicatorState, uptoDay: number, windowed = false): 
   if (!state.latest) return null;
   const center = state.baseline?.center ?? state.latest.value;
   let value = state.latest.value;
+  let windowDays: number | undefined;
   if (windowed) {
     const recent = state.series.filter((p) => p.day > uptoDay - PERSIST_WINDOW && p.day <= uptoDay);
-    if (recent.length) value = recent.reduce((s, p) => s + p.value, 0) / recent.length;
+    if (recent.length) {
+      value = recent.reduce((s, p) => s + p.value, 0) / recent.length;
+      windowDays = PERSIST_WINDOW;
+    }
   }
   const z = state.baseline ? robustZ(value, state.baseline) : 0;
   return {
@@ -191,19 +235,21 @@ function evidenceFor(state: IndicatorState, uptoDay: number, windowed = false): 
     zScore: z,
     percentChange: percentChange(value, center),
     sinceDay: state.sinceDay ?? state.latest.day,
+    ...(windowDays ? { windowDays } : { valueDay: state.latest.day }),
+    ...(!windowed && !state.threshold && state.recent.direction && state.recent.abnormalDays > 0
+      ? { trend: { abnormalDays: state.recent.abnormalDays, window: state.recent.window, direction: state.recent.direction } }
+      : {}),
   };
 }
 
+/** "Sleep duration 5.4 h vs. your normal 7.0 h (−23%)" / "Attention lapses 3.0 vs. your normal 0.4". */
 function describe(e: AlertEvidence): string {
   const meta = INDICATORS[e.indicator];
-  const label = meta.label;
-  if (meta.changeAs === "absolute") {
-    const fmt = (v: number) => v.toFixed(v < 10 && Math.abs(v - Math.round(v)) > 0.05 ? 1 : 0);
-    return `${label} ${fmt(e.value)} vs. your normal ${fmt(e.baseline)}`;
-  }
-  const pct = Math.round(e.percentChange);
-  const sign = pct > 0 ? "+" : pct < 0 ? "−" : "±";
-  return `${label} ${sign}${Math.abs(pct)}% vs. your normal`;
+  const unit = meta.unit && meta.unit !== "/5" ? ` ${meta.unit}` : "";
+  const base = `${meta.label} ${formatValue(e.indicator, e.value)}${unit} vs. your normal ${formatValue(e.indicator, e.baseline)}${unit}`;
+  const change = formatChange(e);
+  const text = change.percent ? `${base} (${change.percent})` : base;
+  return e.trend ? `${text}, ${e.trend.direction} your normal on ${e.trend.abnormalDays} of the last ${e.trend.window} days` : text;
 }
 
 function makeAlert(
@@ -214,10 +260,15 @@ function makeAlert(
   uptoDay: number,
   evidence: AlertEvidence[],
   whatChanged: string,
+  commsDelaySeconds?: number,
 ): Alert {
   const rule = RULES[ruleId];
   const durationDays = uptoDay - sinceDay + 1;
   const tier = resolveTier(rule, severity, durationDays);
+  // Earth is needed but can't answer quickly → the Crew Medical Officer acts first.
+  const delayed = tier === "EARTH" && commsDelaySeconds !== undefined && commsDelaySeconds >= LONG_DELAY_SECONDS;
+  const hazards = [...rule.hazards];
+  if (delayed && !hazards.includes("distance")) hazards.push("distance");
   return {
     id: `${memberId}:${ruleId}`,
     memberId,
@@ -232,7 +283,17 @@ function makeAlert(
     doNow: stepsUpTo(rule, tier),
     sources: [...rule.sources],
     evidence,
+    hazards,
+    ...(delayed ? { firstResponder: "CMO" as const } : {}),
+    ...(commsDelaySeconds !== undefined ? { commsDelaySeconds } : {}),
   };
+}
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+/** "2024-06-08" → "8 Jun 2024" (fixed English; the engine has no locale). */
+export function formatIsoDate(iso: string): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  return `${d} ${MONTHS[m - 1]} ${y}`;
 }
 
 const daysPhrase = (since: number, upto: number) => {
@@ -269,7 +330,14 @@ export function evaluateMember(
     while (driftSince > BASELINE_DAYS && driftOn(indicators, driftSince - 1).severity) driftSince -= 1;
   }
 
-  const radiation = radiationTracker(toDailySeries(mine, "radiationDose", uptoDay), uptoDay, options.priorDose ?? 0);
+  const delay = options.commsDelaySeconds;
+  const sep = activeSpaceWeather(options.spaceWeather ?? [], uptoDay);
+  const measured = radiationTracker(toDailySeries(mine, "radiationDose", uptoDay), uptoDay, options.priorDose ?? 0);
+  // A real solar particle event is a shelter warning even before the dosimeter shows it.
+  const radiation: RadiationTracker =
+    sep && !measured.eventActive && measured.status !== "unknown"
+      ? { ...measured, eventActive: true, eventSinceDay: sep.day, status: "critical" }
+      : measured;
   const exercise = toDailySeries(mine, "exerciseMinutes", uptoDay);
   const bone = boneTracker(exercise, uptoDay);
   const lowExerciseSince = lowAdherenceSince(exercise, uptoDay);
@@ -296,7 +364,7 @@ export function evaluateMember(
     const evidence = states.map((s) => evidenceFor(s, uptoDay)).filter((e): e is AlertEvidence => e !== null);
     const thresholdNotes = states.flatMap((s) => (s.threshold ? [s.threshold.label] : []));
     const what = [evidence.map(describe).join("; ") + ` ${daysPhrase(since, uptoDay)}.`, ...thresholdNotes].join(" ");
-    alerts.push(makeAlert(memberId, ruleId, severity, since, uptoDay, evidence, what));
+    alerts.push(makeAlert(memberId, ruleId, severity, since, uptoDay, evidence, what, delay));
   }
 
   if (drift.severity && driftSince !== null) {
@@ -307,40 +375,56 @@ export function evaluateMember(
       .map((e) => ({ ...e, sinceDay: driftSince }));
     const objective = evidence.filter((e) => e.indicator !== "mood" && e.indicator !== "crewPulse");
     const what =
-      `${objective.map(describe).join("; ")} ${daysPhrase(driftSince, uptoDay)}, ` +
+      `${PERSIST_WINDOW}-day averages: ${objective.map(describe).join("; ")} — ${daysPhrase(driftSince, uptoDay)}, ` +
       `while self-reported mood stayed at your normal → possible hidden fatigue.`;
-    alerts.push(makeAlert(memberId, "behavioral-drift", drift.severity, driftSince, uptoDay, evidence, what));
+    alerts.push(makeAlert(memberId, "behavioral-drift", drift.severity, driftSince, uptoDay, evidence, what, delay));
   }
 
   if (radiation.eventActive && radiation.eventSinceDay !== null) {
     const today = radiation.todayDose ?? 0;
     const usual = radiation.usualDailyDose ?? 0;
-    const evidence: AlertEvidence[] = [
-      {
-        indicator: "radiationDose",
-        value: today,
-        baseline: usual,
-        zScore: 0,
-        percentChange: percentChange(today, usual),
-        sinceDay: radiation.eventSinceDay,
-      },
-    ];
-    const what = `Dose rate spiked to ${today.toFixed(2)} mSv/day (usual ${usual.toFixed(2)}) since day ${radiation.eventSinceDay}.`;
-    alerts.push(makeAlert(memberId, "radiation-event", "critical", radiation.eventSinceDay, uptoDay, evidence, what));
+    const since = Math.min(radiation.eventSinceDay, measured.eventSinceDay ?? Infinity, sep?.day ?? Infinity);
+    const evidence: AlertEvidence[] = radiation.todayDose === null
+      ? []
+      : [{ indicator: "radiationDose", value: today, baseline: usual, zScore: 0, percentChange: percentChange(today, usual), sinceDay: since, valueDay: uptoDay }];
+    const parts: string[] = [];
+    if (sep) {
+      parts.push(
+        `NASA DONKI recorded a real solar particle event on ${formatIsoDate(sep.realDate)} (seen near Earth by GOES${sep.highEnergy ? ", protons above 100 MeV" : ""}), replayed on mission day ${sep.day}.`,
+      );
+    }
+    parts.push(
+      measured.eventActive
+        ? `Dosimeter: dose rate spiked to ${today.toFixed(2)} mSv/day (usual ${usual.toFixed(2)}) since day ${measured.eventSinceDay}.`
+        : `Dosimeter: no spike yet (today ${today.toFixed(2)} mSv, usual ${usual.toFixed(2)}) — shelter anyway until the Crew Medical Officer confirms the dose.`,
+    );
+    const alert = makeAlert(memberId, "radiation-event", "critical", since, uptoDay, evidence, parts.join(" "), delay);
+    if (sep) {
+      alert.realData = [{ source: "DONKI", realDate: sep.realDate, ...(sep.url ? { url: sep.url } : {}) }];
+      alert.sources = [
+        {
+          id: `donki-${sep.realDate}`,
+          title: `NASA DONKI — Solar energetic particle event, ${formatIsoDate(sep.realDate)} (real data)`,
+          ...(sep.url ? { url: sep.url } : {}),
+        },
+        ...alert.sources,
+      ];
+    }
+    alerts.push(alert);
   }
   if (radiation.fractionOfLimit >= 0.5) {
     const severity: Severity = radiation.fractionOfLimit >= 0.8 ? "critical" : "watch";
     const what = `Career dose ${radiation.totalDose.toFixed(0)} mSv = ${(radiation.fractionOfLimit * 100).toFixed(0)}% of the 600 mSv limit.`;
-    alerts.push(makeAlert(memberId, "radiation-cumulative", severity, uptoDay, uptoDay, [], what));
+    alerts.push(makeAlert(memberId, "radiation-cumulative", severity, uptoDay, uptoDay, [], what, delay));
   }
   if (lowExerciseSince !== null && bone.adherence !== null) {
     const what = `Exercise target met ${Math.round(bone.adherence * 100)}% over the last 14 days ${daysPhrase(lowExerciseSince, uptoDay)}.`;
-    alerts.push(makeAlert(memberId, "fitness", "watch", lowExerciseSince, uptoDay, [], what));
+    alerts.push(makeAlert(memberId, "fitness", "watch", lowExerciseSince, uptoDay, [], what, delay));
   }
   if ((bone.status === "watch" || bone.status === "critical") && bone.sinceDay !== null) {
     const pct = bone.adherence === null ? "—" : `${Math.round(bone.adherence * 100)}%`;
     const what = `Bone-loss risk score ${bone.score.toFixed(0)}/100; exercise target met ${pct} over the last 14 days.`;
-    alerts.push(makeAlert(memberId, "bone-loss", bone.status, bone.sinceDay, uptoDay, [], what));
+    alerts.push(makeAlert(memberId, "bone-loss", bone.status, bone.sinceDay, uptoDay, [], what, delay));
   }
 
   alerts.sort(
@@ -362,6 +446,7 @@ export function evaluateMember(
     drift: { ...drift, sinceDay: driftSince },
     radiation,
     bone,
+    spaceWeather: sep,
     alerts,
     overall,
   };

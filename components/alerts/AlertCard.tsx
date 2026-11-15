@@ -1,11 +1,19 @@
 "use client";
 
+import { Stethoscope } from "lucide-react";
 import type { ReactNode } from "react";
 import { StatusBadge, TierBadge } from "@/components/ui/Badges";
+import { HazardTags } from "@/components/ui/HazardTags";
+import { RealDataBadge } from "@/components/ui/RealDataBadge";
 import { SourceList } from "@/components/ui/SourceList";
 import { STATUS_STYLE } from "@/components/ui/status";
+import { formatChange, formatValue } from "@/lib/engine/format";
 import { INDICATORS } from "@/lib/engine/indicators";
-import type { Alert } from "@/lib/engine/types";
+import { formatDelay } from "@/lib/engine/signal";
+import type { Alert, AlertEvidence } from "@/lib/engine/types";
+import type { MessageKey } from "@/lib/i18n";
+import { NASA_LINKS } from "@/lib/nasa/config";
+import { useNasa, useSignalDelay } from "@/lib/state/NasaProvider";
 import { useChecklist } from "@/lib/state/checklist";
 import { useT } from "@/lib/state/useAppState";
 import { useLabels } from "@/lib/state/useLabels";
@@ -26,38 +34,80 @@ function Block({ n, title, children }: { n: number; title: string; children: Rea
   );
 }
 
+/** Unit after a value; 1–5 scales read as "4.2" (the /5 is in the indicator's name and column). */
+const unitOf = (e: AlertEvidence) => {
+  const u = INDICATORS[e.indicator].unit;
+  return u === "/5" ? "" : u;
+};
+
 function Evidence({ alert }: { alert: Alert }) {
   const t = useT();
   const labels = useLabels();
   if (alert.evidence.length === 0) return null;
+  const windowDays = alert.evidence.find((e) => e.windowDays)?.windowDays;
+  const valueDay = alert.evidence.find((e) => e.valueDay !== undefined)?.valueDay ?? alert.day;
   return (
-    <div className="overflow-x-auto rounded-lg border border-line">
-      <table className="w-full text-left text-sm" aria-label={t("alerts.evidence")}>
-        <thead className="bg-panel-2/60 text-xs text-muted">
-          <tr>
-            <th className="px-3 py-1.5 font-normal">{t("alerts.colIndicator")}</th>
-            <th className="px-3 py-1.5 text-right font-normal">{t("alerts.colValue")}</th>
-            <th className="px-3 py-1.5 text-right font-normal">{t("alerts.colNormal")}</th>
-            <th className="px-3 py-1.5 text-right font-normal">{t("alerts.colChange")}</th>
-          </tr>
-        </thead>
-        <tbody className="font-mono text-[13px]">
-          {alert.evidence.map((e) => {
-            const m = INDICATORS[e.indicator];
-            const change = m.changeAs === "absolute" ? (e.value - e.baseline).toFixed(1) : `${e.percentChange > 0 ? "+" : ""}${e.percentChange.toFixed(0)}%`;
-            return (
-              <tr key={e.indicator} className="border-t border-line">
-                <td className="px-3 py-1.5 font-sans">{labels.indicator(e.indicator)}</td>
-                <td className="whitespace-nowrap px-3 py-1.5 text-right">
-                  {e.value.toFixed(m.decimals)} <span className="text-muted">{m.unit}</span>
-                </td>
-                <td className="px-3 py-1.5 text-right text-muted">{e.baseline.toFixed(m.decimals)}</td>
-                <td className="px-3 py-1.5 text-right">{change}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <div className="space-y-1.5">
+      <div className="overflow-x-auto rounded-lg border border-line">
+        <table className="w-full text-left text-sm" aria-label={t("alerts.evidence")}>
+          <thead className="bg-panel-2/60 text-xs text-muted">
+            <tr>
+              <th className="px-3 py-1.5 font-normal">{t("alerts.colIndicator")}</th>
+              <th className="px-3 py-1.5 text-right font-normal">{windowDays ? t("alerts.colAvg", { n: windowDays }) : t("alerts.colValue")}</th>
+              <th className="px-3 py-1.5 text-right font-normal">{t("alerts.colNormal")}</th>
+              <th className="px-3 py-1.5 text-right font-normal">{t("alerts.colChange")}</th>
+            </tr>
+          </thead>
+          <tbody className="font-mono text-[13px]">
+            {alert.evidence.map((e) => {
+              const unit = unitOf(e);
+              const change = formatChange(e);
+              return (
+                <tr key={e.indicator} className="border-t border-line">
+                  <td className="px-3 py-1.5 font-sans">{labels.indicator(e.indicator)}</td>
+                  <td className="whitespace-nowrap px-3 py-1.5 text-right">
+                    {formatValue(e.indicator, e.value)} <span className="text-muted">{unit}</span>
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-1.5 text-right text-muted">
+                    {formatValue(e.indicator, e.baseline)} {unit}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-1.5 text-right">
+                    {change.absolute} <span className="text-muted">{change.unit}</span>
+                    {change.percent && <span className="text-muted"> ({change.percent})</span>}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p className="text-xs text-muted" data-testid="evidence-note">
+        {windowDays
+          ? t("alerts.evidenceWindow", { n: windowDays, from: Math.max(0, alert.day - windowDays + 1), to: alert.day })
+          : t("alerts.evidenceLatest", { day: valueDay })}
+      </p>
+    </div>
+  );
+}
+
+/** Earth is needed, but the light delay is long: say who acts first, with the real number. */
+function FirstResponder({ alert }: { alert: Alert }) {
+  const t = useT();
+  const { lightTime } = useNasa();
+  const source = useSignalDelay(alert.day).source;
+  if (alert.firstResponder !== "CMO" || alert.commsDelaySeconds === undefined) return null;
+  return (
+    <div className="space-y-1.5 rounded-lg border border-amber/25 bg-amber/5 px-3 py-2.5" data-testid="first-responder">
+      <p className="flex items-start gap-2 text-sm text-amber">
+        <Stethoscope size={14} strokeWidth={2} className="mt-0.5 shrink-0" />
+        <span>
+          {t("alerts.cmoFirst", { delay: formatDelay(alert.commsDelaySeconds), round: formatDelay(alert.commsDelaySeconds * 2) })}
+        </span>
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <RealDataBadge source="JPL Horizons" href={NASA_LINKS.horizons} status={lightTime.status} />
+        <span className="text-xs text-muted">({t(`signal.src.${source}` as MessageKey)})</span>
+      </div>
     </div>
   );
 }
@@ -83,11 +133,15 @@ export function AlertCard({ alert, memberName }: { alert: Alert; memberName: str
         <span className="ml-auto">
           <TierBadge tier={alert.tier} />
         </span>
+        <HazardTags ids={alert.hazards} className="w-full" />
       </header>
 
       <div className="grid gap-x-8 gap-y-6 lg:grid-cols-2">
         <Block n={1} title={t("alerts.whatChanged")}>
           <p className="text-sm leading-relaxed">{alert.whatChanged}</p>
+          {alert.realData?.map((r) => (
+            <RealDataBadge key={r.source} source={r.source === "DONKI" ? "NASA DONKI" : "JPL Horizons"} href={r.url} />
+          ))}
           <p className="font-mono text-xs text-muted">{t("alerts.since", { day: alert.sinceDay, days })}</p>
           <Evidence alert={alert} />
         </Block>
@@ -121,6 +175,7 @@ export function AlertCard({ alert, memberName }: { alert: Alert; memberName: str
         </Block>
         <Block n={4} title={t("alerts.who")}>
           <TierLadder tier={alert.tier} />
+          <FirstResponder alert={alert} />
           <h5 className="eyebrow pt-3">{t("alerts.sources")}</h5>
           <SourceList sources={alert.sources} />
         </Block>

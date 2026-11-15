@@ -2,6 +2,7 @@
 
 import { Hospital, Phone, Signal } from "lucide-react";
 import Link from "next/link";
+import { WeatherToday } from "@/components/charts/WeatherChart";
 import { STEPPE_RISK_ICON } from "@/components/ui/icons";
 import { STEPPE_CARE, STEPPE_RISKS } from "@/content/steppe";
 import { useAppState, useT } from "@/lib/state/useAppState";
@@ -12,7 +13,8 @@ export function SteppeCareCard() {
   const { locale } = useAppState();
   return (
     <div className="space-y-4" data-testid="steppe-care">
-      <div className="space-y-1">
+      <WeatherToday />
+      <div className="space-y-1 border-t border-line pt-4">
         <p className="eyebrow flex items-center gap-1.5">
           <Hospital size={12} strokeWidth={2} />
           {t("steppe.care")}

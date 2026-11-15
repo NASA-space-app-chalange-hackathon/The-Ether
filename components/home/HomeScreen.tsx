@@ -5,14 +5,17 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { AlertSummary } from "@/components/alerts/AlertSummary";
 import { PageHeader, Panel } from "@/components/ui/PageHeader";
+import { RealDataBadge } from "@/components/ui/RealDataBadge";
 import { StatusRing } from "@/components/ui/StatusRing";
 import { dayToTimestamp } from "@/lib/data/dataset";
 import { dailyQuests } from "@/lib/engine/quests";
 import { allRegionStatuses } from "@/lib/engine/regions";
-import { formatDelay, signalDelay } from "@/lib/engine/signal";
+import { formatDelay } from "@/lib/engine/signal";
 import type { MessageKey } from "@/lib/i18n";
 import { formatDate } from "@/lib/i18n/date";
+import { NASA_LINKS } from "@/lib/nasa/config";
 import { useAssessment, useMission } from "@/lib/state/DataProvider";
+import { useNasa, useSignalDelay } from "@/lib/state/NasaProvider";
 import { useAppState, useT } from "@/lib/state/useAppState";
 import { useLabels } from "@/lib/state/useLabels";
 import { CrewSwitcher } from "./CrewSwitcher";
@@ -41,11 +44,13 @@ function Stat({ label, children, className = "" }: { label: ReactNode; children:
 export function HomeScreen() {
   const t = useT();
   const labels = useLabels();
-  const { mode, day, environment, locale } = useAppState();
+  const { mode, day, locale } = useAppState();
   const { dataset, members, maxDay } = useMission();
   const a = useAssessment();
   const { memberId } = useAppState();
   const member = members.find((m) => m.id === memberId);
+  const delay = useSignalDelay(Math.min(day, maxDay));
+  const { lightTime } = useNasa();
 
   const heading = (
     <PageHeader title={t("nav.home")}>
@@ -56,7 +61,6 @@ export function HomeScreen() {
 
   const current = Math.min(day, maxDay);
   const date = formatDate(dayToTimestamp(dataset.startDate, current), locale);
-  const delay = signalDelay(environment, current);
   const quests = dailyQuests(a, mode);
   const learning = current < 14;
 
@@ -88,11 +92,18 @@ export function HomeScreen() {
                 label={
                   <>
                     <RadioTower size={12} strokeWidth={2} />
-                    {t("signal.label")} ({t("signal.approx")})
+                    {t("signal.label")} ({t(`signal.src.${delay.source}` as MessageKey)})
                   </>
                 }
               >
-                <span className="font-mono text-2xl font-medium tracking-tight text-accent">{formatDelay(delay.oneWaySeconds)}</span>
+                <span className="font-mono text-2xl font-medium tracking-tight text-accent" data-testid="home-signal-delay">
+                  {formatDelay(delay.oneWaySeconds)}
+                </span>
+                {(delay.source === "horizons" || delay.source === "interpolated") && (
+                  <div className="mt-1.5">
+                    <RealDataBadge source="JPL Horizons" href={NASA_LINKS.horizons} status={lightTime.status} />
+                  </div>
+                )}
               </Stat>
             )}
           </dl>
@@ -102,7 +113,7 @@ export function HomeScreen() {
               <EnvironmentSelector />
             </div>
           )}
-          <div className="mt-5 border-t border-line pt-5">{mode === "space" ? <RadiationMeter radiation={a.radiation} /> : <SteppeCareCard />}</div>
+          <div className="mt-5 border-t border-line pt-5">{mode === "space" ? <RadiationMeter radiation={a.radiation} spaceWeather={a.spaceWeather} /> : <SteppeCareCard />}</div>
         </Panel>
       </div>
 

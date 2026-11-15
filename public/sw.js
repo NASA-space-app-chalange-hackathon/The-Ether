@@ -1,14 +1,16 @@
 /* The Ether — hand-written service worker (no next-pwa).
  * - install: precache every route, the seed data, and the hashed /_next/static assets those pages reference
  * - /_next/static/*: cache-first (content-hashed, immutable)
- * - pages, data, icons: stale-while-revalidate (instant offline, fresh when online)
+ * - pages, data, icons, /api/nasa/*: stale-while-revalidate (instant offline, fresh when online)
  * - RSC fetches (client-side navigation): network only; offline, Next falls back to a full page load,
  *   which is served from the cache.
  */
-const VERSION = "ether-v2"; // bump when the UI changes so returning visitors drop the old cached pages
+const VERSION = "ether-v3"; // bump when the UI changes so returning visitors drop the old cached pages
 const CACHE = `${VERSION}-cache`;
 const ROUTES = ["/", "/body", "/check", "/alerts", "/trends", "/quests", "/crew", "/learn"];
 const ASSETS = ["/data/mission.json", "/data/steppe.json", "/manifest.webmanifest", "/icon.svg", "/icons/icon-192.png", "/icons/icon-512.png"];
+// Real NASA data (our server routes). Offline, the last answer is served; the app also ships a snapshot.
+const NASA = ["/api/nasa/space-weather", "/api/nasa/light-time", "/api/nasa/weather"];
 
 async function precache() {
   const cache = await caches.open(CACHE);
@@ -25,7 +27,7 @@ async function precache() {
     }
   }
   await Promise.all(
-    [...ASSETS, ...statics].map((url) =>
+    [...ASSETS, ...NASA, ...statics].map((url) =>
       fetch(url, { cache: "reload" })
         .then((res) => (res.ok ? cache.put(url, res) : undefined))
         .catch(() => undefined),

@@ -94,8 +94,16 @@ interface Profile {
 
 /** Cruise GCR dose-equivalent rate, ≈1.8 mSv/day (MSL RAD; see docs/DATA.md). */
 const CRUISE_DOSE_MSV = 1.8;
-/** Story event days. */
+/**
+ * Mission days of the real solar particle events replayed from NASA DONKI (GOES-detected,
+ * 29 Apr → 25 Oct 2024; see lib/nasa/config.ts). A unit test keeps this list in sync with
+ * the committed DONKI snapshot. Timing is real; the dose added on those days is simulated.
+ */
+export const REPLAY_SEP_DAYS: readonly number[] = [11, 14, 40, 85, 133, 141, 163];
+/** The story's big event (real: 8 Jun 2024, GOES > 100 MeV): +22 mSv, then +6 mSv the next day. Demo magnitude. */
 export const SPE_DAY = 40;
+/** Extra dose on the other replayed event days. Demo magnitude (> 3× the cruise rate, so the dosimeter rule sees it). */
+const MINOR_SPE_DOSE_MSV = 5;
 export const DRIFT_START = 60;
 export const DRIFT_END = 75;
 export const CARDIO_START = 80;
@@ -146,7 +154,6 @@ const CREW: readonly (DatasetMember & { profile: Profile })[] = [
 
 const MISSION_EVENTS: readonly MissionEvent[] = [
   { day: 0, kind: "launch", icon: "🚀", label: "Trans-Mars injection — learning each crewmember's normal" },
-  { day: SPE_DAY, kind: "solar", icon: "☀️", label: "Solar particle event — crew shelters" },
   { day: 70, kind: "drift", icon: "🧠", label: "ORION-B: hidden fatigue detected" },
   { day: 95, kind: "cardio", icon: "🫀", label: "ORION-C: cardiovascular trend escalated" },
   { day: 156, kind: "bone", icon: "🦴", label: "ORION-D: missed exercise adds up" },
@@ -172,7 +179,7 @@ function generateMember(member: (typeof CREW)[number], days: number, seed: numbe
     const drift = isB ? episode(d, DRIFT_START, DRIFT_END, 3) : 0;
     const cardio = isC ? ramp(d, CARDIO_START, CARDIO_FULL) * (1 - ramp(d, 120, 145)) : 0;
     const skipping = isD && d >= EXERCISE_SKIP_START;
-    const shelter = d === SPE_DAY || d === SPE_DAY + 1;
+    const shelter = REPLAY_SEP_DAYS.includes(d) || d === SPE_DAY + 1;
 
     s.heartRate.push(round(r.normal(p.heartRate + 13 * cardio, 2)));
     s.hrv.push(round(r.normal(p.hrv - 12 * cardio, 4)));
@@ -193,12 +200,16 @@ function generateMember(member: (typeof CREW)[number], days: number, seed: numbe
     s.pvtMeanRT.push(round(r.normal(p.pvtMeanRT * (1 + 0.18 * drift), 15)));
     s.pvtLapses.push(r.poisson(p.pvtLapses + 2.5 * drift));
 
-    const exercise = skipping
+    const storyShelter = d === SPE_DAY || d === SPE_DAY + 1;
+    const planned = skipping
       ? r.chance(0.85) ? clamp(r.normal(5, 6), 0, 30) : r.normal(100, 15)
-      : shelter ? 0 : r.normal(p.exerciseMinutes, 12);
+      : storyShelter ? 0 : r.normal(p.exerciseMinutes, 12);
+    // Shelter days log no exercise; the random draw above still happens so later days stay unchanged.
+    const exercise = shelter ? 0 : planned;
     s.exerciseMinutes.push(round(clamp(exercise, 0, 180)));
 
-    const dose = CRUISE_DOSE_MSV + r.normal(0, 0.06) + (d === SPE_DAY ? 22 : d === SPE_DAY + 1 ? 6 : 0);
+    const extra = d === SPE_DAY ? 22 : d === SPE_DAY + 1 ? 6 : REPLAY_SEP_DAYS.includes(d) ? MINOR_SPE_DOSE_MSV : 0;
+    const dose = CRUISE_DOSE_MSV + r.normal(0, 0.06) + extra;
     s.radiationDose.push(round(dose, 2));
   }
   return s;

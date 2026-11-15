@@ -13,7 +13,7 @@ test("offline: after one online visit, the app loads and works with the network 
     }
   });
   await expect
-    .poll(() => page.evaluate(async () => (await (await caches.open("ether-v2-cache")).keys()).length), { timeout: 20_000 })
+    .poll(() => page.evaluate(async () => (await (await caches.open("ether-v3-cache")).keys()).length), { timeout: 20_000 })
     .toBeGreaterThan(20);
 
   const problems = watchForProblems(page);
@@ -28,6 +28,9 @@ test("offline: after one online visit, the app loads and works with the network 
     await page.goto(path);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(heading);
   }
+  // Real NASA data still shows offline (cached route answers + the bundled snapshot).
+  await expect(page.getByTestId("donki-list").locator("tbody tr")).toHaveCount(7);
+  await expect(page.getByTestId("signal-delay")).toContainText("JPL Horizons");
   await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Trends" }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Trends");
   await context.setOffline(false);

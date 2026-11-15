@@ -28,7 +28,7 @@ describe("dailyQuests", () => {
 function fakeAlert(ruleId: string) {
   return {
     id: `A:${ruleId}`, memberId: "A", ruleId, title: "", severity: "watch" as const, tier: "SELF" as const,
-    day: 29, sinceDay: 29, whatChanged: "", whyItMatters: "", doNow: [], sources: [], evidence: [],
+    day: 29, sinceDay: 29, whatChanged: "", whyItMatters: "", doNow: [], sources: [], hazards: [], evidence: [],
   };
 }
 

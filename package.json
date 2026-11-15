@@ -11,6 +11,7 @@
     "test": "vitest run",
     "e2e": "playwright test",
     "generate": "node scripts/generate-mission.mts",
+    "nasa:snapshot": "node scripts/nasa-snapshot.mts",
     "gates": "npm run typecheck && npm run lint && npm run test && npm run build && npm run e2e"
   },
   "dependencies": {

@@ -2,7 +2,7 @@ import type { Source } from "./types";
 
 /**
  * Citation registry. Every URL here was fetched or confirmed via search on
- * 2026-11-14; `note` records what the source supports. Anything we could not
+ * 2026-11-14 and re-checked on 2026-11-15; `note` records what the source supports. Anything we could not
  * source uses DEMO_PARAMETER instead — never an invented citation.
  */
 export const DEMO_PARAMETER: Source = {
@@ -71,8 +71,8 @@ export const SOURCES = {
   },
   accAha2017: {
     id: "accAha2017",
-    title: "2017 ACC/AHA High Blood Pressure Guideline (ACC summary)",
-    url: "https://acc.org/Latest-in-Cardiology/Articles/2017/11/08/11/47/mon-5pm-bp-guideline-aha-2017",
+    title: "Whelton PK et al. 2017 ACC/AHA High Blood Pressure Guideline. Hypertension 2018;71(6):e13–e115",
+    url: "https://pubmed.ncbi.nlm.nih.gov/29133356/",
     note: "Stage 2 hypertension: SBP ≥140 or DBP ≥90 mmHg; crisis: SBP >180 and/or DBP >120.",
   },
   adaHypoglycemia: {
@@ -108,7 +108,7 @@ export const SOURCES = {
   riskFitness: hrpRisk("riskFitness", "Risk of Reduced Cardiorespiratory and Musculoskeletal Fitness", "risk-of-reduced-cardiorespiratory-and-musculoskeletal-fitness"),
   riskSans: hrpRisk("riskSans", "Risk of Spaceflight Associated Neuro-ocular Syndrome (SANS)", "risk-of-spaceflight-associated-neuro-ocular-syndrome-sans"),
   riskBone: hrpRisk("riskBone", "Risk of Spaceflight-Induced Bone Changes", "risk-of-spaceflight-induced-bone-changes"),
-  riskBehavioral: hrpRisk("riskBehavioral", "Risk of Behavioral Changes and Psychiatric Disorders", "risk-of-behavioral-conditions-and-psychiatric-disorders"),
+  riskBehavioral: hrpRisk("riskBehavioral", "Risk of Behavioral Conditions and Psychiatric Disorders", "risk-of-behavioral-conditions-and-psychiatric-disorders"),
   riskTeamwork: hrpRisk("riskTeamwork", "Risk of Inadequate Teamwork", "risk-of-inadequate-teamwork"),
   riskSleep: hrpRisk("riskSleep", "Risk of Inadequate Sleep and Irregular Schedules", "risk-from-inadequate-sleep-and-irregular-schedules"),
   riskRadiationCancer: hrpRisk("riskRadiationCancer", "Risk of Radiation-Induced Cancers", "risk-of-radiation-induced-cancers"),

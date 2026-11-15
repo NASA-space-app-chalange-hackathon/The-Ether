@@ -4,14 +4,30 @@ import { Check } from "lucide-react";
 import { useState } from "react";
 import { CrewSwitcher } from "@/components/home/CrewSwitcher";
 import { StatusBadge } from "@/components/ui/Badges";
+import { HazardTags } from "@/components/ui/HazardTags";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Segmented } from "@/components/ui/Segmented";
+import type { IndicatorState } from "@/lib/engine/evaluate";
+import { formatValue } from "@/lib/engine/format";
+import { INDICATOR_HAZARDS } from "@/lib/engine/hazards";
 import { INDICATORS, INDICATOR_IDS } from "@/lib/engine/indicators";
 import type { IndicatorId } from "@/lib/engine/types";
+import type { TFunction } from "@/lib/state/useAppState";
 import { useAssessment, useMission } from "@/lib/state/DataProvider";
 import { useAppState, useT } from "@/lib/state/useAppState";
 import { useLabels } from "@/lib/state/useLabels";
 import { TrendChart } from "./TrendChart";
+import { WeatherPanel } from "./WeatherChart";
+
+/** Why an indicator is Watch/Critical when today's value alone may look normal. */
+function statusReason(st: IndicatorState, t: TFunction): string | null {
+  if (st.status !== "watch" && st.status !== "critical") return null;
+  if (st.threshold) return t("trends.reasonThreshold");
+  if (st.indicator === "exerciseMinutes") return t("trends.reasonAdherence");
+  const { abnormalDays, direction, window } = st.recent;
+  if (abnormalDays === 0 || direction === null) return null;
+  return t(direction === "above" ? "trends.reasonAbove" : "trends.reasonBelow", { k: abnormalDays, n: window });
+}
 
 const DEFAULT_SELECTION: IndicatorId[] = ["heartRate", "systolicBP", "sleepHours", "pvtMeanRT"];
 const RANGES = [7, 30, 180] as const;
@@ -20,7 +36,7 @@ type Range = (typeof RANGES)[number];
 export function TrendsScreen() {
   const t = useT();
   const labels = useLabels();
-  const { day } = useAppState();
+  const { day, mode } = useAppState();
   const { events, maxDay } = useMission();
   const a = useAssessment();
   const [selection, setSelection] = useState<IndicatorId[]>(DEFAULT_SELECTION);
@@ -92,13 +108,22 @@ export function TrendsScreen() {
                   <span className="ml-auto">
                     <StatusBadge status={st.status} />
                   </span>
+                  <HazardTags ids={INDICATOR_HAZARDS[id]} className="w-full" />
                 </header>
                 {st.latest && (
-                  <p className="font-mono text-xs text-muted">
-                    {t("trends.latest", {
-                      value: `${st.latest.value.toFixed(meta.decimals)} ${meta.unit}`,
-                      normal: st.baseline && !st.learning ? st.baseline.center.toFixed(meta.decimals) : "—",
+                  <p className="font-mono text-xs text-muted" data-testid={`trend-latest-${id}`}>
+                    {t(st.latest.day === today ? "trends.today" : "trends.lastReading", {
+                      value: `${formatValue(id, st.latest.value)} ${meta.unit}`,
+                      day: st.latest.day,
                     })}
+                    {st.recent.mean !== null && <> · {t("trends.avg", { n: st.recent.window, value: formatValue(id, st.recent.mean) })}</>}
+                    {" · "}
+                    {t("trends.normal", { value: st.baseline && !st.learning ? formatValue(id, st.baseline.center) : "—" })}
+                  </p>
+                )}
+                {statusReason(st, t) && (
+                  <p className={`text-xs ${st.status === "critical" ? "text-red" : "text-amber"}`} data-testid={`trend-reason-${id}`}>
+                    {statusReason(st, t)}
                   </p>
                 )}
                 {inRange ? (
@@ -110,6 +135,7 @@ export function TrendsScreen() {
             );
           })}
       </div>
+      {mode === "steppe" && <WeatherPanel from={from} to={today} />}
     </div>
   );
 }

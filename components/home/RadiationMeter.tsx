@@ -3,13 +3,19 @@
 import { Radiation, Sun } from "lucide-react";
 import { motion } from "motion/react";
 import { CAREER_LIMIT_MSV, type RadiationTracker } from "@/lib/engine/cumulative";
+import type { SpaceWeatherEvent } from "@/lib/engine/types";
+import { formatDate } from "@/lib/i18n/date";
 import { motionTokens } from "@/lib/motion-tokens";
-import { useT } from "@/lib/state/useAppState";
+import { useNasa } from "@/lib/state/NasaProvider";
+import { useAppState, useT } from "@/lib/state/useAppState";
+import { RealDataBadge } from "@/components/ui/RealDataBadge";
 import { StatusBadge } from "@/components/ui/Badges";
 import { STATUS_STYLE } from "@/components/ui/status";
 
-export function RadiationMeter({ radiation }: { radiation: RadiationTracker }) {
+export function RadiationMeter({ radiation, spaceWeather = null }: { radiation: RadiationTracker; spaceWeather?: SpaceWeatherEvent | null }) {
   const t = useT();
+  const { locale } = useAppState();
+  const { spaceWeather: feed } = useNasa();
   const fraction = Math.min(1, radiation.fractionOfLimit);
   const prior = Math.min(1, radiation.priorDose / CAREER_LIMIT_MSV);
   return (
@@ -45,6 +51,15 @@ export function RadiationMeter({ radiation }: { radiation: RadiationTracker }) {
           <Sun size={14} strokeWidth={2} className="shrink-0" />
           {t("radiation.event")}
         </p>
+      )}
+      {spaceWeather && (
+        <div className="space-y-1.5" data-testid="donki-event">
+          <p className="text-sm text-fg/90">
+            {t("radiation.donki", { date: formatDate(spaceWeather.realDate, locale), day: spaceWeather.day })}
+            {spaceWeather.highEnergy && <> {t("radiation.donkiHigh")}</>}
+          </p>
+          <RealDataBadge source="NASA DONKI" href={spaceWeather.url ?? undefined} status={feed.status} />
+        </div>
       )}
     </div>
   );
