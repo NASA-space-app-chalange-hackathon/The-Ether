@@ -2,7 +2,7 @@ import type { MemberAssessment } from "./evaluate";
 import type { RuleId } from "./escalation";
 import type { Reading } from "./types";
 
-export type QuestKind = "checkin" | "exercise" | "resistance" | "sleep" | "hydration" | "crew" | "shelter" | "rest" | "bp";
+export type QuestKind = "checkin" | "exercise" | "resistance" | "sleep" | "hydration" | "crew" | "shelter" | "rest" | "bp" | "warm";
 
 export interface Quest {
   /** Stable per member per day: `${memberId}:${day}:${kind}`. */
@@ -26,6 +26,7 @@ const XP: Record<QuestKind, number> = {
   shelter: 30,
   rest: 15,
   bp: 15,
+  warm: 15,
 };
 
 /**
@@ -47,6 +48,7 @@ export function dailyQuests(a: MemberAssessment, mode: "space" | "steppe" = "spa
   if (has("behavioral-drift") || has("sleep")) quests.push(q("sleep", has("behavioral-drift") ? "behavioral-drift" : "sleep"));
   if (has("vigilance") || has("behavioral-drift")) quests.push(q("rest", has("vigilance") ? "vigilance" : "behavioral-drift"));
   if (has("cardiovascular")) quests.push(q("bp", "cardiovascular"));
+  if (has("cold")) quests.push(q("warm", "cold"));
   if (mode === "space") {
     quests.push(has("bone-loss") || has("fitness") ? q("resistance", has("bone-loss") ? "bone-loss" : "fitness") : q("exercise"));
   }

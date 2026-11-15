@@ -32,6 +32,7 @@ export const INDICATORS: Record<IndicatorId, IndicatorMeta> = {
   pvtMeanRT: { id: "pvtMeanRT", label: "Reaction time (PVT mean)", unit: "ms", worseWhen: "higher", minSpread: 15, decimals: 0 },
   pvtLapses: { id: "pvtLapses", label: "Attention lapses (PVT)", unit: "", worseWhen: "higher", minSpread: 1, decimals: 0, changeAs: "absolute" },
   exerciseMinutes: { id: "exerciseMinutes", label: "Exercise", unit: "min", worseWhen: "lower", minSpread: 10, decimals: 0 },
+  coldExposure: { id: "coldExposure", label: "Time outdoors in deep cold", unit: "h", worseWhen: "higher", minSpread: 0.5, decimals: 1 },
   radiationDose: { id: "radiationDose", label: "Radiation dose (daily)", unit: "mSv", worseWhen: "higher", minSpread: 0.1, decimals: 2 },
 };
 

@@ -29,6 +29,7 @@ export type IndicatorId =
   | "pvtMeanRT"
   | "pvtLapses"
   | "exerciseMinutes"
+  | "coldExposure"
   | "radiationDose";
 
 /** A citation. `demo: true` marks values we could not source. */

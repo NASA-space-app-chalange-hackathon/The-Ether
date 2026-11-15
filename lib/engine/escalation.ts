@@ -15,7 +15,8 @@ export type RuleId =
   | "behavioral-drift"
   | "radiation-event"
   | "radiation-cumulative"
-  | "bone-loss";
+  | "bone-loss"
+  | "cold";
 
 /** A rung of the ladder: at this severity, after this many days, this tier owns it. */
 export interface LadderStep {
@@ -60,6 +61,7 @@ export const INDICATOR_RULE: Record<IndicatorId, RuleId | null> = {
   bodyMass: "nutrition",
   // Exercise alerts come from 14-day adherence (see evaluateMember), not daily z-scores.
   exerciseMinutes: null,
+  coldExposure: "cold",
   radiationDose: null,
 };
 
@@ -302,6 +304,25 @@ export const RULES: Record<RuleId, EscalationRule> = {
       { tier: "CMO", text: "Crew Medical Officer: review the exercise log and fix schedule conflicts." },
     ],
     sources: [SOURCES.riskBone, SOURCES.riskFitness, DEMO_PARAMETER],
+  },
+  // Steppe (Earth) rule: deep-cold exposure. Ladder tops out at the family doctor; the red flags in the steps go further.
+  cold: {
+    id: "cold",
+    title: "Cold exposure rising",
+    ladder: [
+      { severity: "watch", minDays: 0, tier: "SELF" },
+      { severity: "watch", minDays: 4, tier: "CMO" },
+      { severity: "critical", minDays: 0, tier: "CMO" },
+    ],
+    whyItMatters:
+      "Long hours outside in deep cold raise the risk of frostbite and hypothermia and push blood pressure up. Far from a clinic, prevention and early checks matter most.",
+    steps: [
+      { tier: "SELF", text: "Dress in layers, cover face and hands, and take warm-up breaks indoors." },
+      { tier: "SELF", text: "Check fingers, toes, ears and cheeks for numbness or pale, hard skin." },
+      { tier: "CMO", text: "Numbness that doesn't go away after rewarming → call the family doctor." },
+      { tier: "EARTH", text: "Confusion, shivering that stops, or frostbite blisters → soum hospital / 103." },
+    ],
+    sources: [DEMO_PARAMETER],
   },
 };
 

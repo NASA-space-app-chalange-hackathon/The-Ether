@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { CrewSwitcher } from "@/components/home/CrewSwitcher";
 import { STATUS_STYLE } from "@/components/ui/status";
-import { allRegionStatuses, REGION_IDS, type RegionId } from "@/lib/engine/regions";
+import { allRegionStatuses, regionIdsFor, type RegionId } from "@/lib/engine/regions";
 import type { MessageKey } from "@/lib/i18n";
 import { useAssessment } from "@/lib/state/DataProvider";
 import { useAppState, useT } from "@/lib/state/useAppState";
@@ -14,16 +14,19 @@ import { RegionPanel } from "./RegionPanel";
 
 const FRONT_ONLY: readonly RegionId[] = ["eyes", "heart", "gut"];
 
-function isRegion(v: string | null): v is RegionId {
-  return v !== null && (REGION_IDS as readonly string[]).includes(v);
+function isRegion(v: string | null, ids: readonly RegionId[]): v is RegionId {
+  return v !== null && (ids as readonly string[]).includes(v);
 }
 
 export function BodyScreen() {
   const t = useT();
   const { mode } = useAppState();
   const params = useSearchParams();
+  const regionIds = regionIdsFor(mode);
   const initial = params.get("region");
-  const [selected, setSelected] = useState<RegionId | null>(isRegion(initial) ? initial : null);
+  const [chosen, setSelected] = useState<RegionId | null>(isRegion(initial, regionIds) ? initial : null);
+  // A region from the other mode (e.g. eyes after switching to Steppe) is simply not shown.
+  const selected = chosen && regionIds.includes(chosen) ? chosen : null;
   const [side, setSide] = useState<BodySide>("front");
   const [radiation, setRadiation] = useState(initial === "radiation");
   const a = useAssessment();
@@ -65,10 +68,10 @@ export function BodyScreen() {
               </label>}
             </div>
             <div className="mx-auto h-[480px] max-w-xs">
-              <BodyFigure side={side} statuses={statuses} selected={selected} onSelect={select} radiationOverlay={radiation && mode === "space"} />
+              <BodyFigure side={side} regions={regionIds} statuses={statuses} selected={selected} onSelect={select} radiationOverlay={radiation && mode === "space"} />
             </div>
             <ul aria-label={t("body.systems")} className="grid grid-cols-2 gap-1 sm:grid-cols-3">
-              {REGION_IDS.map((id) => {
+              {regionIds.map((id) => {
                 const status = statuses[id];
                 const s = STATUS_STYLE[status];
                 return (
