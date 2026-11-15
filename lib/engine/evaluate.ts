@@ -98,7 +98,7 @@ export function evaluateIndicator(
     const z = robustZ(p.value, baseline);
     points.push({ day: p.day, value: p.value, center: baseline.center, spread: baseline.spread, z });
     badByDay.set(p.day, badness(z, meta.worseWhen));
-    zStatus = persistenceStatus(windowBadness(badByDay, p.day));
+    zStatus = persistenceStatus(windowBadness(badByDay, p.day), { ordinal: meta.ordinal });
     if (zStatus === "ok") runStart = null;
     else if (runStart === null) runStart = firstAbnormalDay(badByDay, p.day);
     baseline = updateBaseline(baseline, p, zStatus !== "ok");
@@ -106,7 +106,7 @@ export function evaluateIndicator(
 
   // Re-evaluate persistence at uptoDay itself (it may have no reading).
   if (baseline !== null && uptoDay >= BASELINE_DAYS) {
-    zStatus = persistenceStatus(windowBadness(badByDay, uptoDay));
+    zStatus = persistenceStatus(windowBadness(badByDay, uptoDay), { ordinal: meta.ordinal });
     if (zStatus === "ok") runStart = null;
   }
 
